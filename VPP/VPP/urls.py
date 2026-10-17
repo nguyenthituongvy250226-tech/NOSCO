@@ -1,15 +1,22 @@
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
+from SANPHAM import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    # Giao diện chung
+    path("", views.base, name="base"),
+    path("home", views.home, name="home"),
+
+    # Module sản phẩm
     path("san-pham/", include("SANPHAM.urls")),
 ]
 
-
+# Phục vụ ảnh tải lên khi chạy ở chế độ phát triển
 if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL,

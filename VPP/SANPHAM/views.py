@@ -49,3 +49,11 @@ def danh_sach_san_pham(request):
         "SANPHAM/giao_dien_thu.html",
         {"danh_sach_san_pham": danh_sach_san_pham}
     )
+
+
+def home(request):
+    return render(request, "home.html")
+
+
+def base(request):
+    return render(request, "base.html")
