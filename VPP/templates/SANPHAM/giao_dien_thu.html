@@ -1,0 +1,254 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tất cả sản phẩm | NOSCO{% endblock %}
+
+{% block content %}
+
+<section class="recommend-section">
+
+    <!-- BANNER NOSCO -->
+    <div class="nosco-banner">
+        <img
+            src="{% static 'images/bannersp.png' %}"
+            alt="NOSCO - Văn phòng phẩm cho mọi hành trình"
+        >
+    </div>
+    <div class="recommend-inner">
+
+        <div class="recommend-heading">
+            <div>
+                <p class="recommend-eyebrow">
+                    ✦ KHÁM PHÁ NOSCO
+                </p>
+
+                <h2>Tất cả sản phẩm</h2>
+
+                <p class="recommend-description">
+                    Tìm những món đồ phù hợp cho học tập,
+                    làm việc và sáng tạo mỗi ngày.
+                </p>
+            </div>
+        </div>
+
+
+
+<div class="product-layout">
+
+    <!-- CỘT BÊN TRÁI: BỘ LỌC -->
+    <aside class="product-sidebar">
+        <form method="get" action="" class="product-filter-form">
+
+            <h3>Bộ lọc sản phẩm</h3>
+
+            <div class="filter-field">
+                <label for="q">Tìm kiếm</label>
+                <input
+                    type="search"
+                    id="q"
+                    name="q"
+                    value="{{ tu_khoa }}"
+                    placeholder="Tên sản phẩm..."
+                >
+            </div>
+
+            <div class="filter-field">
+                <label for="danh_muc">Danh mục</label>
+                <select id="danh_muc" name="danh_muc">
+                    <option value="">Tất cả danh mục</option>
+                    {% for danh_muc in danh_muc_list %}
+                        <option
+                            value="{{ danh_muc.ma_danh_muc }}"
+                            {% if danh_muc_dang_chon == danh_muc.ma_danh_muc %}selected{% endif %}
+                        >
+                            {{ danh_muc.ten_danh_muc }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="thuong_hieu">Thương hiệu</label>
+                <select id="thuong_hieu" name="thuong_hieu">
+                    <option value="">Tất cả thương hiệu</option>
+                    {% for thuong_hieu in thuong_hieu_list %}
+                        <option
+                            value="{{ thuong_hieu.ma_thuong_hieu }}"
+                            {% if thuong_hieu_dang_chon == thuong_hieu.ma_thuong_hieu %}selected{% endif %}
+                        >
+                            {{ thuong_hieu.ten_thuong_hieu }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="gia_tu">Giá từ (đ)</label>
+                <input
+                    type="number"
+                    id="gia_tu"
+                    name="gia_tu"
+                    min="0"
+                    step="any"
+                    value="{{ gia_tu }}"
+                    placeholder="Giá thấp nhất"
+                >
+            </div>
+
+            <div class="filter-field">
+                <label for="gia_den">Giá đến (đ)</label>
+                <input
+                    type="number"
+                    id="gia_den"
+                    name="gia_den"
+                    min="0"
+                    step="any"
+                    value="{{ gia_den }}"
+                    placeholder="Giá cao nhất"
+                >
+            </div>
+
+            <div class="filter-field">
+                <label for="sap_xep">Sắp xếp theo</label>
+                <select id="sap_xep" name="sap_xep">
+                    <option value="ten_a_z" {% if sap_xep == "ten_a_z" %}selected{% endif %}>
+                        Tên A–Z
+                    </option>
+                    <option value="gia_tang" {% if sap_xep == "gia_tang" %}selected{% endif %}>
+                        Giá tăng dần
+                    </option>
+                    <option value="gia_giam" {% if sap_xep == "gia_giam" %}selected{% endif %}>
+                        Giá giảm dần
+                    </option>
+                    <option value="moi_nhat" {% if sap_xep == "moi_nhat" %}selected{% endif %}>
+                        Mới nhất
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Áp dụng bộ lọc
+            </button>
+
+            <a
+                href="{% url 'sanpham:danh_sach_san_pham' %}"
+                class="btn btn-secondary"
+            >
+                Xóa bộ lọc
+            </a>
+
+        </form>
+    </aside>
+
+    <!-- CỘT BÊN PHẢI: DANH SÁCH SẢN PHẨM -->
+    <div class="product-results">
+
+        {% if danh_sach_san_pham %}
+            <div class="recommend-grid">
+
+                {% for item in danh_sach_san_pham %}
+
+<article class="recommend-card">
+    <a
+        class="product-detail-link"
+        href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+    >
+        <div class="product-image">
+            {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
+                <img
+                    src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                    alt="{{ item.san_pham.ten_san_pham }}"
+                    loading="lazy"
+                >
+            {% else %}
+                <img
+                    src="{% static 'images/product-notebook.jpg' %}"
+                    alt="Ảnh sản phẩm đang cập nhật"
+                    loading="lazy"
+                >
+            {% endif %}
+        </div>
+
+        <div class="recommend-product-info">
+            <p class="product-brand">
+                {{ item.san_pham.thuong_hieu.ten_thuong_hieu }}
+            </p>
+
+            <h3>{{ item.san_pham.ten_san_pham }}</h3>
+
+            <div class="product-price">
+                {% if item.gia_thap_nhat != None %}
+                    <strong>{{ item.gia_thap_nhat|floatformat:0 }}đ</strong>
+                {% else %}
+                    <strong>Chưa có giá</strong>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+
+    <div class="product-card-extra">
+        <p class="product-sold">
+            Đã bán: {{ item.san_pham.so_luong_da_ban|default:"0" }}
+        </p>
+
+        <div class="product-rating">
+            <span class="rating-star">★</span>
+            <span>Chưa có đánh giá</span>
+
+            <button
+                type="button"
+                class="favorite-btn"
+                title="Thêm vào yêu thích"
+                aria-label="Thêm vào yêu thích"
+            >
+                ♡
+            </button>
+        </div>
+
+
+<div class="product-buy-actions d-flex gap-2 mt-3">
+    <button
+        type="button"
+        class="btn btn-outline-primary product-add-cart flex-fill"
+        disabled
+        title="Chưa kết nối module giỏ hàng"
+    >
+        <i class="fa-solid fa-cart-shopping me-1"></i>
+        <span>Thêm vào giỏ</span>
+    </button>
+
+    <button
+        type="button"
+        class="btn btn-primary product-buy-now flex-fill"
+        disabled
+        title="Chưa kết nối module đặt hàng"
+    >
+        <span>Mua ngay</span>
+        <i class="fa-solid fa-arrow-right ms-1"></i>
+    </button>
+</div>
+
+    </div>
+</article>
+
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="empty-products">
+                <h3>Không tìm thấy sản phẩm</h3>
+                <p>Hãy thử thay đổi từ khóa hoặc điều kiện lọc.</p>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+
+
+</section>
+
+{% endblock %}

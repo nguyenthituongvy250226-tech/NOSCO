@@ -71,11 +71,38 @@
     <!-- Navigation Bar -->
     <nav class="main-nav">
         <div class="nav-inner">
-            <div class="nav-categories">
-                <i class="fa-solid fa-bars"></i> Danh mục sản phẩm <i class="fa-solid fa-chevron-down toggle-arrow"></i>
-            </div>
+
+<div class="category-menu">
+    <button
+        type="button"
+        class="category-menu-toggle"
+        id="categoryMenuToggle"
+        aria-expanded="false"
+        aria-controls="categoryDropdown"
+    >
+        <span>☰ &nbsp; Danh mục sản phẩm</span>
+        <span class="category-arrow">⌄</span>
+    </button>
+
+    <div class="category-dropdown" id="categoryDropdown">
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}">
+            Tất cả sản phẩm
+        </a>
+
+        {% for danh_muc in danh_muc_menu %}
+            <a href="{% url 'sanpham:danh_sach_san_pham' %}?danh_muc={{ danh_muc.ma_danh_muc|urlencode }}">
+                {{ danh_muc.ten_danh_muc }}
+            </a>
+        {% empty %}
+            <span class="category-empty">
+                Chưa có danh mục sản phẩm
+            </span>
+        {% endfor %}
+    </div>
+</div>
+
             <div class="nav-links">
-                <a href="/" class="active">Trang chủ</a>
+                <a href="{% url 'home' %}" class="nav-home">Trang chủ</a>
                 <a href="/ve-chung-toi/">Về chúng tôi</a>
                 <a href="/bai-viet/">Bài viết</a>
                 <a href="/thuong-hieu/">Thương hiệu</a>
@@ -180,5 +207,27 @@
     </footer>
 
     {% block extra_js %}{% endblock %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const menu = document.querySelector(".category-menu");
+    const toggle = document.getElementById("categoryMenuToggle");
+
+    if (!menu || !toggle) return;
+
+    toggle.addEventListener("click", function () {
+        const isOpen = menu.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", isOpen);
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!menu.contains(event.target)) {
+            menu.classList.remove("is-open");
+            toggle.setAttribute("aria-expanded", "false");
+        }
+    });
+});
+</script>
+
 </body>
 </html>

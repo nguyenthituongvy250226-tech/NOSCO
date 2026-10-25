@@ -1,0 +1,912 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ san_pham.ten_san_pham }} | NOSCO{% endblock %}
+
+{% block content %}
+<section class="product-detail-page">
+    <div class="product-detail-container">
+
+        <nav class="product-detail-breadcrumb" aria-label="Đường dẫn">
+            <a href="/">Trang chủ</a>
+            <span>/</span>
+            <a href="{% url 'sanpham:danh_sach_san_pham' %}">Tất cả sản phẩm</a>
+            <span>/</span>
+            <span>{{ san_pham.ten_san_pham }}</span>
+        </nav>
+
+        <div class="product-detail-layout">
+
+            <!-- KHU VỰC ẢNH SẢN PHẨM -->
+            <div class="product-detail-gallery {% if danh_sach_anh %}has-thumbnails{% endif %}">
+
+                <div class="product-detail-main-image">
+                    {% if anh_dai_dien and anh_dai_dien.duong_dan_anh %}
+                        <img
+                            id="mainProductImage"
+                            src="{{ anh_dai_dien.duong_dan_anh.url }}"
+                            alt="{{ san_pham.ten_san_pham }}"
+                        >
+                    {% else %}
+                        <div class="product-detail-no-image">
+                            Sản phẩm chưa có hình ảnh
+                        </div>
+                    {% endif %}
+                    {% if danh_sach_anh|length > 1 %}
+    <button type="button"
+            class="product-gallery-arrow product-gallery-prev"
+            aria-label="Xem ảnh trước"
+            title="Ảnh trước">
+        &#8249;
+    </button>
+
+    <button type="button"
+            class="product-gallery-arrow product-gallery-next"
+            aria-label="Xem ảnh tiếp theo"
+            title="Ảnh tiếp theo">
+        &#8250;
+    </button>
+{% endif %}
+                </div>
+
+                {% if danh_sach_anh %}
+                    <div class="product-detail-thumbnails">
+                        {% for item in danh_sach_anh %}
+                            <button
+                                type="button"
+                                class="product-detail-thumbnail {% if item.hinh_anh == anh_dai_dien %}active{% endif %}"
+                                data-image="{{ item.hinh_anh.duong_dan_anh.url }}"
+                                data-alt="{{ san_pham.ten_san_pham }} - ảnh {{ forloop.counter }}"
+                                data-variant="{{ item.bien_the.ma_bien_the }}"
+                                aria-label="Xem ảnh {{ forloop.counter }}"
+                            >
+                                <img
+                                    src="{{ item.hinh_anh.duong_dan_anh.url }}"
+                                    alt="{{ san_pham.ten_san_pham }} - ảnh {{ forloop.counter }}"
+                                    loading="lazy"
+                                >
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- KHU VỰC THÔNG TIN -->
+            <div class="product-detail-info">
+
+                <p class="product-detail-brand">
+                    {{ san_pham.thuong_hieu.ten_thuong_hieu }}
+                </p>
+
+                <h1>{{ san_pham.ten_san_pham }}</h1>
+
+                <div class="product-detail-meta">
+                    <span>
+                        Mã sản phẩm:
+                        <strong>{{ san_pham.ma_san_pham }}</strong>
+                    </span>
+                    <span>
+                        Danh mục:
+                        <strong>{{ san_pham.danh_muc.ten_danh_muc }}</strong>
+                    </span>
+                </div>
+
+                <!-- GIÁ BÁN -->
+                <div class="product-detail-price-box">
+                    <span class="product-detail-price-label">Giá bán</span>
+
+                    <div class="product-detail-price" id="selectedVariantPrice">
+                        {% if gia_thap_nhat != None %}
+                            {{ gia_thap_nhat|floatformat:0 }} đ
+                        {% else %}
+                            Chưa có giá
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- TỒN KHO -->
+                <div class="product-detail-stock">
+                    Tình trạng:
+                    <span
+                        id="selectedVariantStock"
+                        class="stock-status {% if bien_the_mac_dinh %}{% if bien_the_mac_dinh.so_luong_ton > 0 %}in-stock{% else %}out-of-stock{% endif %}{% endif %}"
+                    >
+                        {% if bien_the_mac_dinh %}
+                            {% if bien_the_mac_dinh.so_luong_ton > 0 %}
+                                Còn hàng ({{ bien_the_mac_dinh.so_luong_ton }})
+                            {% else %}
+                                Tạm hết hàng
+                            {% endif %}
+                        {% else %}
+                            Chưa có biến thể
+                        {% endif %}
+                    </span>
+                </div>
+
+
+
+                <!-- CHỌN BIẾN THỂ -->
+                <div class="product-detail-variants">
+                    <h3>Chọn phân loại sản phẩm</h3>
+
+                    <div class="product-variant-list">
+                        {% for bien_the in bien_the_list %}
+                            <label class="product-variant-option">
+                                <input
+                                    type="radio"
+                                    name="bien_the"
+                                    value="{{ bien_the.ma_bien_the }}"
+                                    data-price="{{ bien_the.gia_ban }}"
+                                    data-stock="{{ bien_the.so_luong_ton }}"
+                                    {% if bien_the == bien_the_mac_dinh %}checked{% endif %}
+                                >
+
+                                <span class="product-variant-option-text">
+                                    <strong>
+                                        {{ bien_the.mau_sac|default:"Mặc định" }}
+                                    </strong>
+
+                                    {% if bien_the.kich_thuoc %}
+                                        <span>{{ bien_the.kich_thuoc }}</span>
+                                    {% endif %}
+
+                                    <small>Mã: {{ bien_the.ma_bien_the }}</small>
+
+                                    {% if bien_the.so_luong_ton > 0 %}
+                                        <span class="variant-stock-available">Còn hàng</span>
+                                    {% else %}
+                                        <span class="variant-stock-unavailable">Hết hàng</span>
+                                    {% endif %}
+                                </span>
+                            </label>
+                        {% empty %}
+                            <p>Sản phẩm chưa có biến thể.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+<!-- SỐ LƯỢNG -->
+<div class="product-detail-quantity">
+    <label for="productQuantity">Số lượng</label>
+
+    <div class="quantity-control">
+        <button type="button" data-quantity-change="-1"
+                aria-label="Giảm số lượng">−</button>
+
+        <input type="number" id="productQuantity"
+               value="1" min="1"
+               max="{% if bien_the_mac_dinh and bien_the_mac_dinh.so_luong_ton > 0 %}{{ bien_the_mac_dinh.so_luong_ton }}{% else %}1{% endif %}">
+
+        <button type="button" data-quantity-change="1"
+                aria-label="Tăng số lượng">+</button>
+    </div>
+</div>
+
+<!-- NÚT MUA HÀNG -->
+<div class="product-detail-actions">
+    <button type="button"
+            class="product-detail-cart-button"
+            disabled
+            title="Chưa kết nối module giỏ hàng">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Thêm vào giỏ hàng
+    </button>
+
+    <button type="button"
+            class="product-detail-buy-button"
+            disabled
+            title="Chưa kết nối module đặt hàng">
+        Mua ngay
+    </button>
+</div>
+
+<!-- CHIA SẺ SẢN PHẨM -->
+<div class="product-detail-share">
+    <span class="product-detail-share-label">Chia sẻ:</span>
+
+    <a class="product-share-link"
+       href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Chia sẻ qua Facebook" title="Facebook">
+        <i class="fa-brands fa-facebook-f"></i>
+    </a>
+
+    <a class="product-share-link"
+       href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ san_pham.ten_san_pham|urlencode }}"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Chia sẻ qua X" title="X">
+        <i class="fa-brands fa-x-twitter"></i>
+    </a>
+
+    <button type="button" class="product-share-link"
+            id="copyProductLink"
+            aria-label="Sao chép liên kết sản phẩm"
+            title="Sao chép liên kết">
+        <i class="fa-solid fa-link"></i>
+    </button>
+
+    <span id="shareCopyStatus" aria-live="polite"></span>
+</div>
+
+<p class="product-detail-note">
+    Chức năng mua hàng sẽ được kết nối với module giỏ hàng và thanh toán.
+</p>
+
+
+                <!-- THÔNG TIN HỖ TRỢ -->
+                <div class="product-detail-benefits">
+                    <div class="product-benefit-item">
+                        <span class="product-benefit-icon">
+                            <i class="fa-solid fa-box"></i>
+                        </span>
+                        <div>
+                            <strong>Thông tin sản phẩm rõ ràng</strong>
+                            <p>Hiển thị mã và phân loại sản phẩm.</p>
+                        </div>
+                    </div>
+
+                    <div class="product-benefit-item">
+                        <span class="product-benefit-icon">
+                            <i class="fa-solid fa-warehouse"></i>
+                        </span>
+                        <div>
+                            <strong>Kiểm tra tồn kho</strong>
+                            <p>Tồn kho cập nhật theo phân loại được chọn.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- THÔNG TIN CHI TIẾT PHÍA DƯỚI -->
+        <section class="product-detail-extra">
+
+            <div class="product-detail-tabs" role="tablist">
+                <button type="button" class="product-detail-tab active"
+                        data-tab="description" aria-selected="true">
+                    Mô tả
+                </button>
+
+                <button type="button" class="product-detail-tab"
+                        data-tab="information" aria-selected="false">
+                    Thông tin sản phẩm
+                </button>
+
+                <button type="button" class="product-detail-tab"
+                        data-tab="variants" aria-selected="false">
+                    Phân loại
+                </button>
+
+                <button type="button" class="product-detail-tab"
+                        data-tab="reviews" aria-selected="false">
+                    Đánh giá
+                </button>
+            </div>
+
+            <div class="product-detail-tab-panel active" id="tab-description">
+                <h2>Mô tả sản phẩm</h2>
+
+                {% if san_pham.mo_ta %}
+                    <p>{{ san_pham.mo_ta|linebreaksbr }}</p>
+                {% else %}
+                    <p>Thông tin mô tả đang được cập nhật.</p>
+                {% endif %}
+            </div>
+
+            <div class="product-detail-tab-panel" id="tab-information" hidden>
+                <h2>Thông tin sản phẩm</h2>
+
+                <div class="product-detail-specs">
+                    <div>
+                        <span>Mã sản phẩm</span>
+                        <strong>{{ san_pham.ma_san_pham }}</strong>
+                    </div>
+                    <div>
+                        <span>Tên sản phẩm</span>
+                        <strong>{{ san_pham.ten_san_pham }}</strong>
+                    </div>
+                    <div>
+                        <span>Thương hiệu</span>
+                        <strong>{{ san_pham.thuong_hieu.ten_thuong_hieu }}</strong>
+                    </div>
+                    <div>
+                        <span>Danh mục</span>
+                        <strong>{{ san_pham.danh_muc.ten_danh_muc }}</strong>
+                    </div>
+                    <div>
+                        <span>Trạng thái</span>
+                        <strong>{{ san_pham.trang_thai_ban }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="product-detail-tab-panel" id="tab-variants" hidden>
+                <h2>Các phân loại sản phẩm</h2>
+
+                <div class="product-detail-table-wrap">
+                    <table class="product-detail-variant-table">
+                        <thead>
+                            <tr>
+                                <th>Mã biến thể</th>
+                                <th>Màu sắc</th>
+                                <th>Kích thước</th>
+                                <th>Giá bán</th>
+                                <th>Tồn kho</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bien_the in bien_the_list %}
+                                <tr>
+                                    <td>{{ bien_the.ma_bien_the }}</td>
+                                    <td>{{ bien_the.mau_sac|default:"—" }}</td>
+                                    <td>{{ bien_the.kich_thuoc|default:"—" }}</td>
+                                    <td>{{ bien_the.gia_ban|floatformat:0 }} đ</td>
+                                    <td>{{ bien_the.so_luong_ton }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5">Chưa có phân loại sản phẩm.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="product-detail-tab-panel" id="tab-reviews" hidden>
+                <h2>Đánh giá sản phẩm</h2>
+                <p>
+                    Chức năng đánh giá sẽ được bổ sung khi hoàn thiện module đánh giá sản phẩm.
+                </p>
+            </div>
+
+        </section>
+    </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const mainImage = document.getElementById("mainProductImage");
+    const thumbnails = Array.from(
+        document.querySelectorAll(".product-detail-thumbnail")
+    );
+    const variantInputs = document.querySelectorAll('input[name="bien_the"]');
+    const priceElement = document.getElementById("selectedVariantPrice");
+    const stockElement = document.getElementById("selectedVariantStock");
+    const quantityInput = document.getElementById("productQuantity");
+
+    // Đổi ảnh lớn khi nhấn vào ảnh thu nhỏ.
+    function activateThumbnail(button) {
+        if (!mainImage || !button) return;
+
+        mainImage.src = button.dataset.image;
+        mainImage.alt = button.dataset.alt || "Ảnh sản phẩm";
+
+        thumbnails.forEach(function (item) {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+    }
+
+    thumbnails.forEach(function (button) {
+        button.addEventListener("click", function () {
+            activateThumbnail(button);
+        });
+    });
+
+    // Cập nhật giá, tồn kho và số lượng.
+    function updateVariant(changeImage) {
+        const selectedVariant = document.querySelector(
+            'input[name="bien_the"]:checked'
+        );
+
+        if (!selectedVariant) return;
+
+        const price = Number(selectedVariant.dataset.price);
+        const stock = Number(selectedVariant.dataset.stock);
+
+        if (priceElement && Number.isFinite(price)) {
+            priceElement.textContent = price.toLocaleString("vi-VN") + " đ";
+        }
+
+        if (stockElement) {
+            stockElement.classList.remove("in-stock", "out-of-stock");
+
+            if (stock > 0) {
+                stockElement.textContent = "Còn hàng (" + stock + ")";
+                stockElement.classList.add("in-stock");
+            } else {
+                stockElement.textContent = "Tạm hết hàng";
+                stockElement.classList.add("out-of-stock");
+            }
+        }
+
+        if (quantityInput) {
+            const maxStock = stock > 0 ? stock : 1;
+            quantityInput.max = maxStock;
+
+            const current = Number(quantityInput.value) || 1;
+            quantityInput.value = Math.max(1, Math.min(current, maxStock));
+        }
+
+        // Nếu biến thể có ảnh riêng, hiển thị ảnh của biến thể đó.
+        if (changeImage && mainImage) {
+            const matchingThumbnail = thumbnails.find(function (button) {
+                return button.dataset.variant === selectedVariant.value;
+            });
+
+            if (matchingThumbnail) {
+                activateThumbnail(matchingThumbnail);
+            }
+        }
+    }
+
+    variantInputs.forEach(function (input) {
+        input.addEventListener("change", function () {
+            updateVariant(true);
+        });
+    });
+
+    updateVariant(false);
+
+    // Tăng giảm số lượng.
+    document.querySelectorAll("[data-quantity-change]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            if (!quantityInput) return;
+
+            const change = Number(button.dataset.quantityChange);
+            const current = Number(quantityInput.value) || 1;
+            const max = Number(quantityInput.max) || 1;
+
+            quantityInput.value = Math.max(1, Math.min(current + change, max));
+        });
+    });
+
+    if (quantityInput) {
+        quantityInput.addEventListener("change", function () {
+            const current = Number(quantityInput.value) || 1;
+            const max = Number(quantityInput.max) || 1;
+
+            quantityInput.value = Math.max(1, Math.min(current, max));
+        });
+    }
+
+    // Chuyển các tab thông tin.
+    const tabs = document.querySelectorAll(".product-detail-tab");
+    const panels = document.querySelectorAll(".product-detail-tab-panel");
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            const targetPanel = document.getElementById("tab-" + tab.dataset.tab);
+
+            tabs.forEach(function (item) {
+                item.classList.remove("active");
+                item.setAttribute("aria-selected", "false");
+            });
+
+            panels.forEach(function (panel) {
+                panel.classList.remove("active");
+                panel.hidden = true;
+            });
+
+            tab.classList.add("active");
+            tab.setAttribute("aria-selected", "true");
+
+            if (targetPanel) {
+                targetPanel.hidden = false;
+                targetPanel.classList.add("active");
+            }
+        });
+    });
+});
+</script>
+
+<script>
+(function () {
+    const tabs = Array.from(
+        document.querySelectorAll(".product-detail-tab")
+    );
+
+    if (!tabs.length) return;
+
+    function applyTabStyle(tab, active) {
+        tab.style.setProperty("appearance", "none", "important");
+        tab.style.setProperty("padding", "12px 20px", "important");
+        tab.style.setProperty("margin", "0", "important");
+        tab.style.setProperty("border-radius", "7px 7px 0 0", "important");
+        tab.style.setProperty("border", "1px solid " +
+            (active ? "#0864b5" : "#d7e5f2"), "important");
+        tab.style.setProperty("border-bottom", "3px solid " +
+            (active ? "#f28c28" : "transparent"), "important");
+        tab.style.setProperty("background-color",
+            active ? "#0864b5" : "#edf5fc", "important");
+        tab.style.setProperty("color",
+            active ? "#ffffff" : "#24577f", "important");
+        tab.style.setProperty("font-family", "inherit", "important");
+        tab.style.setProperty("font-size", "13px", "important");
+        tab.style.setProperty("font-weight", "600", "important");
+        tab.style.setProperty("cursor", "pointer", "important");
+        tab.style.setProperty("box-shadow", "none", "important");
+    }
+
+    function activateTab(selectedTab) {
+        tabs.forEach(function (tab) {
+            const active = tab === selectedTab;
+
+            tab.classList.toggle("active", active);
+            tab.setAttribute("aria-selected", String(active));
+            applyTabStyle(tab, active);
+        });
+    }
+
+    const initialTab = tabs.find(function (tab) {
+        return tab.classList.contains("active") ||
+            tab.getAttribute("aria-selected") === "true";
+    }) || tabs[0];
+
+    activateTab(initialTab);
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            activateTab(tab);
+        });
+
+        tab.addEventListener("mouseenter", function () {
+            if (!tab.classList.contains("active")) {
+                tab.style.setProperty(
+                    "background-color", "#d9eafb", "important"
+                );
+            }
+        });
+
+        tab.addEventListener("mouseleave", function () {
+            applyTabStyle(tab, tab.classList.contains("active"));
+        });
+    });
+})();
+</script>
+
+<script>
+(function () {
+    const page = document.querySelector(".product-detail-page");
+    if (!page) return;
+
+    function style(element, properties) {
+        if (!element) return;
+
+        Object.entries(properties).forEach(function ([key, value]) {
+            element.style.setProperty(key, value, "important");
+        });
+    }
+
+    /* 1. KHU VỰC SỐ LƯỢNG */
+    const quantityRow = page.querySelector(".product-detail-quantity");
+    const quantityControl = page.querySelector(".quantity-control");
+    const quantityInput = page.querySelector("#productQuantity");
+
+   style(quantityRow, {
+    "display": "flex",
+    "align-items": "center",
+    "justify-content": "flex-start",
+    "gap": "18px",
+    "width": "100%",
+    "margin": "20px 0 18px"
+});
+
+    style(quantityControl, {
+        "display": "inline-flex",
+        "align-items": "center",
+        "height": "40px",
+        "overflow": "hidden",
+        "border": "1px solid #dce5ef",
+        "border-radius": "7px",
+        "background": "#ffffff"
+    });
+
+    if (quantityControl) {
+        quantityControl.querySelectorAll("button").forEach(function (button) {
+            style(button, {
+                "appearance": "none",
+                "width": "38px",
+                "height": "38px",
+                "padding": "0",
+                "border": "0",
+                "border-radius": "0",
+                "background": "#f0f6fc",
+                "color": "#0864b5",
+                "font-size": "20px",
+                "cursor": "pointer",
+                "display": "inline-flex",
+                "align-items": "center",
+                "justify-content": "center"
+            });
+
+            if (!button.dataset.quantityBound) {
+                button.dataset.quantityBound = "true";
+
+                button.addEventListener("click", function () {
+                    if (!quantityInput) return;
+
+                    const change = Number(button.dataset.quantityChange || 0);
+                    const current = Number(quantityInput.value) || 1;
+                    const min = Number(quantityInput.min) || 1;
+                    const max = quantityInput.max
+                        ? Number(quantityInput.max)
+                        : Infinity;
+
+                    quantityInput.value = Math.max(
+                        min,
+                        Math.min(max, current + change)
+                    );
+
+                    quantityInput.dispatchEvent(
+                        new Event("change", { bubbles: true })
+                    );
+                });
+            }
+        });
+    }
+
+    style(quantityInput, {
+        "appearance": "textfield",
+        "width": "48px",
+        "height": "38px",
+        "padding": "0",
+        "border": "0",
+        "border-left": "1px solid #dce5ef",
+        "border-right": "1px solid #dce5ef",
+        "border-radius": "0",
+        "background": "#ffffff",
+        "color": "#183b59",
+        "font-size": "13px",
+        "text-align": "center"
+    });
+
+    /* 2. HAI NÚT MUA HÀNG */
+    const actions = page.querySelector(".product-detail-actions");
+
+    style(actions, {
+        "display": "grid",
+        "grid-template-columns": "repeat(2, minmax(0, 1fr))",
+        "gap": "12px",
+        "width": "100%",
+        "margin": "0",
+        "align-items": "stretch"
+    });
+
+    if (actions) {
+        const buttons = Array.from(actions.querySelectorAll("button"));
+
+        const cartButton =
+            actions.querySelector(".product-detail-cart-button") || buttons[0];
+
+        const buyButton =
+            actions.querySelector(".product-detail-buy-button") || buttons[1];
+
+        const commonButtonStyle = {
+            "appearance": "none",
+            "display": "inline-flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "gap": "8px",
+            "width": "100%",
+            "min-width": "0",
+            "min-height": "46px",
+            "padding": "11px 10px",
+            "border": "1px solid #0864b5",
+            "border-radius": "6px",
+            "font-family": "inherit",
+            "font-size": "12px",
+            "font-weight": "700",
+            "line-height": "1.5",
+            "text-align": "center",
+            "text-transform": "uppercase",
+            "box-shadow": "none",
+            "white-space": "normal",
+            "opacity": "1"
+        };
+
+        style(cartButton, {
+            ...commonButtonStyle,
+            "background": "#ffffff",
+            "color": "#0864b5",
+            "cursor": "not-allowed"
+        });
+
+        style(buyButton, {
+            ...commonButtonStyle,
+            "background": "#0864b5",
+            "color": "#ffffff",
+            "cursor": "not-allowed"
+        });
+
+        [cartButton, buyButton].forEach(function (button) {
+            if (button) {
+                button.disabled = true;
+                button.title = "Chưa kết nối chức năng mua hàng";
+            }
+        });
+    }
+
+    /* 3. HÀNG CHIA SẺ */
+    const share = page.querySelector(".product-detail-share");
+
+    style(share, {
+        "display": "flex",
+        "align-items": "center",
+        "flex-wrap": "wrap",
+        "gap": "10px",
+        "margin-top": "16px",
+        "padding-bottom": "16px",
+        "border-bottom": "1px solid #e3eaf1"
+    });
+
+    if (share) {
+        style(share.querySelector(".product-detail-share-label"), {
+            "color": "#566779",
+            "font-size": "12px",
+            "margin-right": "3px"
+        });
+
+        share.querySelectorAll(".product-share-link").forEach(function (link) {
+            style(link, {
+                "appearance": "none",
+                "display": "inline-flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "flex": "0 0 34px",
+                "width": "34px",
+                "height": "34px",
+                "padding": "0",
+                "border": "0",
+                "border-radius": "50%",
+                "background": "#0864b5",
+                "color": "#ffffff",
+                "font-size": "14px",
+                "text-decoration": "none",
+                "cursor": "pointer",
+                "box-shadow": "none"
+            });
+        });
+    }
+
+    /* 4. DÒNG GHI CHÚ */
+    style(page.querySelector(".product-detail-note"), {
+        "margin": "10px 0 0",
+        "color": "#748394",
+        "font-size": "11px",
+        "line-height": "1.7"
+    });
+})();
+</script>
+
+<script>
+(function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        const gallery = document.querySelector(".product-detail-main-image");
+        const mainImage = document.getElementById("mainProductImage");
+
+        const thumbnails = Array.from(
+            document.querySelectorAll(".product-detail-thumbnail")
+        );
+
+        if (!gallery || !mainImage || thumbnails.length < 2) return;
+
+        const prevButton = gallery.querySelector(".product-gallery-prev");
+        const nextButton = gallery.querySelector(".product-gallery-next");
+
+        if (!prevButton || !nextButton) return;
+
+        gallery.style.setProperty("position", "relative", "important");
+
+        function setStyles(element, styles) {
+            Object.entries(styles).forEach(function ([property, value]) {
+                element.style.setProperty(property, value, "important");
+            });
+        }
+
+        const arrowStyles = {
+            "position": "absolute",
+            "top": "50%",
+            "transform": "translateY(-50%)",
+            "z-index": "10",
+            "display": "flex",
+            "align-items": "center",
+            "justify-content": "center",
+            "width": "44px",
+            "height": "44px",
+            "padding": "0",
+            "border": "1px solid #dce5ef",
+            "border-radius": "50%",
+            "background": "rgba(255,255,255,0.94)",
+            "color": "#0864b5",
+            "font-size": "30px",
+            "font-weight": "400",
+            "line-height": "1",
+            "box-shadow": "0 3px 12px rgba(0,0,0,0.15)",
+            "cursor": "pointer",
+            "transition": "background .2s, color .2s"
+        };
+
+        setStyles(prevButton, {
+            ...arrowStyles,
+            "left": "14px"
+        });
+
+        setStyles(nextButton, {
+            ...arrowStyles,
+            "right": "14px"
+        });
+
+        [prevButton, nextButton].forEach(function (button) {
+            button.addEventListener("mouseenter", function () {
+                setStyles(button, {
+                    "background": "#0864b5",
+                    "color": "#ffffff",
+                    "border-color": "#0864b5"
+                });
+            });
+
+            button.addEventListener("mouseleave", function () {
+                setStyles(button, {
+                    "background": "rgba(255,255,255,0.94)",
+                    "color": "#0864b5",
+                    "border-color": "#dce5ef"
+                });
+            });
+        });
+
+        let currentIndex = thumbnails.findIndex(function (button) {
+            const imageUrl = button.dataset.image;
+
+            return imageUrl &&
+                new URL(imageUrl, document.baseURI).href ===
+                new URL(mainImage.src, document.baseURI).href;
+        });
+
+        if (currentIndex < 0) currentIndex = 0;
+
+        function updateActiveThumbnail() {
+            thumbnails.forEach(function (button, index) {
+                button.classList.toggle("active", index === currentIndex);
+            });
+        }
+
+        function showImage(index) {
+            currentIndex = (index + thumbnails.length) % thumbnails.length;
+
+            const thumbnail = thumbnails[currentIndex];
+
+            mainImage.src = thumbnail.dataset.image;
+            mainImage.alt =
+                thumbnail.dataset.alt || "Ảnh sản phẩm";
+
+            updateActiveThumbnail();
+        }
+
+        prevButton.addEventListener("click", function () {
+            showImage(currentIndex - 1);
+        });
+
+        nextButton.addEventListener("click", function () {
+            showImage(currentIndex + 1);
+        });
+
+        thumbnails.forEach(function (button, index) {
+            button.addEventListener("click", function () {
+                currentIndex = index;
+                updateActiveThumbnail();
+            });
+        });
+
+        updateActiveThumbnail();
+    });
+})();
+</script>
+
+{% endblock %}
