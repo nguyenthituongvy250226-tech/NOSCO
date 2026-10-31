@@ -6,50 +6,147 @@
 
 {% block content %}
 
-<!-- HERO BANNER -->
-<section class="hero">
-    <div class="hero-copy">
-        <p class="hero-eyebrow">CHO MỌI Ý TƯỞNG LỚN</p>
-        <h1 class="hero-title">
-            Khơi nguồn sáng tạo Học tập dễ dàng
-        </h1>
+
+<!-- HERO BANNER SLIDESHOW -->
+<section class="hero hero-slideshow">
 
 
-        <p class="hero-desc">
-            Đầy đủ văn phòng phẩm chính hãng cho học tập và công việc.
-            Tìm cảm hứng mới trong từng trang giấy và nét bút.
-        </p>
+    <div class="hero-slides">
 
-        <div class="hero-actions">
-            <a href="/san-pham/" class="btn btn-primary">
-                Khám phá sản phẩm
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
+        <!-- SLIDE 1 -->
+        <div class="hero-slide active">
+            <div class="hero-copy">
+                <p class="hero-eyebrow">CHO MỌI Ý TƯỞNG LỚN</p>
 
-            <a href="/khuyen-mai/" class="btn btn-light">
-                Xem khuyến mãi
-            </a>
+                <h1 class="hero-title">
+                    Khơi nguồn sáng tạo<br>Học tập dễ dàng
+                </h1>
+
+                <p class="hero-desc">
+                    Đầy đủ văn phòng phẩm chính hãng cho học tập và công việc.
+                    Tìm cảm hứng mới trong từng trang giấy và nét bút.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="/san-pham/" class="btn btn-primary">
+                        Khám phá sản phẩm
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                    <a href="/khuyen-mai/" class="btn btn-light">
+                        Xem khuyến mãi
+                    </a>
+                </div>
+
+                <div class="hero-note">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Chính hãng mỗi sản phẩm. An tâm mỗi lựa chọn.
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <img src="{% static 'images/banner.png' %}"
+                     alt="Bàn học với sổ tay và dụng cụ viết">
+
+                <div class="hero-float">
+                    <strong>
+                        <i class="fa-solid fa-sparkles"></i>
+                        Góc học tập đầy cảm hứng
+                    </strong>
+                    <span>Khơi nguồn ý tưởng mỗi ngày</span>
+                </div>
+            </div>
         </div>
 
-        <div class="hero-note">
-            <i class="fa-solid fa-circle-check"></i>
-            Chính hãng mỗi sản phẩm. An tâm mỗi lựa chọn.
+        <!-- SLIDE 2 -->
+        <div class="hero-slide">
+            <div class="hero-copy">
+                <p class="hero-eyebrow">SẴN SÀNG CHO NĂM HỌC MỚI</p>
+
+                <h1 class="hero-title">
+                    Đủ đầy dụng cụ<br>Trọn vẹn đam mê
+                </h1>
+
+                <p class="hero-desc">
+                    Từ bút viết đến tập vở, tìm mọi vật dụng cần thiết
+                    cho hành trình học tập của bạn.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="/san-pham/" class="btn btn-primary">
+                        Mua sắm ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="hero-note">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Tiện lợi cho học tập và công việc mỗi ngày.
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <img src="{% static 'images/banner2.png' %}"
+                     alt="Bộ dụng cụ học tập và văn phòng phẩm">
+            </div>
         </div>
+
+        <!-- SLIDE 3 -->
+        <div class="hero-slide">
+            <div class="hero-copy">
+                <p class="hero-eyebrow">GÓC LÀM VIỆC CỦA BẠN</p>
+
+                <h1 class="hero-title">
+                    Sắp xếp gọn gàng<br>Làm việc hiệu quả
+                </h1>
+
+                <p class="hero-desc">
+                    Khám phá các sản phẩm văn phòng phẩm giúp góc làm việc
+                    ngăn nắp, tiện dụng và đầy cảm hứng.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="/san-pham/" class="btn btn-primary">
+                        Khám phá ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="hero-note">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Người bạn đồng hành trong mọi công việc.
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <img src="{% static 'images/banner3.png' %}"
+                     alt="Góc làm việc với các vật dụng văn phòng">
+            </div>
+        </div>
+
     </div>
 
-    <div class="hero-visual">
-         <img src="{% static 'images/banner.png' %}"
-            alt="Bàn học với sổ tay và dụng cụ viết"
-        >
+    <!-- NÚT CHUYỂN SLIDE -->
+    <button class="hero-arrow hero-prev" type="button"
+            aria-label="Banner trước">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
 
-        <div class="hero-float">
-            <strong>
-                <i class="fa-solid fa-sparkles"></i>
-                Góc học tập đầy cảm hứng
-            </strong>
-            <span>Khơi nguồn ý tưởng mỗi ngày</span>
-        </div>
+    <button class="hero-arrow hero-next" type="button"
+            aria-label="Banner tiếp theo">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <!-- CHẤM CHỈ BÁO -->
+    <div class="hero-dots">
+        <button class="hero-dot active" type="button"
+                aria-label="Banner 1"></button>
+        <button class="hero-dot" type="button"
+                aria-label="Banner 2"></button>
+        <button class="hero-dot" type="button"
+                aria-label="Banner 3"></button>
     </div>
+
 </section>
 
 <!-- DANH MỤC SẢN PHẨM -->
@@ -66,7 +163,7 @@
     </div>
 
     <div class="category-grid">
-        <a href="/san-pham/" class="category-card">
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}?danh_muc=DM001">
             <div class="category-image">
                 <img src="{% static 'images/butviet.png' %}"
                     alt="Bút viết"
@@ -79,7 +176,7 @@
             <p>Bút bi, bút gel, bút highlight</p>
         </a>
 
-        <a href="/san-pham/" class="category-card">
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}?danh_muc=DM002">
             <div class="category-image">
                 <img src="{% static 'images/voso.png' %}"
                     alt="Vở và sổ tay"
@@ -92,7 +189,7 @@
             <p>Ghi lại ý tưởng mỗi ngày</p>
         </a>
 
-        <a href="/san-pham/" class="category-card">
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}?danh_muc=DM003">
             <div class="category-image">
                 <img src="{% static 'images/giayghichu.png' %}"
                     alt="Sổ ghi chú và giấy"
@@ -105,7 +202,7 @@
             <p>Giấy in, giấy màu, giấy ghi chú</p>
         </a>
 
-        <a href="/san-pham/" class="category-card">
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}?danh_muc=DM004">
             <div class="category-image">
                 <img src="{% static 'images/dungcuhoctap.png' %}"
                     alt="Dụng cụ học tập"
@@ -121,45 +218,176 @@
 </section>
 
 <!-- THƯƠNG HIỆU -->
-<section class="brand-strip">
-    <div class="brand-intro">
-        <strong>Thương hiệu bạn tin chọn</strong>
-        <span>Chất lượng thật, từ những tên tuổi uy tín.</span>
-    </div>
 
-    <div class="brand-name">Thiên Long</div>
-    <div class="brand-name">Deli</div>
-    <div class="brand-name">Pentel</div>
-</section>
 
-<!-- KHUYẾN MÃI -->
-<section class="section">
-    <div class="promo-grid">
-        <div class="promo-card promo-main">
-            <div class="promo-content">
-                <span class="promo-label">Ưu đãi cho góc học tập</span>
-                <h3>Sắm đủ bộ, tiết kiệm đến 30%</h3>
-                <p>Bút, vở và dụng cụ học tập cho mỗi ngày sáng tạo.</p>
-                <a href="/khuyen-mai/" class="btn btn-light">
-                    Mua ngay <i class="fa-solid fa-arrow-right"></i>
-                </a>
+<!-- THƯƠNG HIỆU -->
+<section class="brand-section py-4">
+    <div class="container-fluid px-3 px-lg-4">
+
+        <div class="d-flex justify-content-between align-items-end mb-3">
+            <div>
+                <span class="brand-eyebrow">✦ GÓC THƯƠNG HIỆU</span>
+                <h2 class="brand-title mb-1">Thương hiệu bạn yêu thích</h2>
+                <p class="brand-subtitle mb-0">
+                    Những cái tên đồng hành cùng góc học tập của bạn.
+                </p>
             </div>
+
+            <a href="{% url 'sanpham:danh_sach_thuong_hieu' %}"
+               class="brand-view-all">
+                Xem tất cả <span>→</span>
+            </a>
         </div>
 
-        <div class="promo-card promo-side">
-            <div class="promo-content">
-                <span class="promo-label">
-                    <i class="fa-solid fa-gift"></i> Thành viên NOSCO
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2 g-md-3">
+            {% for thuong_hieu in danh_sach_thuong_hieu %}
+                <div class="col">
+                    <a class="brand-chip"
+                       href="{% url 'sanpham:danh_sach_san_pham' %}?thuong_hieu={{ thuong_hieu.ma_thuong_hieu|urlencode }}">
+
+                        <div class="brand-chip-logo">
+                            {% if thuong_hieu.logo %}
+                                <img src="{{ thuong_hieu.logo.url }}"
+                                     alt="{{ thuong_hieu.ten_thuong_hieu }}">
+                            {% else %}
+                                <span>
+                                    {{ thuong_hieu.ten_thuong_hieu|slice:":1"|upper }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <span class="brand-chip-name">
+                            {{ thuong_hieu.ten_thuong_hieu }}
+                        </span>
+
+                        <span class="brand-chip-arrow">↗</span>
+                    </a>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p>Thương hiệu đang được cập nhật.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+
+
+
+<!-- KHUYẾN MÃI NOSCO -->
+<section class="promo-section py-5">
+    <div class="container-fluid px-3 px-lg-4">
+
+        <!-- Tiêu đề -->
+        <div class="promo-heading d-flex justify-content-between
+                    align-items-end flex-wrap gap-3 mb-4">
+            <div>
+                <span class="promo-eyebrow">
+                    <i class="fa-solid fa-sparkles"></i> ƯU ĐÃI ĐẶC BIỆT
                 </span>
-                <h3>Đơn đầu tiên, giảm ngay 15%</h3>
-                <p>Khám phá ưu đãi dành cho khách hàng mới.</p>
-                <a href="/khuyen-mai/" class="view-all">
-                    Xem ưu đãi <i class="fa-solid fa-arrow-right"></i>
-                </a>
+                <h2 class="promo-title mb-2">
+                    Mua sắm vui, <span>tiết kiệm hơn!</span>
+                </h2>
+                <p class="promo-subtitle mb-0">
+                    Ưu đãi xinh dành riêng cho góc học tập của bạn.
+                </p>
             </div>
+
+            <a href="/khuyen-mai/" class="promo-heading-link">
+                Tất cả ưu đãi
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Hai thẻ khuyến mãi -->
+        <div class="row g-3 g-lg-4">
+
+            <!-- Ưu đãi chính -->
+            <div class="col-12 col-lg-7">
+                <div class="promo-card promo-main h-100">
+                    <div class="promo-main-content">
+                        <span class="promo-label">
+                            <i class="fa-solid fa-fire"></i>
+                            ƯU ĐÃI NỔI BẬT
+                        </span>
+
+                        <h3>
+                            Sắm đủ bộ,<br>
+                            tiết kiệm đến <span>30%</span>
+                        </h3>
+
+                        <p>
+                            Bút, vở và dụng cụ học tập cho mỗi ngày sáng tạo.
+                            Chọn ngay món đồ bạn yêu thích!
+                        </p>
+
+                        <a href="/san-pham/" class="promo-btn promo-btn-main">
+                            Mua ngay
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="promo-decoration promo-decoration-main">
+                        <div class="promo-discount-badge">
+                            <span>GIẢM ĐẾN</span>
+                            <strong>30%</strong>
+                            <i class="fa-solid fa-tag"></i>
+                        </div>
+                        <i class="fa-solid fa-pencil promo-pencil"></i>
+                        <i class="fa-solid fa-book-open promo-book"></i>
+                        <i class="fa-solid fa-palette promo-palette"></i>
+                        <span class="promo-sparkle sparkle-one">✦</span>
+                        <span class="promo-sparkle sparkle-two">✧</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ưu đãi thành viên -->
+            <div class="col-12 col-lg-5">
+                <div class="promo-card promo-side h-100">
+                    <div class="promo-side-content">
+                        <div class="promo-gift-icon">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+
+                        <span class="promo-side-label">
+                            ĐẶC QUYỀN THÀNH VIÊN
+                        </span>
+
+                        <h3>
+                            Đơn đầu tiên,<br>
+                            giảm ngay <span>15%</span>
+                        </h3>
+
+                        <p>
+                            Bắt đầu hành trình mua sắm tại NOSCO
+                            với ưu đãi dành cho khách hàng mới.
+                        </p>
+
+                        <a href="/khuyen-mai/" class="promo-btn promo-btn-side">
+                            Xem ưu đãi
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="promo-side-decoration">
+                        <span class="promo-circle promo-circle-one"></span>
+                        <span class="promo-circle promo-circle-two"></span>
+                        <div class="promo-coupon">
+                            <i class="fa-solid fa-ticket"></i>
+                            <strong>15%</strong>
+                            <span>WELCOME</span>
+                        </div>
+                        <span class="promo-side-star">✦</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
+
 
 
 <section class="best-sellers">
@@ -171,114 +399,126 @@
                 <p class="best-sellers-eyebrow">
                     ✦ ĐƯỢC KHÁCH HÀNG YÊU THÍCH
                 </p>
-                <h2>Sản phẩm bán chạy</h2>
+
+                <h2>Khám phá tại NOSCO</h2>
+
                 <p class="best-sellers-description">
-                    Những lựa chọn được khách hàng NOSCO yêu thích nhất.
+                    Khám phá những sản phẩm văn phòng phẩm dành cho bạn.
                 </p>
             </div>
 
-            <span class="best-sellers-view-all">
+            <a href="{% url 'sanpham:danh_sach_san_pham' %}"
+               class="best-sellers-view-all">
                 Xem tất cả <span>→</span>
-            </span>
+            </a>
         </div>
 
-        <!-- Danh sách sản phẩm demo -->
+        <!-- Danh sách sản phẩm lấy từ database -->
         <div class="best-sellers-grid">
 
-            <!-- Sản phẩm 1 -->
-            <article class="best-seller-card">
-                <div class="best-seller-image">
-                    <img src="{% static 'images/product-notebook1.jpg' %}"
-                         alt="Sổ tay lò xo Deli A5 100 trang">
-                    <span class="product-badge">Bán chạy</span>
-                    <span class="product-heart">♡</span>
-                </div>
+            {% for item in san_pham_noi_bat %}
+                {% with sp=item.san_pham %}
+                    <article class="best-seller-card">
 
-                <div class="best-seller-info">
-                    <p class="product-category">VỞ &amp; SỔ</p>
-                    <h3>Sổ tay lò xo Deli A5 100 trang</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">(72)</span>
-                    </div>
-                    <div class="product-price">
-                        <strong>45.000đ</strong>
-                        <del>55.000đ</del>
-                    </div>
-                </div>
-            </article>
+                        <a href="{% url 'sanpham:chi_tiet_san_pham' sp.ma_san_pham %}"
+                           class="best-seller-image">
 
-            <!-- Sản phẩm 2 -->
-            <article class="best-seller-card">
-                <div class="best-seller-image">
-                    <img src="{% static 'images/product-pastel-pens1.jpg' %}"
-                         alt="Bộ 6 bút gel Deli màu pastel">
-                    <span class="product-badge">Được yêu thích</span>
-                    <span class="product-heart">♡</span>
-                </div>
+                            {% if item.anh_dai_dien %}
+                                <img src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                                     alt="{{ sp.ten_san_pham }}">
+                            {% else %}
+                                <div class="product-no-image">
+                                    <span>✦</span>
+                                    <p>NOSCO</p>
+                                </div>
+                            {% endif %}
 
-                <div class="best-seller-info">
-                    <p class="product-category">BÚT VIẾT</p>
-                    <h3>Bộ 6 bút gel Deli màu pastel</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">(36)</span>
-                    </div>
-                    <div class="product-price">
-                        <strong>54.000đ</strong>
-                        <del>60.000đ</del>
-                    </div>
-                </div>
-            </article>
+                            {% if not item.con_hang %}
+                                <span class="product-badge">Tạm hết hàng</span>
+                            {% else %}
+                                <span class="product-badge">Nổi bật</span>
+                            {% endif %}
+                        </a>
 
-            <!-- Sản phẩm 3 -->
-            <article class="best-seller-card">
-                <div class="best-seller-image">
-                    <img src="{% static 'images/product-sticky-notes1.jpg' %}"
-                         alt="Giấy ghi chú Deli nhiều màu">
-                    <span class="product-badge">-20%</span>
-                    <span class="product-heart">♡</span>
-                </div>
 
-                <div class="best-seller-info">
-                    <p class="product-category">GIẤY &amp; GHI CHÚ</p>
-                    <h3>Giấy ghi chú Deli 76 × 76 mm</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">(93)</span>
-                    </div>
-                    <div class="product-price">
-                        <strong>28.000đ</strong>
-                    </div>
-                </div>
-            </article>
+<div class="best-seller-info">
 
-            <!-- Sản phẩm 4 -->
-            <article class="best-seller-card">
-                <div class="best-seller-image">
-                    <img src="{% static 'images/product-pencils1.jpg' %}"
-                         alt="Túi đựng bút thiên long">
-                    <span class="product-badge">Nổi bật</span>
-                    <span class="product-heart">♡</span>
-                </div>
+    <p class="product-category">
+        {{ sp.danh_muc.ten_danh_muc|upper }}
+    </p>
 
-                <div class="best-seller-info">
-                    <p class="product-category">DỤNG CỤ HỌC TẬP</p>
-                    <h3>Túi đựng bút thiên long</h3>
-                    <div class="product-rating">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="rating-count">(61)</span>
-                    </div>
-                    <div class="product-price">
-                        <strong>36.000đ</strong>
-                    </div>
-                </div>
-            </article>
+    <h3>
+        <a href="{% url 'sanpham:chi_tiet_san_pham' sp.ma_san_pham %}">
+            {{ sp.ten_san_pham }}
+        </a>
+    </h3>
+
+    <div class="product-price">
+        {% if item.gia_hien_thi %}
+            <strong>{{ item.gia_hien_thi }}đ</strong>
+        {% else %}
+            <strong>Chưa có giá</strong>
+        {% endif %}
+    </div>
+
+    {% if not item.con_hang %}
+        <p class="product-stock-status">Sản phẩm hiện đã hết hàng</p>
+    {% endif %}
+
+    <div class="product-card-extra">
+        <p class="product-sold">
+            Đã bán: {{ sp.so_luong_da_ban|default:"0" }}
+        </p>
+
+        <div class="product-rating">
+            <span class="rating-star">★</span>
+            <span>Chưa có đánh giá</span>
+
+            <button
+                type="button"
+                class="favorite-btn"
+                title="Thêm vào yêu thích"
+                aria-label="Thêm vào yêu thích"
+            >♡</button>
+        </div>
+
+        <div class="product-buy-actions d-flex gap-2 mt-3">
+            <button
+                type="button"
+                class="btn btn-outline-primary product-add-cart flex-fill"
+                disabled
+                title="Chưa kết nối module giỏ hàng"
+            >
+                <i class="fa-solid fa-cart-shopping me-1"></i>
+                <span>Thêm vào giỏ</span>
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-primary product-buy-now flex-fill"
+                disabled
+                title="Chưa kết nối module đặt hàng"
+            >
+                <span>Mua ngay</span>
+                <i class="fa-solid fa-arrow-right ms-1"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+                    </article>
+                {% endwith %}
+            {% empty %}
+                <p class="best-sellers-empty">
+                    Hiện chưa có sản phẩm nổi bật.
+                    Hãy quay lại sau nhé!
+                </p>
+            {% endfor %}
 
         </div>
     </div>
 </section>
-
 
 <section class="recommend-section">
     <div class="recommend-inner">
@@ -301,104 +541,519 @@
         </div>
 
         <!-- Bộ lọc -->
-        <div class="recommend-tabs">
-            <a href="/san-pham/" class="recommend-tab active">Dành cho bạn</a>
-            <a href="/san-pham/" class="recommend-tab">Học tập hiệu quả</a>
-            <a href="/san-pham/" class="recommend-tab">Góc làm việc</a>
-            <a href="/san-pham/" class="recommend-tab">Sáng tạo mỗi ngày</a>
-        </div>
+<div class="recommend-tabs">
+    <button type="button"
+            class="recommend-tab active"
+            data-filter="ca_nhan">
+        Dành cho bạn
+    </button>
+
+    <button type="button"
+            class="recommend-tab"
+            data-filter="hoc_tap">
+        Học tập hiệu quả
+    </button>
+
+    <button type="button"
+            class="recommend-tab"
+            data-filter="goc_lam_viec">
+        Góc làm việc
+    </button>
+
+    <button type="button"
+            class="recommend-tab"
+            data-filter="sang_tao">
+        Sáng tạo mỗi ngày
+    </button>
+</div>
 
         <!-- Danh sách sản phẩm -->
         <div class="recommend-grid">
+            {% for item in goi_y_hom_nay %}
+    {% with the=item.the %}
+    <article class="recommend-card"
+             data-group="{{ item.nhom_goi_y }}"
+         data-category="{{ the.san_pham.danh_muc_id }}">
 
-            <article class="recommend-card">
-                <div class="product-image">
-                    <img src="{% static 'images/product-notebook.jpg' %}"
-                         alt="Sổ tay Deli A5 bìa cứng">
-                    <span class="product-badge">-18%</span>
-                    <button type="button" class="wishlist-btn"
-                            aria-label="Thêm sổ tay vào yêu thích">♡</button>
-                </div>
-                <div class="recommend-product-info">
-                    <p class="product-brand">DELI</p>
-                    <h3>Sổ tay Deli A5 bìa cứng • 100 trang</h3>
-                    <div class="product-rating">
-                        <span>★★★★★</span>
-                        <small>(72)</small>
-                    </div>
-                    <div class="product-price">
-                        <strong>45.000đ</strong>
-                        <del>55.000đ</del>
-                    </div>
-                </div>
-            </article>
+        <!-- Hình ảnh sản phẩm -->
+        <div class="product-image">
+    <a href="{% url 'sanpham:chi_tiet_san_pham' the.san_pham.ma_san_pham %}">
+        {% if the.anh_dai_dien and the.anh_dai_dien.duong_dan_anh %}
+            <img
+                src="{{ the.anh_dai_dien.duong_dan_anh.url }}"
+                alt="{{ the.san_pham.ten_san_pham }}"
+                loading="lazy"
+            >
+        {% else %}
+            <div class="product-no-image">
+                Chưa có hình ảnh
+            </div>
+        {% endif %}
+    </a>
 
-            <article class="recommend-card">
-                <div class="product-image">
-                    <img src="{% static 'images/product-pastel-pens.jpg' %}"
-                         alt="Bộ 6 bút gel Deli màu pastel">
-                    <button type="button" class="wishlist-btn"
-                            aria-label="Thêm bút gel vào yêu thích">♡</button>
-                </div>
-                <div class="recommend-product-info">
-                    <p class="product-brand">DELI</p>
-                    <h3>Bộ 6 bút gel Deli màu pastel</h3>
-                    <div class="product-rating">
-                        <span>★★★★★</span>
-                        <small>(36)</small>
-                    </div>
-                    <div class="product-price">
-                        <strong>54.000đ</strong>
-                        <del>60.000đ</del>
-                    </div>
-                </div>
-            </article>
+            {% if the.con_hang %}
+                <span class="product-badge">Còn hàng</span>
+            {% else %}
+                <span class="product-badge">Hết hàng</span>
+            {% endif %}
 
-            <article class="recommend-card">
-                <div class="product-image">
-                    <img src="{% static 'images/product-sticky-notes.jpg' %}"
-                         alt="Giấy ghi chú Deli nhiều màu">
-                    <button type="button" class="wishlist-btn"
-                            aria-label="Thêm giấy ghi chú vào yêu thích">♡</button>
-                </div>
-                <div class="recommend-product-info">
-                    <p class="product-brand">DELI</p>
-                    <h3>Giấy ghi chú Deli 76 × 76 mm • 4 màu</h3>
-                    <div class="product-rating">
-                        <span>★★★★★</span>
-                        <small>(93)</small>
-                    </div>
-                    <div class="product-price">
-                        <strong>28.000đ</strong>
-                    </div>
-                </div>
-            </article>
+            <button
+                type="button"
+                class="wishlist-btn"
+                aria-label="Thêm sản phẩm vào yêu thích"
+                title="Yêu thích"
+            >♡</button>
+        </div>
 
-            <article class="recommend-card">
-                <div class="product-image">
-                    <img src="{% static 'images/product-pencils.jpg' %}"
-                         alt="Bút chì gỗ Thiên Long 2B">
-                    <button type="button" class="wishlist-btn"
-                            aria-label="Thêm bút chì vào yêu thích">♡</button>
-                </div>
-                <div class="recommend-product-info">
-                    <p class="product-brand">THIÊN LONG</p>
-                    <h3>Bút chì gỗ Thiên Long 2B • Hộp 12 cây</h3>
-                    <div class="product-rating">
-                        <span>★★★★★</span>
-                        <small>(61)</small>
-                    </div>
-                    <div class="product-price">
-                        <strong>36.000đ</strong>
-                    </div>
-                </div>
-            </article>
+        <!-- Thông tin sản phẩm -->
+
+<div class="recommend-product-info">
+
+    <p class="product-brand">
+        {{ the.san_pham.thuong_hieu.ten_thuong_hieu|default:"NOSCO" }}
+    </p>
+
+    <h3>
+        <a
+            href="{% url 'sanpham:chi_tiet_san_pham' the.san_pham.ma_san_pham %}"
+            class="recommend-product-link"
+        >
+            {{ the.san_pham.ten_san_pham }}
+        </a>
+    </h3>
+
+    <p class="recommend-reason">{{ ly_do_goi_y }}</p>
+
+    <div class="product-price">
+        {% if the.gia_hien_thi %}
+            <strong>{{ the.gia_hien_thi }}đ</strong>
+        {% else %}
+            <strong>Chưa có giá</strong>
+        {% endif %}
+    </div>
+
+    <div class="product-card-extra">
+        <p class="product-sold">
+            Đã bán: {{ the.san_pham.so_luong_da_ban|default:"0" }}
+        </p>
+
+        <div class="product-rating">
+            <span class="rating-star">★</span>
+            <span>Chưa có đánh giá</span>
+
+            <button
+                type="button"
+                class="favorite-btn"
+                title="Thêm vào yêu thích"
+                aria-label="Thêm vào yêu thích"
+            >♡</button>
+        </div>
+
+        <div class="product-buy-actions d-flex gap-2 mt-3">
+            <button
+                type="button"
+                class="btn btn-outline-primary product-add-cart flex-fill"
+                disabled
+                title="Chưa kết nối module giỏ hàng"
+            >
+                <i class="fa-solid fa-cart-shopping me-1"></i>
+                <span>Thêm vào giỏ</span>
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-primary product-buy-now flex-fill"
+                disabled
+                title="Chưa kết nối module đặt hàng"
+            >
+                <span>Mua ngay</span>
+                <i class="fa-solid fa-arrow-right ms-1"></i>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+        </article>
+    {% endwith %}
+{% empty %}
+    <p class="recommend-empty">
+        Hiện chưa có sản phẩm phù hợp để gợi ý.
+    </p>
+{% endfor %}
+
+
+
 
         </div>
     </div>
 </section>
 
 
+<!-- GÓC HỌC TẬP VÀ LÀM VIỆC -->
+<section class="inspiration-section">
+    <div class="inspiration-container">
+
+        <div class="inspiration-heading">
+            <span>INSPIRED BY NOSCO</span>
+            <h2>Góc học tập và làm việc</h2>
+            <p>
+                Khám phá những góc nhỏ truyền cảm hứng
+                cho học tập, công việc và sáng tạo mỗi ngày.
+            </p>
+        </div>
+
+        <div class="inspiration-grid">
+
+            <div class="inspiration-card study-card">
+                <div class="inspiration-content">
+                    <span>STUDY CORNER</span>
+                    <h3>Góc học tập<br>gọn gàng</h3>
+                    <p>Sắp xếp dụng cụ học tập, khơi nguồn cảm hứng.</p>
+                    <a href="{% url 'sanpham:danh_sach_san_pham' %}?nhom=hoc_tap" class="inspiration-btn">
+    Khám phá ngay
+    <i class="fa-solid fa-arrow-right"></i>
+</a>
+                </div>
+            </div>
+
+            <div class="inspiration-card work-card">
+                <div class="inspiration-content">
+                    <span>WORKSPACE</span>
+                    <h3>Góc làm việc<br>tối giản</h3>
+                    <p>Tạo không gian làm việc khoa học và tiện lợi.</p>
+                    <a href="{% url 'sanpham:danh_sach_san_pham' %}?nhom=lam_viec"
+   class="inspiration-btn">
+    Khám phá ngay
+    <i class="fa-solid fa-arrow-right"></i>
+</a>
+                </div>
+            </div>
+
+            <div class="inspiration-card creative-card">
+                <div class="inspiration-content">
+                    <span>CREATIVE CORNER</span>
+                    <h3>Góc sáng tạo<br>mỗi ngày</h3>
+                    <p>Thỏa sức sáng tạo với những món đồ văn phòng phẩm.</p>
+                    <a href="{% url 'sanpham:danh_sach_san_pham' %}?nhom=sang_tao"
+   class="inspiration-btn">
+    Khám phá ngay
+    <i class="fa-solid fa-arrow-right"></i>
+</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
 
 
+<!-- NOSCO TIPS - CAM NANG VAN PHONG PHAM -->
+<section class="nosco-tips-section">
+    <div class="nosco-tips-container">
+
+        <!-- TIÊU ĐỀ -->
+        <div class="nosco-tips-header">
+            <div>
+                <span class="nosco-tips-label">THE NOSCO JOURNAL</span>
+                <h2>Góc kiến thức văn phòng phẩm</h2>
+                <p>
+                    Những mẹo nhỏ và ý tưởng hữu ích giúp
+                    bạn học tập, làm việc hiệu quả hơn.
+                </p>
+            </div>
+
+            <span class="nosco-tips-number">01 / INSPIRE</span>
+        </div>
+
+        <!-- DANH SÁCH BÀI VIẾT -->
+        <div class="nosco-tips-layout">
+
+            <!-- BÀI VIẾT NỔI BẬT -->
+            <article class="tips-featured-card">
+                <div class="tips-featured-image">
+                    <img src="{% static 'images/tips_hoc_tap.jpg' %}"
+                         alt="Góc học tập gọn gàng">
+                    <span class="tips-category">STUDY TIPS</span>
+                </div>
+
+                <div class="tips-featured-content">
+                    <span class="tips-meta">GÓC HỌC TẬP · 5 PHÚT ĐỌC</span>
+
+                    <h3>
+                        Bí quyết xây dựng góc học tập
+                        gọn gàng và đầy cảm hứng
+                    </h3>
+
+                    <p>
+                        Một không gian học tập khoa học không chỉ
+                        giúp bạn dễ dàng tìm kiếm dụng cụ mà còn
+                        tạo thêm động lực mỗi ngày.
+                    </p>
+                </div>
+            </article>
+
+            <!-- HAI BÀI VIẾT PHỤ -->
+            <div class="tips-side-list">
+
+                <article class="tips-small-card">
+                    <div class="tips-small-image">
+                        <img src="{% static 'images/tips_chon_but.jpg' %}"
+                             alt="Các loại bút viết">
+                    </div>
+
+                    <div class="tips-small-content">
+                        <span>PRODUCT GUIDE</span>
+                        <h3>
+                            Cách chọn bút viết phù hợp
+                            với từng nhu cầu
+                        </h3>
+                    </div>
+                </article>
+
+                <article class="tips-small-card">
+                    <div class="tips-small-image">
+                        <img src="{% static 'images/tips_chon_so.jpg' %}"
+                             alt="Sổ tay và dụng cụ ghi chép">
+                    </div>
+
+                    <div class="tips-small-content">
+                        <span>CREATIVE IDEAS</span>
+                        <h3>
+                            Chọn sổ tay và ghi chép
+                            khoa học hơn mỗi ngày
+                        </h3>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+        <!-- NÚT XEM TẤT CẢ -->
+        <div class="blog-view-all">
+            <a href="{% url 'danh_sach_bai_viet' %}" class="btn-view-all">
+                Đọc tất cả bài viết
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- NOSCO GIFT COLLECTION -->
+<section class="gift-guide-section">
+    <div class="gift-guide-container">
+
+        <div class="gift-collection-layout">
+
+            <!-- BANNER BÊN TRÁI -->
+            <div class="gift-collection-banner">
+                <span class="gift-banner-label">✦ NOSCO GIFT COLLECTION</span>
+
+                <div class="gift-banner-content">
+                    <span class="gift-banner-subtitle">
+                        LITTLE THINGS, BIG MEANING
+                    </span>
+
+                    <h2>
+                        Trao gửi<br>
+                        yêu thương
+                    </h2>
+
+                    <p>
+                        Một món quà nhỏ, một sự quan tâm lớn.
+                        Khám phá những lựa chọn thiết thực dành
+                        cho người bạn yêu quý.
+                    </p>
+
+                    <a href="{% url 'sanpham:danh_sach_san_pham' %}"
+                       class="gift-banner-button">
+                        Khám phá ngay
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <span class="gift-banner-decoration">GIFT</span>
+            </div>
+
+            <!-- 8 SẢN PHẨM BÊN PHẢI -->
+            <div class="gift-collection-products">
+
+                <div class="gift-products-heading">
+                    <div>
+                        <span>CURATED WITH CARE</span>
+                        <h2>Gợi ý quà tặng</h2>
+                    </div>
+
+                    <span class="gift-products-count">
+                        {{ san_pham_qua_tang|length }} sản phẩm
+                    </span>
+                </div>
+
+                <div class="gift-products-grid">
+
+                    {% for the in san_pham_qua_tang %}
+        {% with sp=the.san_pham %}
+            <article class="best-seller-card">
+
+                <a href="{% url 'sanpham:chi_tiet_san_pham' sp.ma_san_pham %}"
+                   class="best-seller-image">
+
+                    {% if the.anh_dai_dien and the.anh_dai_dien.duong_dan_anh %}
+                        <img src="{{ the.anh_dai_dien.duong_dan_anh.url }}"
+                             alt="{{ sp.ten_san_pham }}"
+                             loading="lazy">
+                    {% else %}
+                        <div class="product-no-image">
+                            <span>✦</span>
+                            <p>NOSCO</p>
+                        </div>
+                    {% endif %}
+
+                    {% if the.con_hang %}
+                        <span class="product-badge">Quà tặng</span>
+                    {% else %}
+                        <span class="product-badge">Tạm hết hàng</span>
+                    {% endif %}
+                </a>
+
+                <div class="best-seller-info">
+
+                    <p class="product-category">
+                        {{ sp.danh_muc.ten_danh_muc|upper }}
+                    </p>
+
+                    <h3>
+                        <a href="{% url 'sanpham:chi_tiet_san_pham' sp.ma_san_pham %}"
+                           title="{{ sp.ten_san_pham }}">
+                            {{ sp.ten_san_pham }}
+                        </a>
+                    </h3>
+
+                    <div class="product-price">
+                        {% if the.gia_hien_thi %}
+                            <strong>{{ the.gia_hien_thi }}đ</strong>
+                        {% else %}
+                            <strong>Chưa có giá</strong>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </article>
+        {% endwith %}
+    {% empty %}
+        <p class="gift-products-empty">
+            Chưa có sản phẩm quà tặng.
+        </p>
+    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<!-- NOSCO INSPIRATION SECTION -->
+<section class="nosco-inspiration">
+
+    <div class="inspiration-image inspiration-image-left">
+        <img src="{% static 'images/inspiration-left.jpg' %}"
+             alt="Góc sáng tạo cùng NOSCO">
+    </div>
+
+    <div class="inspiration-content">
+        <span class="inspiration-label">A LITTLE INSPIRATION</span>
+
+        <h2>
+            Không chỉ là văn phòng phẩm,
+            <span>mà còn là cảm hứng mỗi ngày.</span>
+        </h2>
+
+        <p>
+            Từ những trang vở đầu tiên đến những ý tưởng mới,
+            NOSCO luôn đồng hành cùng bạn trong từng khoảnh khắc
+            học tập và sáng tạo.
+        </p>
+
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}"
+           class="inspiration-button">
+            Khám phá sản phẩm
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
+        <div class="inspiration-keywords">
+            <span>QUALITY</span>
+            <span>•</span>
+            <span>CREATIVITY</span>
+            <span>•</span>
+            <span>INSPIRATION</span>
+        </div>
+    </div>
+
+    <div class="inspiration-image inspiration-image-right">
+        <img src="{% static 'images/inspiration-right.jpg' %}"
+             alt="Không gian học tập sáng tạo">
+    </div>
+
+</section>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".recommend-tab");
+    const products = document.querySelectorAll(".recommend-card");
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            const selectedCategory = this.dataset.filter;
+
+            // Đổi trạng thái tab đang được chọn
+            tabs.forEach(function (item) {
+                item.classList.remove("active");
+            });
+
+            this.classList.add("active");
+
+            // Lọc sản phẩm theo danh mục
+            products.forEach(function (product) {
+                const productCategory = product.dataset.category;
+
+                if (
+                    selectedCategory === "all" ||
+                    productCategory === selectedCategory
+                ) {
+                    product.style.display = "";
+                } else {
+                    product.style.display = "none";
+                }
+            });
+        });
+    });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tabs = document.querySelectorAll(".recommend-tab");
+    const products = document.querySelectorAll(".recommend-card");
+
+    function filterProducts(selectedGroup) {
+        tabs.forEach(function (tab) {
+            tab.classList.toggle(
+                "active",
+                tab.dataset.filter === selectedGroup
+            );
+        });
+
+        products.forEach(function (product) {
+            product.style.display =
+                product.dataset.group === selectedGroup ? "" : "none";
+        });
+    }
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+            filterProducts(this.dataset.filter);
+        });
+    });
+
+    filterProducts("ca_nhan");
+});
+</script>
 {% endblock %}

@@ -1,0 +1,48 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Thương hiệu | NOSCO{% endblock %}
+
+{% block content %}
+<section class="brand-page">
+    <div class="brand-page-header">
+        <h1>Thương hiệu</h1>
+        <p>Khám phá các thương hiệu văn phòng phẩm tại NOSCO.</p>
+    </div>
+
+    <div class="brand-list">
+        {% for brand in thuong_hieus %}
+            <a
+                class="brand-row"
+                href="{% url 'sanpham:danh_sach_san_pham' %}?thuong_hieu={{ brand.pk }}"
+            >
+                <div class="brand-row-logo">
+                    {% if brand.logo %}
+    <img src="{{ brand.logo.url }}" alt="{{ brand.ten_thuong_hieu }}">
+                    {% else %}
+                        <span class="brand-logo-placeholder">
+                            {{ brand.ten_thuong_hieu|first }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="brand-row-info">
+                    <h2>{{ brand.ten_thuong_hieu }}</h2>
+                    {% if brand.mo_ta %}
+                        <p>{{ brand.mo_ta }}</p>
+                    {% endif %}
+                </div>
+
+                <span class="brand-row-arrow" aria-hidden="true">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </span>
+            </a>
+        {% empty %}
+            <p class="brand-empty">
+                Hiện chưa có thương hiệu nào được cập nhật.
+            </p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -11,9 +11,12 @@ urlpatterns = [
     # Giao diện chung
     path("", views.base, name="base"),
     path("home", views.home, name="home"),
+    path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
+path("ve-chung-toi/", views.ve_chung_toi, name="ve_chung_toi"),
 
     # Module sản phẩm
     path("san-pham/", include("SANPHAM.urls")),
+
 ]
 
 # Phục vụ ảnh tải lên khi chạy ở chế độ phát triển

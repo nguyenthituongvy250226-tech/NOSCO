@@ -1,11 +1,13 @@
 from django.contrib import admin
-
 from .models import (
     DanhMucSanPham,
     ThuongHieu,
     SanPham,
     BienTheSanPham,
     HinhAnhSanPham,
+    BaiViet,
+    SanPhamQuaTang,
+
 )
 
 
@@ -69,3 +71,24 @@ class HinhAnhSanPhamAdmin(admin.ModelAdmin):
         "anh_dai_dien",
     )
     list_filter = ("anh_dai_dien",)
+
+
+# QUẢN LÝ BÀI VIẾT
+@admin.register(BaiViet)
+class BaiVietAdmin(admin.ModelAdmin):
+    list_display = (
+        "ma_bai_viet",
+        "tieu_de",
+        "ngay_dang",
+        "trang_thai",
+    )
+    list_filter = ("trang_thai", "ngay_dang")
+    search_fields = ("ma_bai_viet", "tieu_de")
+    ordering = ("-ngay_dang",)
+
+@admin.register(SanPhamQuaTang)
+class SanPhamQuaTangAdmin(admin.ModelAdmin):
+    list_display = ["san_pham", "vi_tri"]
+    list_editable = ["vi_tri"]
+    ordering = ["vi_tri"]
+    list_per_page = 8

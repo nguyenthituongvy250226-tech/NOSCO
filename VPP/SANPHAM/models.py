@@ -45,10 +45,10 @@ class ThuongHieu(models.Model):
         max_length=100,
         db_column="TenThuongHieu",
     )
-    logo = models.CharField(
-        max_length=255,
+    logo = models.ImageField(
+        upload_to="thuong_hieu/",
         blank=True,
-        db_column="Logo",
+        null=True
     )
     mo_ta = models.TextField(
         blank=True,
@@ -63,7 +63,10 @@ class ThuongHieu(models.Model):
     def __str__(self):
         return self.ten_thuong_hieu
 
-
+TRANG_THAI_CHOICES = [
+    ("Đang bán", "Đang bán"),
+    ("Ngừng bán", "Ngừng bán"),
+]
 class SanPham(models.Model):
     TRANG_THAI_CHOICES = [
         ("Đang bán", "Đang bán"),
@@ -115,7 +118,38 @@ class SanPham(models.Model):
     def __str__(self):
         return self.ten_san_pham
 
+class SanPhamQuaTang(models.Model):
+    VI_TRI_CHOICES = [
+        (1, "Vị trí 1"),
+        (2, "Vị trí 2"),
+        (3, "Vị trí 3"),
+        (4, "Vị trí 4"),
+        (5, "Vị trí 5"),
+        (6, "Vị trí 6"),
+        (7, "Vị trí 7"),
+        (8, "Vị trí 8"),
+    ]
 
+    san_pham = models.OneToOneField(
+        SanPham,
+        on_delete=models.CASCADE,
+        related_name="bo_suu_tap_qua_tang",
+        db_column="MaSanPham",
+    )
+
+    vi_tri = models.PositiveSmallIntegerField(
+        choices=VI_TRI_CHOICES,
+        unique=True,
+        db_column="ViTri",
+    )
+
+    class Meta:
+        verbose_name = "Sản phẩm quà tặng"
+        verbose_name_plural = "Bộ sưu tập quà tặng"
+        ordering = ["vi_tri"]
+
+    def __str__(self):
+        return f"{self.vi_tri} - {self.san_pham.ten_san_pham}"
 class BienTheSanPham(models.Model):
     ma_bien_the = models.CharField(
         max_length=10,
@@ -189,3 +223,47 @@ class HinhAnhSanPham(models.Model):
 
     def __str__(self):
         return f"Hình ảnh {self.ma_hinh_anh}"
+
+class BaiViet(models.Model):
+    ma_bai_viet = models.CharField(
+        max_length=10,
+        primary_key=True,
+        db_column="MaBaiViet",
+    )
+
+    tieu_de = models.CharField(
+        max_length=200,
+        db_column="TieuDe",
+    )
+
+    hinh_anh = models.ImageField(
+        upload_to="bai_viet/",
+        db_column="HinhAnh",
+    )
+
+    noi_dung = models.TextField(
+        db_column="NoiDung",
+    )
+
+    ngay_dang = models.DateTimeField(
+        default=timezone.now,
+        db_column="NgayDang",
+    )
+
+    trang_thai = models.CharField(
+        max_length=20,
+        choices=[
+            ("Bản nháp", "Bản nháp"),
+            ("Đã đăng", "Đã đăng"),
+        ],
+        default="Bản nháp",
+        db_column="TrangThai",
+    )
+
+    class Meta:
+        verbose_name = "Bài viết"
+        verbose_name_plural = "Bài viết"
+        ordering = ["-ngay_dang"]
+
+    def __str__(self):
+        return self.tieu_de

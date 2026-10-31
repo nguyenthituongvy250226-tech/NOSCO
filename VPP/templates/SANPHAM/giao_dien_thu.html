@@ -7,6 +7,8 @@
 {% block content %}
 
 <section class="recommend-section">
+{% if not request.GET.q or danh_sach_san_pham %}
+    <!-- Giữ nguyên toàn bộ HTML banner hiện tại ở đây -->
 
     <!-- BANNER NOSCO -->
     <div class="nosco-banner">
@@ -15,6 +17,8 @@
             alt="NOSCO - Văn phòng phẩm cho mọi hành trình"
         >
     </div>
+{% endif %}
+
     <div class="recommend-inner">
 
         <div class="recommend-heading">
@@ -42,16 +46,7 @@
 
             <h3>Bộ lọc sản phẩm</h3>
 
-            <div class="filter-field">
-                <label for="q">Tìm kiếm</label>
-                <input
-                    type="search"
-                    id="q"
-                    name="q"
-                    value="{{ tu_khoa }}"
-                    placeholder="Tên sản phẩm..."
-                >
-            </div>
+
 
             <div class="filter-field">
                 <label for="danh_muc">Danh mục</label>
@@ -177,13 +172,15 @@
 
             <h3>{{ item.san_pham.ten_san_pham }}</h3>
 
-            <div class="product-price">
-                {% if item.gia_thap_nhat != None %}
-                    <strong>{{ item.gia_thap_nhat|floatformat:0 }}đ</strong>
-                {% else %}
-                    <strong>Chưa có giá</strong>
-                {% endif %}
-            </div>
+
+<div class="product-price">
+    {% if item.gia_thap_nhat != None %}
+        <strong>{{ item.gia_hien_thi }}đ</strong>
+    {% else %}
+        <strong>Chưa có giá</strong>
+    {% endif %}
+</div>
+
         </div>
     </a>
 
@@ -236,11 +233,80 @@
 
             </div>
         {% else %}
-            <div class="empty-products">
-                <h3>Không tìm thấy sản phẩm</h3>
-                <p>Hãy thử thay đổi từ khóa hoặc điều kiện lọc.</p>
-            </div>
-        {% endif %}
+
+<div class="empty-search">
+    <div class="empty-search-icon">
+        <i class="bi bi-search"></i>
+    </div>
+    <img
+    src="{% static 'images/khong_tim_thay.png' %}"
+    alt="Các nhân vật văn phòng phẩm đang tìm kiếm"
+    class="empty-search-image"
+>
+    <h3>Không tìm thấy sản phẩm phù hợp</h3>
+
+    <p>
+        Rất tiếc, NOSCO chưa tìm thấy sản phẩm phù hợp với từ khóa
+        <strong>"{{ request.GET.q }}"</strong>.
+    </p>
+
+    <p class="empty-search-hint">
+        Bạn có thể thử từ khóa khác hoặc tham khảo các sản phẩm bên dưới nhé!
+    </p>
+</div>
+
+
+    {% if san_pham_goi_y %}
+        <div class="recommend-heading">
+            <h3>Gợi ý dành cho bạn</h3>
+        </div>
+
+        <div class="recommend-grid">
+            {% for item in san_pham_goi_y %}
+                <article class="recommend-card">
+                    <a
+                        class="product-detail-link"
+                        href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                    >
+                        <div class="product-image">
+                            {% if item.anh_dai_dien %}
+                                <img
+                                    src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                                    alt="{{ item.san_pham.ten_san_pham }}"
+                                    loading="lazy"
+                                >
+                            {% else %}
+                                <img
+                                    src="{% static 'images/product-notebook.jpg' %}"
+                                    alt="Ảnh sản phẩm đang cập nhật"
+                                    loading="lazy"
+                                >
+                            {% endif %}
+                        </div>
+
+                        <div class="recommend-product-info">
+                            <p class="product-brand">
+                                {{ item.san_pham.thuong_hieu.ten_thuong_hieu }}
+                            </p>
+
+                            <h3>{{ item.san_pham.ten_san_pham }}</h3>
+
+                           <div class="product-price">
+    {% if item.gia_thap_nhat != None %}
+        <strong>
+            {{ item.gia_hien_thi }}đ
+        </strong>
+    {% else %}
+        <strong>Chưa có giá</strong>
+    {% endif %}
+</div>
+                        </div>
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endif %}
 
     </div>
 

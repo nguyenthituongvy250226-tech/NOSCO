@@ -133,15 +133,17 @@
 
                     <div class="product-variant-list">
                         {% for bien_the in bien_the_list %}
-                            <label class="product-variant-option">
-                                <input
-                                    type="radio"
-                                    name="bien_the"
-                                    value="{{ bien_the.ma_bien_the }}"
-                                    data-price="{{ bien_the.gia_ban }}"
-                                    data-stock="{{ bien_the.so_luong_ton }}"
-                                    {% if bien_the == bien_the_mac_dinh %}checked{% endif %}
-                                >
+
+<label class="product-variant-option {% if bien_the.so_luong_ton <= 0 %}variant-out-of-stock{% endif %}">
+    <input
+        type="radio"
+        name="bien_the"
+        value="{{ bien_the.ma_bien_the }}"
+        data-price="{{ bien_the.gia_ban }}"
+        data-stock="{{ bien_the.so_luong_ton }}"
+        {% if bien_the == bien_the_mac_dinh %}checked{% endif %}
+    >
+
 
                                 <span class="product-variant-option-text">
                                     <strong>
@@ -335,7 +337,7 @@
                                 <th>Màu sắc</th>
                                 <th>Kích thước</th>
                                 <th>Giá bán</th>
-                                <th>Tồn kho</th>
+                                <th>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -345,7 +347,12 @@
                                     <td>{{ bien_the.mau_sac|default:"—" }}</td>
                                     <td>{{ bien_the.kich_thuoc|default:"—" }}</td>
                                     <td>{{ bien_the.gia_ban|floatformat:0 }} đ</td>
-                                    <td>{{ bien_the.so_luong_ton }}</td>
+                                    <td>{% if bien_the.so_luong_ton > 0 %}
+                                        {{ bien_the.so_luong_ton }} — Còn hàng
+                                        {% else %}
+                                        0 — Hết hàng
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% empty %}
                                 <tr>
@@ -357,13 +364,162 @@
                 </div>
             </div>
 
-            <div class="product-detail-tab-panel" id="tab-reviews" hidden>
-                <h2>Đánh giá sản phẩm</h2>
-                <p>
-                    Chức năng đánh giá sẽ được bổ sung khi hoàn thiện module đánh giá sản phẩm.
-                </p>
+
+<div class="product-detail-tab-panel" id="tab-reviews" hidden>
+    <div class="reviews-section">
+
+        <!-- Tiêu đề -->
+        <div class="reviews-heading">
+            <div>
+                <span class="reviews-eyebrow">GÓC CHIA SẺ</span>
+                <h2>Khách hàng nói gì?</h2>
+                <p>Những cảm nhận chân thực giúp bạn chọn sản phẩm phù hợp hơn.</p>
             </div>
 
+            <div class="reviews-total">
+                <span class="reviews-total-number">0</span>
+                <span>đánh giá</span>
+            </div>
+        </div>
+
+        <!-- Tổng quan đánh giá -->
+        <div class="reviews-overview">
+            <div class="reviews-score">
+                <strong>—<span>/5</span></strong>
+                <div class="reviews-stars" aria-label="Chưa có điểm đánh giá">
+                    {% for i in "12345" %}
+                        <span aria-hidden="true">☆</span>
+                    {% endfor %}
+                </div>
+                <p>Chưa có điểm đánh giá</p>
+            </div>
+
+            <div class="reviews-divider"></div>
+
+            <div class="reviews-breakdown">
+                <h3>Tổng quan xếp hạng</h3>
+
+                {% for sao in "54321" %}
+                    <div class="reviews-rating-row">
+                        <span>{{ sao }} sao</span>
+                        <div class="reviews-rating-track">
+                            <div class="reviews-rating-fill"></div>
+                        </div>
+                        <span>0</span>
+                    </div>
+                {% endfor %}
+
+                <p class="reviews-note">
+                    Thống kê sẽ được cập nhật khi có đánh giá thực tế.
+                </p>
+            </div>
+        </div>
+
+        <!-- Danh sách đánh giá -->
+        <div class="reviews-list-heading">
+            <h3>Nhận xét từ khách hàng</h3>
+            <span>Mới nhất</span>
+        </div>
+
+        <div class="reviews-empty">
+            <div class="reviews-empty-icon">
+    <img
+        src="{% static 'images/anh_danh_gia.png' %}"
+        alt="Minh họa chưa có đánh giá"
+        class="reviews-empty-image"
+    >
+</div>
+
+            <h3>Chưa có đánh giá nào</h3>
+
+            <p>
+                Sản phẩm này vẫn đang chờ những cảm nhận đầu tiên.
+                Hãy quay lại sau để khám phá đánh giá từ khách hàng nhé!
+            </p>
+
+            <span class="reviews-empty-label">
+                <span></span>
+                Đang chờ đánh giá đầu tiên
+            </span>
+        </div>
+
+        <div class="reviews-footer">
+            <span class="reviews-footer-icon">✦</span>
+            <p>
+                <strong>Mỗi trải nghiệm đều đáng quý.</strong>
+                NOSCO luôn mong muốn mang đến những sản phẩm văn phòng phẩm
+                phù hợp với nhu cầu của bạn.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+
+        </section>
+                <!-- SẢN PHẨM GỢI Ý -->
+        <section class="related-products">
+            <div class="related-products-heading">
+                <div>
+                    <p class="related-products-eyebrow">NOSCO RECOMMENDS</p>
+                    <h2>Có thể bạn cũng thích</h2>
+                    <p>Khám phá thêm những sản phẩm phù hợp với bạn.</p>
+                </div>
+            </div>
+
+            <div class="related-products-grid">
+                {% for item in danh_sach_goi_y %}
+                    <article class="related-product-card">
+                        <a
+                            href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                            class="related-product-image"
+                        >
+                            {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
+                                <img
+                                    src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                                    alt="{{ item.san_pham.ten_san_pham }}"
+                                    loading="lazy"
+                                >
+                            {% else %}
+                                <div class="related-product-no-image">
+                                    Chưa có hình ảnh
+                                </div>
+                            {% endif %}
+                        </a>
+
+                        <div class="related-product-info">
+                            <p class="related-product-brand">
+                                {{ item.san_pham.thuong_hieu.ten_thuong_hieu|default:"NOSCO" }}
+                            </p>
+
+                            <h3>
+                                <a href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}">
+                                    {{ item.san_pham.ten_san_pham }}
+                                </a>
+                            </h3>
+
+                            <div class="related-product-price">
+                                {% if item.gia_thap_nhat != None %}
+                                    {{ item.gia_thap_nhat|floatformat:0 }} đ
+                                {% else %}
+                                    Chưa có giá
+                                {% endif %}
+                            </div>
+
+                            <a
+                                href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                                class="related-product-view"
+                            >
+                                Xem chi tiết <span>→</span>
+                            </a>
+                        </div>
+                    </article>
+                {% empty %}
+                    <p class="related-products-empty">
+                        Hiện chưa có sản phẩm liên quan để gợi ý.
+                    </p>
+                {% endfor %}
+            </div>
         </section>
     </div>
 </section>
@@ -454,28 +610,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateVariant(false);
 
-    // Tăng giảm số lượng.
-    document.querySelectorAll("[data-quantity-change]").forEach(function (button) {
-        button.addEventListener("click", function () {
-            if (!quantityInput) return;
+   // Tăng giảm số lượng.
+document.querySelectorAll("[data-quantity-change]").forEach(function (button) {
+    button.addEventListener("click", function () {
+        if (!quantityInput) return;
 
-            const change = Number(button.dataset.quantityChange);
-            const current = Number(quantityInput.value) || 1;
-            const max = Number(quantityInput.max) || 1;
+        const change = Number(button.dataset.quantityChange);
+        const current = Number(quantityInput.value) || 1;
+        const min = Number(quantityInput.min) || 1;
+        const max = Number(quantityInput.max) || 1;
 
-            quantityInput.value = Math.max(1, Math.min(current + change, max));
-        });
+        quantityInput.value = Math.max(
+            min,
+            Math.min(current + change, max)
+        );
     });
+});
 
-    if (quantityInput) {
-        quantityInput.addEventListener("change", function () {
-            const current = Number(quantityInput.value) || 1;
-            const max = Number(quantityInput.max) || 1;
+if (quantityInput) {
+    quantityInput.addEventListener("change", function () {
+        const current = Number(quantityInput.value) || 1;
+        const min = Number(quantityInput.min) || 1;
+        const max = Number(quantityInput.max) || 1;
 
-            quantityInput.value = Math.max(1, Math.min(current, max));
-        });
-    }
-
+        quantityInput.value = Math.max(
+            min,
+            Math.min(current, max)
+        );
+    });
+}
     // Chuyển các tab thông tin.
     const tabs = document.querySelectorAll(".product-detail-tab");
     const panels = document.querySelectorAll(".product-detail-tab-panel");
@@ -610,48 +773,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (quantityControl) {
         quantityControl.querySelectorAll("button").forEach(function (button) {
-            style(button, {
-                "appearance": "none",
-                "width": "38px",
-                "height": "38px",
-                "padding": "0",
-                "border": "0",
-                "border-radius": "0",
-                "background": "#f0f6fc",
-                "color": "#0864b5",
-                "font-size": "20px",
-                "cursor": "pointer",
-                "display": "inline-flex",
-                "align-items": "center",
-                "justify-content": "center"
-            });
-
-            if (!button.dataset.quantityBound) {
-                button.dataset.quantityBound = "true";
-
-                button.addEventListener("click", function () {
-                    if (!quantityInput) return;
-
-                    const change = Number(button.dataset.quantityChange || 0);
-                    const current = Number(quantityInput.value) || 1;
-                    const min = Number(quantityInput.min) || 1;
-                    const max = quantityInput.max
-                        ? Number(quantityInput.max)
-                        : Infinity;
-
-                    quantityInput.value = Math.max(
-                        min,
-                        Math.min(max, current + change)
-                    );
-
-                    quantityInput.dispatchEvent(
-                        new Event("change", { bubbles: true })
-                    );
-                });
-            }
+        style(button, {
+            "appearance": "none",
+            "width": "38px",
+            "height": "38px",
+            "padding": "0",
+            "border": "0",
+            "border-radius": "0",
+            "background": "#f0f6fc",
+            "color": "#0864b5",
+            "font-size": "20px",
+            "cursor": "pointer",
+            "display": "inline-flex",
+            "align-items": "center",
+            "justify-content": "center"
         });
-    }
+    });
+}
 
+if (quantityInput) {
     style(quantityInput, {
         "appearance": "textfield",
         "width": "48px",
@@ -666,6 +806,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "font-size": "13px",
         "text-align": "center"
     });
+}
+
+
+
+
 
     /* 2. HAI NÚT MUA HÀNG */
     const actions = page.querySelector(".product-detail-actions");
