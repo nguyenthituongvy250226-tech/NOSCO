@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Yêu cầu trả hàng / hoàn tiền{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
+{% block content %}
+<main class="order-form-page return-page">
+  <p class="order-breadcrumb"><a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">← Chi tiết đơn hàng</a></p>
+  {% if messages %}{% for message in messages %}<p class="order-alert">{{ message }}</p>{% endfor %}{% endif %}
+  <header class="return-page-heading">
+    <h1>Yêu cầu trả hàng / hoàn tiền</h1>
+    <p>Vui lòng cung cấp thông tin chính xác để NOSCO hỗ trợ yêu cầu của bạn.</p>
+  </header>
+
+  <form method="post" enctype="multipart/form-data" class="return-request-form">
+    {% csrf_token %}{{ form.non_field_errors }}
+    <section class="return-order-summary">
+      <h2>Thông tin đơn hàng</h2>
+      <div><span>Mã đơn hàng</span><strong>{{ don_hang.ma_don_hang }}</strong></div>
+      <div><span>Ngày đặt</span><strong>{{ don_hang.ngay_dat|date:"d/m/Y, H:i" }}</strong></div>
+      <div><span>Trạng thái</span><strong>Giao hàng thành công</strong></div>
+      <div><span>Tổng tiền</span><strong>{{ don_hang.tong_tien|floatformat:0 }} đ</strong></div>
+    </section>
+
+    <section class="return-form-section">
+      <h2>Chọn sản phẩm muốn trả</h2>
+      {% for item in don_hang.chi_tiet.all %}
+        <div class="return-product-option">
+          <input id="return-item-{{ item.pk }}" type="checkbox" name="chi_tiet_ids" value="{{ item.pk }}" {% if item.pk|stringformat:"s" in selected_item_ids %}checked{% endif %}>
+          <label class="return-product-info" for="return-item-{{ item.pk }}">
+            <span class="return-product-thumb"><i class="fa-solid fa-box-open"></i></span>
+            <span><strong>{{ item.ma_bien_the }}</strong><small>Phân loại hàng · {{ item.don_gia|floatformat:0 }} đ</small><small>Đã mua ×{{ item.so_luong }}</small></span>
+          </label>
+          <label class="return-quantity"><span>Số lượng muốn trả</span><input type="number" name="so_luong_{{ item.pk }}" min="1" max="{{ item.so_luong }}" value="{{ item.so_luong }}"></label>
+        </div>
+      {% empty %}<p class="order-alert">Đơn hàng chưa có sản phẩm chi tiết nên chưa thể gửi yêu cầu trả hàng.</p>{% endfor %}
+      {{ form.chi_tiet_ids.errors }}
+    </section>
+
+    <section class="return-form-section">
+      <h2>Lý do trả hàng</h2>
+      <div class="return-field"><label for="{{ form.ly_do_tra.id_for_label }}">Chọn lý do</label>{{ form.ly_do_tra }}{{ form.ly_do_tra.errors }}</div>
+    </section>
+
+    <section class="return-form-section">
+      <h2>Mô tả vấn đề</h2>
+      <div class="return-field">{{ form.mo_ta_van_de }}{{ form.mo_ta_van_de.errors }}</div>
+    </section>
+
+    <section class="return-form-section">
+      <h2>Mã vận đơn</h2>
+      <div class="return-field">{{ form.ma_van_don_khach }}{{ form.ma_van_don_khach.errors }}</div>
+    </section>
+
+    <section class="return-form-section">
+      <h2>Hình ảnh/video minh chứng</h2>
+      <label class="return-upload-box" for="{{ form.tep_minh_chung.id_for_label }}">
+        <i class="fa-regular fa-image"></i>
+        <strong>Thêm hình ảnh/video</strong>
+        <span>Tối đa 5 tệp · 10 MB mỗi tệp</span>
+      </label>
+      {{ form.tep_minh_chung }}{{ form.tep_minh_chung.errors }}
+      <div id="return-file-names" class="return-file-names" aria-live="polite"></div>
+    </section>
+
+    <section class="return-form-section">
+      <h2>Phương thức hoàn tiền</h2>
+      <div class="return-refund-options">
+        {% for choice in form.phuong_thuc_hoan_tien %}<label>{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>{% endfor %}
+      </div>
+      {{ form.phuong_thuc_hoan_tien.errors }}
+    </section>
+
+    <div class="return-submit-row">
+      <a class="order-btn" href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">Hủy</a>
+      <button class="order-btn order-btn-primary" type="submit">Gửi yêu cầu trả hàng</button>
+    </div>
+  </form>
+</main>
+<script>
+  document.getElementById("id_tep_minh_chung")?.addEventListener("change", function () {
+    const list = document.getElementById("return-file-names");
+    list.textContent = Array.from(this.files).map(file => file.name).join(" · ");
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Chỉnh sửa đơn hàng {{ don_hang.ma_don_hang }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
+{% block content %}
+<main class="order-form-page">
+  <section class="order-card order-form-card">
+    <p class="order-breadcrumb"><a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">← Quay lại đơn hàng {{ don_hang.ma_don_hang }}</a></p>
+    <h1>Chỉnh sửa thông tin nhận hàng</h1>
+    <p class="order-form-help">Bạn có thể cập nhật người nhận, số điện thoại, địa chỉ và ghi chú khi đơn còn chờ xác nhận.</p>
+    <form method="post">{% csrf_token %}{{ form.non_field_errors }}{{ form.as_p }}
+      <div class="order-actions"><a class="order-btn" href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">Hủy thay đổi</a><button class="order-btn order-btn-primary" type="submit">Lưu thay đổi</button></div>
+    </form>
+  </section>
+</main>
+{% endblock %}

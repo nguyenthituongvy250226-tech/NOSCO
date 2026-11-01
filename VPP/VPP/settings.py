@@ -68,7 +68,9 @@ ROOT_URLCONF = "VPP.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates',
+                 BASE_DIR / "DONHANG" / "templates",
+                 ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -139,6 +141,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_ROOT = BASE_DIR / "media"
 
 STATICFILES_DIRS = (
     [BASE_DIR / "static"]

@@ -50,7 +50,13 @@
             <div class="header-actions">
                 <a class="action-item" href="/tai-khoan/">
                     <i class="fa-regular fa-user"></i>
-                    <div class="action-text"><span>Khách hàng</span><small>Đăng nhập</small></div>
+                    <div class="action-text">
+                        {% if user.is_authenticated %}
+                            <span>{{ user.username|default:user.get_full_name }}</span><small>Tài khoản của tôi</small>
+                        {% else %}
+                            <span>Khách hàng</span><small>Đăng nhập</small>
+                        {% endif %}
+                    </div>
                 </a>
                 <a class="action-item" href="/yeu-thich/">
                     <i class="fa-regular fa-heart"></i>
