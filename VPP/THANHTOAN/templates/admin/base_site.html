@@ -1,0 +1,183 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}NOSCO | Quản trị hệ thống{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        :root {
+            --primary: #174A78;
+            --secondary: #246B9A;
+            --light-blue: #EAF3FA;
+            --page-bg: #F4F7FB;
+            --text-color: #263445;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--page-bg);
+            color: var(--text-color);
+        }
+
+        /* Thanh tiêu đề */
+        #header {
+            background: var(--primary);
+            color: white;
+            padding: 14px 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.12);
+        }
+
+        #branding h1,
+        #branding h1 a:link,
+        #branding h1 a:visited {
+            color: white;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        #user-tools {
+            color: #EAF3FA;
+        }
+
+        #user-tools a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Thanh điều hướng */
+        div.breadcrumbs {
+            background: var(--secondary);
+            padding: 12px 28px;
+            color: white;
+        }
+
+        div.breadcrumbs a {
+            color: white;
+        }
+
+        /* Nội dung */
+        #content {
+            padding: 28px;
+        }
+
+        #content h1 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Các khối dữ liệu */
+        .module,
+        .inline-group {
+            border: 1px solid #E1E8F0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(30, 60, 90, .04);
+        }
+
+        .module h2,
+        .module caption,
+        .inline-group h2 {
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
+        }
+
+        /* Bảng dữ liệu */
+        #result_list {
+            border-radius: 6px;
+        }
+
+        #result_list thead th {
+            background: var(--light-blue);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 12px;
+        }
+
+        #result_list tbody td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+
+        #result_list tbody tr:hover {
+            background: #F0F6FC;
+        }
+
+        /* Nút thao tác */
+        .button,
+        input[type=submit],
+        input[type=button],
+        .submit-row input,
+        a.button {
+            background: var(--primary);
+            border-radius: 5px;
+            padding: 8px 14px;
+        }
+
+        .button:hover,
+        input[type=submit]:hover,
+        input[type=button]:hover {
+            background: var(--secondary);
+        }
+
+        /* Ô nhập liệu */
+        input,
+        select,
+        textarea {
+            border-radius: 5px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--secondary);
+        }
+
+        /* Bộ lọc */
+        #changelist-filter {
+            background: white;
+            border: 1px solid #E1E8F0;
+            border-radius: 8px;
+            padding-bottom: 12px;
+        }
+
+        #changelist-filter h2 {
+            background: var(--primary);
+            color: white;
+            padding: 12px;
+        }
+
+        #changelist-filter h3 {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Liên kết */
+        a:link,
+        a:visited {
+            color: var(--secondary);
+        }
+
+        /* Thông báo */
+        ul.messagelist li {
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        /* Chân trang */
+        #footer {
+            padding: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            NOSCO | Hệ thống quản trị
+        </a>
+    </h1>
+{% endblock %}

@@ -16,7 +16,7 @@ DEBUG = os.environ.get("DEBUG", "True").strip().lower() in {
 }
 
 # Allowed hosts
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", 'rejoice-hug-populate.ngrok-free.dev',]
 
 render_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if render_hostname:
@@ -42,7 +42,7 @@ if render_hostname:
 
 # Application definition
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    'adminconfig.NOSCOAdminConfig',
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -69,7 +69,7 @@ ROOT_URLCONF = "VPP.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -172,3 +172,11 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+import os
+
+VNPAY_TMN_CODE = os.getenv('VNPAY_TMN_CODE', '')
+VNPAY_HASH_SECRET = os.getenv('VNPAY_HASH_SECRET', '')
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
+VNPAY_RETURN_URL = os.getenv(
+    'http://127.0.0.1:8000/thanh_toan/ket-qua/'
+)
