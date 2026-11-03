@@ -100,7 +100,11 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
-        }
+        },
+        "sanpham": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR.parent / "db_sanpham.sqlite3",
+        },
     }
 
 # Password validation
@@ -178,5 +182,6 @@ VNPAY_TMN_CODE = os.getenv('VNPAY_TMN_CODE', '')
 VNPAY_HASH_SECRET = os.getenv('VNPAY_HASH_SECRET', '')
 VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
 VNPAY_RETURN_URL = os.getenv(
+    'VNPAY_RETURN_URL',
     'http://127.0.0.1:8000/thanh_toan/ket-qua/'
 )
