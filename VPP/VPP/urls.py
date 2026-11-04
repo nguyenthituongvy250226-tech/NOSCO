@@ -14,8 +14,10 @@ urlpatterns = [
     path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
 path("ve-chung-toi/", views.ve_chung_toi, name="ve_chung_toi"),
 
+
     # Module sản phẩm
     path("san-pham/", include("SANPHAM.urls")),
+path("yeu-thich/", views.san_pham_yeu_thich, name="san_pham_yeu_thich"),
 
 ]
 

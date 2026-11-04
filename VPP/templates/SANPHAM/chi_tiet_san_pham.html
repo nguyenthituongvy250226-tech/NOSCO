@@ -377,43 +377,49 @@
             </div>
 
             <div class="reviews-total">
-                <span class="reviews-total-number">0</span>
-                <span>đánh giá</span>
-            </div>
+    <span class="reviews-total-number">{{ tong_luot_danh_gia }}</span>
+    <span>đánh giá</span>
+</div>
         </div>
 
-        <!-- Tổng quan đánh giá -->
-        <div class="reviews-overview">
-            <div class="reviews-score">
-                <strong>—<span>/5</span></strong>
-                <div class="reviews-stars" aria-label="Chưa có điểm đánh giá">
-                    {% for i in "12345" %}
-                        <span aria-hidden="true">☆</span>
-                    {% endfor %}
+        <!-- TỔNG QUAN ĐÁNH GIÁ -->
+<div class="reviews-overview">
+    <div class="reviews-score">
+        <strong>{{ diem_trung_binh|floatformat:1 }}<span>/5</span></strong>
+
+        <div class="reviews-stars">
+            {% for sao in "12345" %}
+                {% if forloop.counter <= diem_trung_binh %}
+                    <span>★</span>
+                {% else %}
+                    <span>☆</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <p>{{ tong_luot_danh_gia }} đánh giá</p>
+    </div>
+
+    <div class="reviews-divider"></div>
+
+    <div class="reviews-breakdown">
+        <h3>Tổng quan xếp hạng</h3>
+
+        {% for item in thong_ke_so_sao_list %}
+            <div class="reviews-rating-row">
+                <span>{{ item.sao }} sao</span>
+
+                <div class="reviews-rating-track">
+                    <div class="reviews-rating-fill"
+     data-width="{{ item.ty_le }}">
+</div>
                 </div>
-                <p>Chưa có điểm đánh giá</p>
+
+                <span>{{ item.so_luong }}</span>
             </div>
-
-            <div class="reviews-divider"></div>
-
-            <div class="reviews-breakdown">
-                <h3>Tổng quan xếp hạng</h3>
-
-                {% for sao in "54321" %}
-                    <div class="reviews-rating-row">
-                        <span>{{ sao }} sao</span>
-                        <div class="reviews-rating-track">
-                            <div class="reviews-rating-fill"></div>
-                        </div>
-                        <span>0</span>
-                    </div>
-                {% endfor %}
-
-                <p class="reviews-note">
-                    Thống kê sẽ được cập nhật khi có đánh giá thực tế.
-                </p>
-            </div>
-        </div>
+        {% endfor %}
+    </div>
+</div>
 
         <!-- Danh sách đánh giá -->
         <div class="reviews-list-heading">
@@ -421,28 +427,89 @@
             <span>Mới nhất</span>
         </div>
 
-        <div class="reviews-empty">
-            <div class="reviews-empty-icon">
-    <img
-        src="{% static 'images/anh_danh_gia.png' %}"
-        alt="Minh họa chưa có đánh giá"
-        class="reviews-empty-image"
-    >
-</div>
 
-            <h3>Chưa có đánh giá nào</h3>
+{% if danh_sach_danh_gia %}
+    <div class="reviews-list">
+        {% for danh_gia in danh_sach_danh_gia %}
+            <article class="review-item">
+                <div class="review-item-header">
+                    <strong>
+                        {{ danh_gia.nguoi_danh_gia.get_full_name|default:danh_gia.nguoi_danh_gia.username }}
+                    </strong>
 
-            <p>
-                Sản phẩm này vẫn đang chờ những cảm nhận đầu tiên.
-                Hãy quay lại sau để khám phá đánh giá từ khách hàng nhé!
-            </p>
+                    <span>{{ danh_gia.ngay_danh_gia|date:"d/m/Y" }}</span>
+                </div>
 
-            <span class="reviews-empty-label">
-                <span></span>
-                Đang chờ đánh giá đầu tiên
-            </span>
+                <div class="review-item-stars">
+                    {% for sao in "12345" %}
+                        {% if forloop.counter <= danh_gia.so_sao %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <p>{{ danh_gia.noi_dung|linebreaksbr }}</p>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <!-- Giữ nguyên khối reviews-empty hiện tại của bạn -->
+    <div class="reviews-empty">
+        <div class="reviews-empty-icon">
+            <img
+                src="{% static 'images/anh_danh_gia.png' %}"
+                alt="Minh họa chưa có đánh giá"
+                class="reviews-empty-image"
+            >
         </div>
 
+        <h3>Chưa có đánh giá nào</h3>
+        <p>Sản phẩm này vẫn đang chờ những cảm nhận đầu tiên.</p>
+
+        <span class="reviews-empty-label">
+            <span></span>
+            Đang chờ đánh giá đầu tiên
+        </span>
+    </div>
+{% endif %}
+
+        <!-- FORM VIẾT ĐÁNH GIÁ -->
+<div class="review-form-container">
+    <div class="review-form-heading">
+        <span class="reviews-eyebrow">CHIA SẺ TRẢI NGHIỆM</span>
+        <h3>Viết đánh giá của bạn</h3>
+        <p>Ý kiến của bạn sẽ giúp khách hàng khác lựa chọn sản phẩm phù hợp hơn.</p>
+    </div>
+
+    <form class="review-form" method="POST">
+    {% csrf_token %}
+
+    <div class="review-form-group">
+        <label>Đánh giá của bạn</label>
+        <div class="review-star-options">
+            {% for radio in form_danh_gia.so_sao %}
+                <label>
+                    {{ radio.tag }}
+                    <span>{{ radio.choice_label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        {{ form_danh_gia.so_sao.errors }}
+    </div>
+
+    <div class="review-form-group">
+        <label>Nhận xét sản phẩm</label>
+        {{ form_danh_gia.noi_dung }}
+        {{ form_danh_gia.noi_dung.errors }}
+    </div>
+
+    <button type="submit" class="review-submit-button">
+        Gửi đánh giá
+    </button>
+</form>
+</div>
         <div class="reviews-footer">
             <span class="reviews-footer-icon">✦</span>
             <p>
@@ -639,6 +706,9 @@ if (quantityInput) {
         );
     });
 }
+    document.querySelectorAll(".reviews-rating-fill").forEach(function (bar) {
+    bar.style.width = bar.dataset.width + "%";
+});
     // Chuyển các tab thông tin.
     const tabs = document.querySelectorAll(".product-detail-tab");
     const panels = document.querySelectorAll(".product-detail-tab-panel");

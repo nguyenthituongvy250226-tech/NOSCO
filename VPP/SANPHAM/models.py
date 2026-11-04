@@ -1,7 +1,7 @@
 
 from django.db import models
 from django.utils import timezone
-
+from django.conf import settings
 
 class DanhMucSanPham(models.Model):
     ma_danh_muc = models.CharField(
@@ -267,3 +267,37 @@ class BaiViet(models.Model):
 
     def __str__(self):
         return self.tieu_de
+class DanhGiaSanPham(models.Model):
+    san_pham = models.ForeignKey(
+        SanPham,
+        on_delete=models.CASCADE,
+        related_name="danh_gia"
+    )
+
+    nguoi_danh_gia = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="danh_gia_san_pham"
+    )
+
+    so_sao = models.PositiveSmallIntegerField(
+        choices=[
+            (1, "1 sao"),
+            (2, "2 sao"),
+            (3, "3 sao"),
+            (4, "4 sao"),
+            (5, "5 sao"),
+        ]
+    )
+
+    noi_dung = models.TextField(max_length=1000)
+
+    ngay_danh_gia = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-ngay_danh_gia"]
+        verbose_name = "Đánh giá sản phẩm"
+        verbose_name_plural = "Đánh giá sản phẩm"
+
+    def __str__(self):
+        return f"{self.san_pham.ten_san_pham} - {self.so_sao} sao"

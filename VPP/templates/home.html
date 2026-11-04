@@ -474,12 +474,24 @@
             <span class="rating-star">★</span>
             <span>Chưa có đánh giá</span>
 
-            <button
-                type="button"
-                class="favorite-btn"
-                title="Thêm vào yêu thích"
-                aria-label="Thêm vào yêu thích"
-            >♡</button>
+            <form method="post" action="{% url 'sanpham:toggle_favorite' %}">
+    {% csrf_token %}
+    <input type="hidden" name="ma_san_pham" value="{{ sp.ma_san_pham }}">
+    <input type="hidden" name="next" value="{{ request.path }}">
+
+    <button
+    type="submit"
+    class="favorite-btn {% if sp.ma_san_pham in danh_sach_yeu_thich %}is-favorite{% endif %}"
+    title="{% if sp.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+    aria-label="{% if sp.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+>
+    {% if sp.ma_san_pham in danh_sach_yeu_thich %}
+        ♥
+    {% else %}
+        ♡
+    {% endif %}
+</button>
+</form>
         </div>
 
         <div class="product-buy-actions d-flex gap-2 mt-3">
@@ -597,12 +609,34 @@
                 <span class="product-badge">Hết hàng</span>
             {% endif %}
 
-            <button
-                type="button"
-                class="wishlist-btn"
-                aria-label="Thêm sản phẩm vào yêu thích"
-                title="Yêu thích"
-            >♡</button>
+            <form method="POST" action="{% url 'sanpham:toggle_favorite' %}">
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="ma_san_pham"
+        value="{{ the.san_pham.ma_san_pham }}"
+    >
+
+    <input
+        type="hidden"
+        name="next"
+        value="{{ request.get_full_path }}"
+    >
+
+    <button
+        type="submit"
+        class="favorite-btn {% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}is-favorite{% endif %}"
+        title="{% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+        aria-label="{% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+    >
+        {% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}
+            ♥
+        {% else %}
+            ♡
+        {% endif %}
+    </button>
+</form>
         </div>
 
         <!-- Thông tin sản phẩm -->
@@ -641,12 +675,34 @@
             <span class="rating-star">★</span>
             <span>Chưa có đánh giá</span>
 
-            <button
-                type="button"
-                class="favorite-btn"
-                title="Thêm vào yêu thích"
-                aria-label="Thêm vào yêu thích"
-            >♡</button>
+           <form method="POST" action="{% url 'sanpham:toggle_favorite' %}">
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="ma_san_pham"
+        value="{{ the.san_pham.ma_san_pham }}"
+    >
+
+    <input
+        type="hidden"
+        name="next"
+        value="{{ request.get_full_path }}"
+    >
+
+    <button
+        type="submit"
+        class="favorite-btn {% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}is-favorite{% endif %}"
+        title="{% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+        aria-label="{% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+    >
+        {% if the.san_pham.ma_san_pham in danh_sach_yeu_thich %}
+            ♥
+        {% else %}
+            ♡
+        {% endif %}
+    </button>
+</form>
         </div>
 
         <div class="product-buy-actions d-flex gap-2 mt-3">

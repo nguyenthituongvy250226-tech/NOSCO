@@ -8180,3 +8180,100 @@ a:active {
         display: none;
     }
 }
+.favorite-btn {
+    color: #777;
+    transition: all 0.2s ease;
+}
+
+.favorite-btn.is-favorite {
+    color: #e53955;
+}
+
+.favorite-btn:hover {
+    transform: scale(1.15);
+}
+/* FORM ĐÁNH GIÁ */
+.review-form-container {
+    margin-top: 35px;
+    padding: 28px;
+    background: #f7faff;
+    border: 1px solid #e1ebf5;
+    border-radius: 12px;
+}
+
+.review-form-heading h3 {
+    margin: 8px 0;
+    color: #183b59;
+}
+
+.review-form-heading p,
+.review-form-note {
+    color: #748394;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.review-form-group {
+    margin-top: 22px;
+}
+
+.review-form-group > label {
+    display: block;
+    margin-bottom: 12px;
+    color: #183b59;
+    font-weight: 600;
+}
+
+.review-star-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.review-star-options label {
+    cursor: pointer;
+}
+
+.review-star-options input {
+    display: none;
+}
+
+.review-star-options span {
+    display: inline-block;
+    padding: 9px 14px;
+    border: 1px solid #dce5ef;
+    border-radius: 7px;
+    background: white;
+    color: #e99a27;
+}
+
+.review-star-options input:checked + span {
+    background: #fff2d8;
+    border-color: #f0a52b;
+}
+
+.review-form-group textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dce5ef;
+    border-radius: 8px;
+    font: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.review-submit-button {
+    margin-top: 18px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 7px;
+    background: #0864b5;
+    color: white;
+    font-weight: 600;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.review-form-note {
+    margin-top: 12px;
+}
