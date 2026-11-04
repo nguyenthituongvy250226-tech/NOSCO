@@ -98,3 +98,32 @@ class ChiTietGioHang(models.Model):
 
     def __str__(self):
         return self.ma_chi_tiet_gio_hang
+class ChiaSeGioHang(models.Model):
+    ma_chia_se = models.CharField(
+        max_length=12,
+        primary_key=True,
+        db_column="MaChiaSe",
+    )
+
+    ma_khach_hang = models.CharField(
+        max_length=10,
+        db_column="MaKhachHang",
+    )
+
+    noi_dung = models.JSONField(
+        default=list,
+        db_column="NoiDung",
+    )
+
+    ngay_tao = models.DateTimeField(
+        default=timezone.now,
+        db_column="NgayTao",
+    )
+
+    class Meta:
+        db_table = "ChiaSeGioHang"
+        verbose_name = "Chia sẻ giỏ hàng"
+        verbose_name_plural = "Chia sẻ giỏ hàng"
+
+    def __str__(self):
+        return self.ma_chia_se

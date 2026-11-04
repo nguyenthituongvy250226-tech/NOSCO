@@ -5,8 +5,11 @@ from decimal import Decimal
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+import secrets
 
-from .models import GioHang, ChiTietGioHang
+from django.http import HttpResponse
+from django.urls import reverse
+from .models import GioHang, ChiTietGioHang, ChiaSeGioHang
 SO_BIEN_THE_TOI_DA = 10
 
 # ==========================================
@@ -371,3 +374,51 @@ def xoa_da_chon(request):
         messages.warning(request, "Bạn chưa chọn sản phẩm nào để xóa.")
 
     return redirect("xem_gio_hang")
+# ==========================================
+# CHIA SẺ GIỎ HÀNG
+# ==========================================
+
+@require_POST
+def tao_chia_se(request):
+    gio_hang = lay_gio_hang(request)
+    danh_sach = list(gio_hang.chi_tiet.all())
+
+    if not danh_sach:
+        messages.warning(request, "Giỏ hàng đang trống, chưa có gì để chia sẻ.")
+        return redirect("xem_gio_hang")
+
+    chia_se = ChiaSeGioHang.objects.create(
+        ma_chia_se=secrets.token_urlsafe(9),
+        ma_khach_hang=gio_hang.ma_khach_hang,
+        noi_dung=[
+            {"ma_bien_the": i.ma_bien_the_sp, "so_luong": i.so_luong}
+            for i in danh_sach
+        ],
+    )
+
+    return redirect("trang_chia_se", ma=chia_se.ma_chia_se)
+
+
+def trang_chia_se(request, ma):
+    chia_se = get_object_or_404(
+        ChiaSeGioHang,
+        ma_chia_se=ma,
+        ma_khach_hang=MA_KHACH_HANG_DEMO,
+    )
+
+    duong_dan = request.build_absolute_uri(
+        reverse("nhan_gio_hang", args=[ma])
+    )
+
+    return render(request, "GIOHANG/chia_se.html", {
+        "duong_dan": duong_dan,
+        "so_san_pham": len(chia_se.noi_dung),
+    })
+
+
+def nhan_gio_hang(request, ma):
+    # Tạm thời: bước 2 sẽ làm trang xem và nạp vào giỏ
+    chia_se = get_object_or_404(ChiaSeGioHang, ma_chia_se=ma)
+    return HttpResponse(
+        f"Link hợp lệ, gồm {len(chia_se.noi_dung)} sản phẩm. Bước 2 sẽ làm tiếp."
+    )

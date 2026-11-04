@@ -195,6 +195,12 @@
                             Xóa đã chọn
                         </button>
                     </form>
+                    <form method="POST" action="{% url 'tao_chia_se' %}" data-no-ajax>
+    {% csrf_token %}
+    <button type="submit" class="select-all-btn">
+        <i class="fa-solid fa-share-nodes"></i> Chia sẻ giỏ hàng
+    </button>
+</form>
                 </div>
             </div>
 
@@ -385,6 +391,7 @@
 
         // Chỉ xử lý form nằm trong giỏ hàng
         if (!form.closest(".cart-page")) return;
+        if (form.hasAttribute("data-no-ajax")) return;
 
         // Bấm "Hủy" ở hộp xác nhận xóa thì dừng
         if (e.defaultPrevented) return;
@@ -424,6 +431,7 @@
         });
     });
 })();
+
 </script>
 
 {% endblock %}
