@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Hướng dẫn trả hàng{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
+{% block content %}
+<main class="order-form-page">
+  <section class="order-card order-form-card">
+    <p class="order-breadcrumb"><a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">← Quay lại đơn hàng</a></p>
+    <h1>Hướng dẫn trả hàng</h1>
+    <p class="order-form-help">Đơn {{ don_hang.ma_don_hang }} · Gửi yêu cầu trước {{ return_deadline|date:"d/m/Y, H:i" }}.</p>
+    <div class="return-guide">
+      <strong>Quy trình trả hàng</strong>
+      <ol>
+        <li>Chọn sản phẩm và số lượng muốn trả, sau đó nêu lý do trong biểu mẫu.</li>
+        <li>Chờ nhân viên xem xét yêu cầu. Nếu được duyệt, NOSCO sẽ cung cấp đơn vị vận chuyển và mã vận đơn trả.</li>
+        <li>Đóng gói sản phẩm cùng phụ kiện và bàn giao cho đơn vị vận chuyển theo hướng dẫn.</li>
+      </ol>
+    </div>
+    <div class="order-actions">
+      <a class="order-btn order-btn-primary" href="{% url 'DONHANG:yeu_cau_tra_hang' don_hang.ma_don_hang %}">Tiếp tục gửi yêu cầu trả hàng</a>
+      <a class="order-btn" href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">Để sau</a>
+    </div>
+  </section>
+</main>
+{% endblock %}

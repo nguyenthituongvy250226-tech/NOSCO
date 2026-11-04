@@ -1,11 +1,13 @@
 
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include
 from SANPHAM import views
 from GIOHANG import views as giohang_views
 from CHECKOUT import views as checkout_views
+from DONHANG.views import thong_tin_tai_khoan
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -29,8 +31,13 @@ urlpatterns = [
     # Giao diện chung
     path("", views.base, name="base"),
     path("home", views.home, name="home"),
+
     path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
     path("ve-chung-toi/", views.ve_chung_toi, name="ve_chung_toi"),
+
+    path("tai-khoan/", thong_tin_tai_khoan, name="thong_tin_tai_khoan"),
+    path("don-hang/", include("DONHANG.urls_donhang")),
+
 
     # Module sản phẩm
     path("san-pham/", include("SANPHAM.urls")),

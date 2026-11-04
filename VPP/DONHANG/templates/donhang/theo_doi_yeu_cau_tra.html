@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Theo dõi yêu cầu trả hàng{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=6">{% endblock %}
+{% block content %}
+<main class="order-form-page">
+  <section class="order-card order-form-card">
+    <p class="order-breadcrumb"><a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">← Quay lại chi tiết đơn</a></p>
+    <h1>Yêu cầu trả hàng / hoàn tiền</h1>
+    <p class="order-form-help">Đơn {{ don_hang.ma_don_hang }} · Yêu cầu {{ yeu_cau_tra.ma_yeu_cau_tra }}</p>
+    {% include "donhang/_tien_do_tra_hang.html" %}
+  </section>
+</main>
+{% endblock %}
