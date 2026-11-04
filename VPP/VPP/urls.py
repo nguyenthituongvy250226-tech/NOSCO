@@ -17,8 +17,8 @@ urlpatterns = [
     # Module sản phẩm
     path("san-pham/", include("SANPHAM.urls")),
 # Thanh toan & Khuyen mai
-    path("thanh_toan/", include("THANHTOAN.urls")),
-    path("khuyen_mai/", include("KHUYENMAI.urls")),
+    path("thanh-toan/", include("THANHTOAN.urls")),
+    path("khuyen-mai/", include("KHUYENMAI.urls")),
 ]
 
 # Phục vụ ảnh tải lên khi chạy ở chế độ phát triển

@@ -1,0 +1,87 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chi tiết khuyến mãi - NOSCO{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/khuyen_mai.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chi-tiet-khuyen-mai">
+
+    <a href="{% url 'khuyenmai:danh_sach_khuyen_mai' %}" class="quay-lai-khuyen-mai">
+        <i class="fa-solid fa-arrow-left"></i>
+        Tất cả chương trình khuyến mãi
+    </a>
+
+
+<div class="chi-tiet-banner">
+
+    <div class="chi-tiet-banner-content">
+        <span class="chi-tiet-label">ƯU ĐÃI ĐẶC BIỆT TẠI NOSCO</span>
+
+        <h1>{{ khuyen_mai.TenKhuyenMai }}</h1>
+
+        {% if khuyen_mai.MoTa %}
+            <p>{{ khuyen_mai.MoTa }}</p>
+        {% endif %}
+
+        <div class="chi-tiet-thoi-gian">
+            <i class="fa-regular fa-calendar"></i>
+            {{ khuyen_mai.NgayBatDau|date:"d/m/Y" }}
+            – {{ khuyen_mai.NgayKetThuc|date:"d/m/Y" }}
+        </div>
+    </div>
+
+    <div class="chi-tiet-banner-image">
+        {% if khuyen_mai.MaKhuyenMai == 'KM001' %}
+            <img src="{% static 'images/banner_but_viet.jpg' %}"
+                 alt="Chương trình ưu đãi bút viết">
+        {% elif khuyen_mai.MaKhuyenMai == 'KM002' %}
+            <img src="{% static 'images/banner_goc_hoc_tap.jpg' %}"
+                 alt="Chương trình ưu đãi góc học tập">
+        {% elif khuyen_mai.MaKhuyenMai == 'KM003' %}
+            <img src="{% static 'images/banner_flash_sale.jpg' %}"
+                 alt="Chương trình Flash Sale">
+        {% endif %}
+    </div>
+
+</div>
+
+
+    <div class="danh-sach-san-pham-km">
+        <h2>Sản phẩm áp dụng ưu đãi</h2>
+        <p class="so-luong-san-pham">
+            {{ danh_sach_san_pham|length }} sản phẩm đang tham gia chương trình
+        </p>
+
+        <div class="san-pham-km-grid">
+            {% for sp in danh_sach_san_pham %}
+            <div class="san-pham-km-card">
+                <div class="anh-san-pham-km">
+                    <img src="{% static 'images/' %}{{ sp.hinh_anh }}"
+                         alt="{{ sp.ten_san_pham }}">
+                </div>
+                <span class="phan-tram-giam">-{{ sp.phan_tram_giam|floatformat:0 }}%</span>
+
+                <h3>{{ sp.ten_san_pham }}</h3>
+
+                <div class="gia-san-pham-km">
+                     <span class="gia-goc">
+                         {{ sp.gia_goc_hien_thi }}đ
+                     </span>
+                    <strong>
+                        {{ sp.gia_khuyen_mai_hien_thi }}đ
+                    </strong>
+                </div>
+            </div>
+            {% empty %}
+            <p>Hiện chưa có sản phẩm áp dụng chương trình này.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

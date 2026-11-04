@@ -144,6 +144,8 @@ USE_TZ = True
 # Static files
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media" / "media"
 
 STATICFILES_DIRS = (
     [BASE_DIR / "static"]
@@ -185,3 +187,4 @@ VNPAY_RETURN_URL = os.getenv(
     'VNPAY_RETURN_URL',
     'http://127.0.0.1:8000/thanh_toan/ket-qua/'
 )
+DATABASE_ROUTERS = ["VPP.database_router.DatabaseRouter"]

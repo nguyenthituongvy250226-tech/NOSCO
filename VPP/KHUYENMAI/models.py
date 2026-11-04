@@ -132,3 +132,81 @@ class VoucherKhachHang(models.Model):
 
     def __str__(self):
         return f'{self.MaVoucherKhachHang} - {self.MaVoucher}'
+class KhuyenMai(models.Model):
+    MaKhuyenMai = models.CharField(
+        max_length=10,
+        primary_key=True
+    )
+
+    TenKhuyenMai = models.CharField(max_length=100)
+
+    LoaiKhuyenMai = models.CharField(max_length=50)
+
+    MoTa = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True
+    )
+
+    NgayBatDau = models.DateTimeField()
+
+    NgayKetThuc = models.DateTimeField()
+
+    class Meta:
+        db_table = 'KhuyenMai'
+        verbose_name = 'Khuyến mãi sản phẩm'
+        verbose_name_plural = 'Quản lý khuyến mãi sản phẩm'
+
+    def __str__(self):
+        return f'{self.MaKhuyenMai} - {self.TenKhuyenMai}'
+
+    def clean(self):
+        super().clean()
+
+        if self.NgayBatDau and self.NgayKetThuc:
+            if self.NgayKetThuc <= self.NgayBatDau:
+                from django.core.exceptions import ValidationError
+                raise ValidationError({
+                    'NgayKetThuc': 'Ngày kết thúc phải sau ngày bắt đầu.'
+                })
+
+
+class ChiTietKhuyenMai(models.Model):
+    MaChiTietKM = models.CharField(
+        max_length=10,
+        primary_key=True
+    )
+
+    MaKhuyenMai = models.ForeignKey(
+        KhuyenMai,
+        on_delete=models.CASCADE,
+        db_column='MaKhuyenMai',
+        related_name='chi_tiet_khuyen_mai'
+    )
+
+    # Lưu mã sản phẩm từ database SANPHAM
+    MaSanPham = models.CharField(max_length=10)
+
+    PhanTramGiam = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100)
+        ]
+    )
+
+    GiaKhuyenMai = models.DecimalField(
+        max_digits=19,
+        decimal_places=4
+    )
+
+    TrangThai = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'ChiTietKhuyenMai'
+        verbose_name = 'Chi tiết khuyến mãi'
+        verbose_name_plural = 'Chi tiết khuyến mãi'
+
+    def __str__(self):
+        return f'{self.MaChiTietKM} - {self.MaSanPham}'

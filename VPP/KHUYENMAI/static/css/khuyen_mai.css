@@ -1,0 +1,568 @@
+
+/* ==============================
+   TRANG DANH SÁCH KHUYẾN MÃI
+================================ */
+
+.khuyen-mai-page {
+    padding: 35px 0 55px;
+    background-color: #f3f7fc;
+}
+
+/* Tiêu đề trang */
+
+.khuyen-mai-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.khuyen-mai-header > span {
+    color: #e99a24;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.khuyen-mai-header h1 {
+    color: #173b68;
+    font-size: 30px;
+    font-weight: 800;
+    margin: 10px 0;
+}
+
+.khuyen-mai-header p {
+    color: #6b7788;
+    font-size: 15px;
+    margin: 0;
+}
+
+/* Lưới banner */
+
+.khuyen-mai-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+/* Khung banner */
+
+.khuyen-mai-card {
+    display: flex;
+    min-height: 245px;
+    overflow: hidden;
+    border-radius: 13px;
+    position: relative;
+    box-shadow: 0 4px 14px rgba(20, 48, 80, 0.10);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.khuyen-mai-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 9px 22px rgba(20, 48, 80, 0.16);
+}
+
+/* Màu nền từng chương trình */
+
+.banner-blue {
+    background: linear-gradient(135deg, #07549b, #0c3972);
+}
+
+.banner-orange {
+    background: linear-gradient(135deg, #f59a23, #e66d12);
+}
+
+.banner-red {
+    background: linear-gradient(135deg, #e84e4e, #bd303b);
+}
+
+/* Phần nội dung bên trái */
+
+.khuyen-mai-content {
+    width: 56%;
+    padding: 25px 22px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.banner-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.khuyen-mai-content h2 {
+    color: #fff;
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+}
+
+.banner-discount {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+}
+
+.banner-discount span {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.banner-discount strong {
+    color: #ffdf69;
+    font-size: 36px;
+    line-height: 1;
+    font-weight: 900;
+}
+
+.banner-description {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 11px;
+    line-height: 1.5;
+    margin: 0 0 10px;
+}
+
+.banner-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.16);
+    color: #fff;
+    font-size: 10px;
+    margin-bottom: 14px;
+}
+
+/* Nút khám phá ưu đãi */
+
+.btn-xem-khuyen-mai {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 10px 13px;
+    border-radius: 5px;
+    background: #fff;
+    color: #173b68;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.btn-xem-khuyen-mai:hover {
+    background: #ffdc72;
+    color: #173b68;
+}
+
+.btn-xem-khuyen-mai i {
+    transition: transform 0.25s ease;
+}
+
+.btn-xem-khuyen-mai:hover i {
+    transform: translateX(4px);
+}
+
+/* Phần ảnh bên phải */
+
+.khuyen-mai-image {
+    width: 44%;
+    overflow: hidden;
+    background: #f1f3f6;
+}
+
+.khuyen-mai-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 245px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.khuyen-mai-card:hover .khuyen-mai-image img {
+    transform: scale(1.05);
+}
+
+/* Khi chưa có chương trình */
+
+.khuyen-mai-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #718096;
+}
+
+.khuyen-mai-empty i {
+    font-size: 40px;
+    color: #e99a24;
+    margin-bottom: 15px;
+}
+
+.khuyen-mai-empty h3 {
+    color: #173b68;
+    font-size: 20px;
+}
+
+/* Responsive - máy tính bảng */
+
+@media (max-width: 992px) {
+    .khuyen-mai-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .khuyen-mai-card {
+        min-height: 260px;
+    }
+
+    .khuyen-mai-image img {
+        min-height: 260px;
+    }
+}
+
+/* Responsive - điện thoại */
+
+@media (max-width: 576px) {
+    .khuyen-mai-page {
+        padding: 25px 0 35px;
+    }
+
+    .khuyen-mai-header h1 {
+        font-size: 23px;
+    }
+
+    .khuyen-mai-header p {
+        font-size: 13px;
+        padding: 0 10px;
+    }
+
+    .khuyen-mai-grid {
+        gap: 14px;
+    }
+
+    .khuyen-mai-card {
+        min-height: 190px;
+    }
+
+    .khuyen-mai-content {
+        width: 58%;
+        padding: 16px 12px;
+    }
+
+    .khuyen-mai-content h2 {
+        font-size: 15px;
+    }
+
+    .banner-discount strong {
+        font-size: 27px;
+    }
+
+    .banner-label,
+    .banner-discount span,
+    .banner-description,
+    .banner-date,
+    .btn-xem-khuyen-mai {
+        font-size: 9px;
+    }
+
+    .khuyen-mai-image {
+        width: 42%;
+    }
+
+    .khuyen-mai-image img {
+        min-height: 190px;
+    }
+}
+
+/* ===== TRANG CHI TIẾT KHUYẾN MÃI ===== */
+
+.chi-tiet-khuyen-mai {
+    padding: 35px 5% 60px;
+    background: #f4f8fc;
+    min-height: 600px;
+}
+
+.quay-lai-khuyen-mai {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #2878bd;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.quay-lai-khuyen-mai:hover {
+    color: #15558d;
+}
+
+.chi-tiet-header {
+    text-align: center;
+    background: linear-gradient(135deg, #e5f2ff, #ffffff);
+    padding: 45px 25px;
+    border-radius: 18px;
+    margin-bottom: 40px;
+}
+
+.chi-tiet-label {
+    display: inline-block;
+    color: #2878bd;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.chi-tiet-header h1 {
+    color: #174c7e;
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.chi-tiet-header p {
+    color: #64748b;
+    margin-bottom: 15px;
+}
+
+.chi-tiet-thoi-gian {
+    color: #2878bd;
+    font-weight: 600;
+}
+
+.danh-sach-san-pham-km h2 {
+    color: #174c7e;
+    font-size: 24px;
+    font-weight: 750;
+    margin-bottom: 8px;
+}
+
+.so-luong-san-pham {
+    color: #718096;
+    margin-bottom: 25px;
+}
+
+.san-pham-km-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.san-pham-km-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e5edf5;
+    border-radius: 14px;
+    padding: 28px 22px;
+    min-height: 170px;
+    box-shadow: 0 4px 15px rgba(30, 80, 120, 0.06);
+    transition: 0.25s ease;
+}
+
+.san-pham-km-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 22px rgba(30, 80, 120, 0.12);
+}
+
+.phan-tram-giam {
+    display: inline-block;
+    background: #fff0f0;
+    color: #e54848;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.san-pham-km-card h3 {
+    color: #263b50;
+    font-size: 17px;
+    font-weight: 650;
+    margin-bottom: 20px;
+}
+
+.gia-san-pham-km {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.gia-goc {
+    color: #9ca3af;
+    text-decoration: line-through;
+    font-size: 14px;
+}
+
+.gia-san-pham-km strong {
+    color: #e54848;
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .san-pham-km-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .chi-tiet-header h1 {
+        font-size: 23px;
+    }
+}
+
+@media (max-width: 480px) {
+    .san-pham-km-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== BANNER TRANG CHI TIẾT ===== */
+
+.chi-tiet-banner {
+    display: flex;
+    align-items: stretch;
+    min-height: 300px;
+    background: linear-gradient(135deg, #e4f2ff, #f8fbff);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 40px;
+    box-shadow: 0 5px 18px rgba(30, 80, 120, 0.08);
+}
+
+.chi-tiet-banner-content {
+    width: 56%;
+    padding: 40px 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.chi-tiet-label {
+    color: #2878bd;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+}
+
+.chi-tiet-banner-content h1 {
+    color: #174c7e;
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: 15px;
+}
+
+.chi-tiet-banner-content p {
+    color: #64748b;
+    font-size: 15px;
+    margin-bottom: 18px;
+}
+
+.chi-tiet-thoi-gian {
+    color: #2878bd;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.chi-tiet-banner-image {
+    width: 44%;
+    min-height: 300px;
+}
+
+.chi-tiet-banner-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    display: block;
+    object-fit: cover;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chi-tiet-banner {
+        flex-direction: column;
+    }
+
+    .chi-tiet-banner-content,
+    .chi-tiet-banner-image {
+        width: 100%;
+    }
+
+    .chi-tiet-banner-content {
+        padding: 30px 25px;
+    }
+
+    .chi-tiet-banner-content h1 {
+        font-size: 23px;
+    }
+
+    .chi-tiet-banner-image,
+    .chi-tiet-banner-image img {
+        min-height: 220px;
+        max-height: 260px;
+    }
+}
+
+/* ===== CẢI THIỆN HIỂN THỊ GIÁ SẢN PHẨM ===== */
+
+.gia-san-pham-km {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.gia-goc {
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: line-through;
+}
+
+.gia-san-pham-km strong {
+    color: #e53935;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+.phan-tram-giam {
+    background: #fff0f0;
+    color: #d92d2d;
+    font-size: 14px;
+    font-weight: 750;
+    padding: 7px 13px;
+    border-radius: 20px;
+}
+/* Hình ảnh sản phẩm trong chi tiết khuyến mãi */
+.anh-san-pham-km {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 12px 12px 0 0;
+}
+
+.anh-san-pham-km img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    padding: 10px;
+}
