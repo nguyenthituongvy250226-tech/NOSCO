@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     "SANPHAM",
     'THANHTOAN',
     'KHUYENMAI',
+    'GIOHANG',
+    'CHECKOUT',
 ]
 
 MIDDLEWARE = [
