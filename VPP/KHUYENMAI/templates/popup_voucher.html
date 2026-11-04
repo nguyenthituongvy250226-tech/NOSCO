@@ -87,7 +87,7 @@ document.getElementById("voucherForm").addEventListener("submit", async function
     formData.append("hang_thanh_vien", "TatCaThanhVien");
 
     try {
-        const response = await fetch("/khuyen_mai/ap-dung/", {
+        const response = await fetch("/khuyen-mai/ap-dung/", {
             method: "POST",
             headers: {
                 "X-CSRFToken": csrfToken

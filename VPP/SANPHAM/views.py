@@ -4,7 +4,10 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Min, Q
 
 from .models import SanPham, DanhMucSanPham, ThuongHieu, BaiViet,SanPhamQuaTang
-
+from django.db.models import Min, Q, Avg, Count
+from .models import DanhGiaSanPham
+from .forms import DanhGiaSanPhamForm
+from django.contrib import messages
 
 
 def danh_sach_san_pham(request):
@@ -18,6 +21,8 @@ def danh_sach_san_pham(request):
     sap_xep = request.GET.get("sap_xep", "ten_a_z")
 
     # 2. Chỉ lấy sản phẩm đang bán, tính giá thấp nhất
+    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+
     san_pham_queryset = (
         SanPham.objects
         .filter(trang_thai_ban="Đang bán")
@@ -168,7 +173,9 @@ def danh_sach_san_pham(request):
                 "anh_dai_dien": anh_dai_dien,
                 "gia_thap_nhat": san_pham.gia_thap_nhat,
                 "gia_hien_thi": dinh_dang_gia(san_pham.gia_thap_nhat),
+
             })
+            danh_sach_yeu_thich = request.session.get("yeu_thich", [])
     # 9. Gửi dữ liệu cho giao diện
     return render(
         request,
@@ -184,6 +191,7 @@ def danh_sach_san_pham(request):
             "gia_den": gia_den_text,
             "sap_xep": sap_xep,
             "san_pham_goi_y": san_pham_goi_y,
+            "danh_sach_yeu_thich": danh_sach_yeu_thich,
         },
     )
 
@@ -412,6 +420,7 @@ def home(request):
                 "nhom_goi_y": nhom["ma_nhom"],
                 "the": the,
             })
+    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
 
     return render(request, "home.html", {
         "san_pham_noi_bat": san_pham_noi_bat,
@@ -420,6 +429,7 @@ def home(request):
         "danh_sach_thuong_hieu": danh_sach_thuong_hieu,
         "ly_do_goi_y": ly_do_goi_y,
         "san_pham_qua_tang": san_pham_qua_tang,
+        "danh_sach_yeu_thich": danh_sach_yeu_thich,
     })
 
 
@@ -567,7 +577,61 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "gia_thap_nhat": min(cac_gia) if cac_gia else None,
         })
 
+    # Lấy danh sách đánh giá của sản phẩm
+    danh_sach_danh_gia = san_pham.danh_gia.select_related(
+        "nguoi_danh_gia"
+    ).all()
+    # Xử lý khi khách gửi đánh giá
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.warning(request, "Vui lòng đăng nhập để đánh giá sản phẩm.")
+            return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
 
+        form = DanhGiaSanPhamForm(request.POST)
+
+        if form.is_valid():
+            danh_gia = form.save(commit=False)
+            danh_gia.san_pham = san_pham
+            danh_gia.nguoi_danh_gia = request.user
+            danh_gia.save()
+
+            messages.success(request, "Đánh giá của bạn đã được gửi thành công!")
+            return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
+
+    else:
+        form = DanhGiaSanPhamForm()
+
+    # Tính tổng lượt đánh giá và điểm trung bình
+    thong_ke_danh_gia = danh_sach_danh_gia.aggregate(
+        tong_luot=Count("id"),
+        diem_trung_binh=Avg("so_sao")
+    )
+
+    tong_luot_danh_gia = thong_ke_danh_gia["tong_luot"] or 0
+    diem_trung_binh = thong_ke_danh_gia["diem_trung_binh"] or 0
+
+    # Thống kê số lượt đánh giá theo từng mức sao
+    thong_ke_so_sao = {}
+
+    for sao in range(1, 6):
+        thong_ke_so_sao[sao] = danh_sach_danh_gia.filter(
+            so_sao=sao
+        ).count()
+    thong_ke_so_sao_list = []
+
+    for sao in range(5, 0, -1):
+        so_luong = thong_ke_so_sao[sao]
+
+        ty_le = (
+            so_luong / tong_luot_danh_gia * 100
+            if tong_luot_danh_gia else 0
+        )
+
+        thong_ke_so_sao_list.append({
+            "sao": sao,
+            "so_luong": so_luong,
+            "ty_le": round(ty_le),
+        })
     return render(
         request,
         "SANPHAM/chi_tiet_san_pham.html",
@@ -579,6 +643,12 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "bien_the_mac_dinh": bien_the_mac_dinh,
             "gia_thap_nhat": gia_thap_nhat,
             "danh_sach_goi_y": danh_sach_goi_y,
+            "danh_sach_danh_gia": danh_sach_danh_gia,
+            "tong_luot_danh_gia": tong_luot_danh_gia,
+            "diem_trung_binh": diem_trung_binh,
+            "thong_ke_so_sao": thong_ke_so_sao,
+            "thong_ke_so_sao_list": thong_ke_so_sao_list,
+            "form_danh_gia": form,
         },
     )
 
@@ -605,3 +675,104 @@ def danh_sach_bai_viet(request):
 
 def ve_chung_toi(request):
     return render(request, "ve_chung_toi.html")
+
+from django.db.models import Prefetch
+from .models import SanPham, BienTheSanPham, HinhAnhSanPham
+
+
+def san_pham_yeu_thich(request):
+    # Lấy danh sách mã sản phẩm đã lưu trong Session
+    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+
+    san_pham_queryset = (
+        SanPham.objects
+        .filter(
+            trang_thai_ban="Đang bán",
+            ma_san_pham__in=danh_sach_yeu_thich
+        )
+        .select_related("thuong_hieu", "danh_muc")
+        .prefetch_related("bien_the__hinh_anh")
+    )
+
+    danh_sach_san_pham = []
+
+    for san_pham in san_pham_queryset:
+        cac_bien_the = list(san_pham.bien_the.all())
+
+        cac_anh = [
+            anh
+            for bien_the in cac_bien_the
+            for anh in bien_the.hinh_anh.all()
+            if anh.duong_dan_anh
+        ]
+
+        anh_dai_dien = next(
+            (anh for anh in cac_anh if anh.anh_dai_dien),
+            cac_anh[0] if cac_anh else None,
+        )
+
+        cac_gia = [
+            bien_the.gia_ban
+            for bien_the in cac_bien_the
+            if bien_the.gia_ban is not None
+        ]
+
+        gia_thap_nhat = min(cac_gia) if cac_gia else None
+
+        danh_sach_san_pham.append({
+            "san_pham": san_pham,
+            "anh_dai_dien": anh_dai_dien,
+            "gia_hien_thi": dinh_dang_gia(gia_thap_nhat),
+            "con_hang": any(
+                bien_the.so_luong_ton > 0
+                for bien_the in cac_bien_the
+            ),
+        })
+
+    return render(request, "SANPHAM/san_pham_yeu_thich.html", {
+        "danh_sach_san_pham": danh_sach_san_pham,
+        "so_luong_yeu_thich": len(danh_sach_san_pham),
+    })
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
+from django.utils.http import url_has_allowed_host_and_scheme
+
+from django.http import JsonResponse
+@require_POST
+def toggle_favorite(request):
+    ma_san_pham = request.POST.get("ma_san_pham")
+
+    san_pham = get_object_or_404(
+        SanPham,
+        ma_san_pham=ma_san_pham,
+        trang_thai_ban="Đang bán"
+    )
+
+    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+
+    if san_pham.ma_san_pham in danh_sach_yeu_thich:
+        danh_sach_yeu_thich.remove(san_pham.ma_san_pham)
+        da_yeu_thich = False
+    else:
+        danh_sach_yeu_thich.append(san_pham.ma_san_pham)
+        da_yeu_thich = True
+
+    request.session["yeu_thich"] = danh_sach_yeu_thich
+    request.session.modified = True
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "da_yeu_thich": da_yeu_thich,
+            "ma_san_pham": san_pham.ma_san_pham,
+        })
+
+    next_url = request.POST.get("next", "/")
+
+    if not url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()}
+    ):
+        next_url = "/"
+
+    return redirect(next_url)

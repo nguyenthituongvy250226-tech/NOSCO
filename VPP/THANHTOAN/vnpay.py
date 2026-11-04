@@ -21,7 +21,7 @@ def tao_url_thanh_toan(request, ma_giao_dich, so_tien):
         "vnp_OrderInfo": f"Thanh toan don hang {ma_giao_dich}",
         "vnp_OrderType": "other",
         "vnp_Locale": "vn",
-        "vnp_ReturnUrl": request.build_absolute_uri("/thanh_toan/ket-qua/"),
+        "vnp_ReturnUrl": request.build_absolute_uri("/thanh-toan/ket-qua/"),
         "vnp_IpAddr": request.META.get("REMOTE_ADDR", "127.0.0.1"),
         "vnp_CreateDate": thoi_gian.strftime("%Y%m%d%H%M%S"),
     }

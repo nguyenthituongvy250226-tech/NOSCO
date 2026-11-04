@@ -44,6 +44,7 @@ urlpatterns = [
 # Thanh toan & Khuyen mai
     path("thanh-toan/", include("THANHTOAN.urls")),
     path("khuyen-mai/", include("KHUYENMAI.urls")),
+
 ]
 
 # Phục vụ ảnh tải lên khi chạy ở chế độ phát triển
