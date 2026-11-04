@@ -1,0 +1,80 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Thông báo
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>THÔNG BÁO</h2>
+
+    <p>
+        Các thông tin liên quan đến tài khoản,
+        đơn hàng, khuyến mãi và chương trình thành viên.
+    </p>
+
+</div>
+
+
+{% for item in thong_bao %}
+
+    <div class="card">
+
+        <h3>
+            {{ item.TieuDe }}
+        </h3>
+
+        <p>
+            Loại thông báo:
+            {{ item.get_LoaiThongBao_display }}
+        </p>
+
+        <p>
+            {{ item.NoiDung }}
+        </p>
+
+        <p>
+            Ngày gửi:
+            {{ item.NgayTao|date:"d/m/Y H:i" }}
+        </p>
+
+        <p>
+
+            {% if item.DaDoc %}
+                <strong>Đã đọc</strong>
+            {% else %}
+                <strong>Chưa đọc</strong>
+            {% endif %}
+
+        </p>
+
+
+        {% if not item.DaDoc %}
+
+            <form method="POST"
+                  action="{% url 'KHACHHANG:danh_dau_da_doc' item.MaThongBao %}">
+
+                {% csrf_token %}
+
+                <button type="submit" class="btn">
+                    Đánh dấu đã đọc
+                </button>
+
+            </form>
+
+        {% endif %}
+
+    </div>
+
+{% empty %}
+
+    <div class="card">
+        Hiện tại bạn chưa có thông báo nào.
+    </div>
+
+{% endfor %}
+
+{% endblock %}

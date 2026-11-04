@@ -1,0 +1,38 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Gửi yêu cầu hỗ trợ
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>GỬI YÊU CẦU HỖ TRỢ</h2>
+
+    <p>
+        Vui lòng mô tả vấn đề bạn đang gặp phải.
+        Nhân viên VPP NOSCO sẽ tiếp nhận và xử lý yêu cầu.
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn">
+            Gửi yêu cầu
+        </button>
+
+        <a href="{% url 'KHACHHANG:danh_sach_yeu_cau' %}"
+           class="btn btn-danger">
+            Quay lại
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

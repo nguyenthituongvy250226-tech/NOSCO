@@ -1,0 +1,100 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Lịch sử tích điểm
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>ĐIỂM TÍCH LŨY</h2>
+
+    <h3>
+        Tổng điểm:
+        {{ ho_so.DiemTichLuy }}
+    </h3>
+
+    <p>
+        Hạng thành viên:
+        {{ ho_so.HangThanhVien }}
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <h3>LỊCH SỬ GIAO DỊCH ĐIỂM</h3>
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Mã giao dịch</th>
+                <th>Mã đơn hàng</th>
+                <th>Loại giao dịch</th>
+                <th>Số điểm</th>
+                <th>Số dư điểm</th>
+                <th>Nội dung</th>
+                <th>Ngày tạo</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for item in lich_su %}
+
+                <tr>
+
+                    <td>
+                        {{ item.MaLichSuDiem }}
+                    </td>
+
+                    <td>
+                        {{ item.MaDonHang|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ item.get_LoaiGiaoDich_display }}
+                    </td>
+
+                    <td>
+                        {{ item.SoDiem }}
+                    </td>
+
+                    <td>
+                        {{ item.SoDuDiem }}
+                    </td>
+
+                    <td>
+                        {{ item.NoiDung }}
+                    </td>
+
+                    <td>
+                        {{ item.NgayTao|date:"d/m/Y H:i" }}
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="7">
+                        Chưa có giao dịch tích điểm.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

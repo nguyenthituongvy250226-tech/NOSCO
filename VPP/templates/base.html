@@ -182,3 +182,19 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+
+<div class="action-item">
+    <i class="fa-regular fa-user"></i>
+    <div class="action-text">
+        <span>Khách hàng</span>
+        <small>
+            <a href="{% url 'KHACHHANG:dang_nhap' %}">
+                Đăng nhập
+            </a>
+            |
+            <a href="{% url 'KHACHHANG:dang_ky' %}">
+                Đăng ký
+            </a>
+        </small>
+    </div>
+</div>
