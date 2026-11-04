@@ -22,7 +22,8 @@ urlpatterns = [
     path("nhan-vien/<str:ma_don_hang>/xu-ly/", views.nhan_vien_xu_ly_don_hang, name="nhan_vien_xu_ly_don"),
     path("nhan-vien/<str:ma_don_hang>/giao-hang/", views.nhan_vien_cap_nhat_giao_hang, name="nhan_vien_cap_nhat_giao_hang"),
     path(
-    "<str:ma_don_hang>/",
-    views.chi_tiet_don_hang,
-    name="chi_tiet"),
+        "<str:ma_don_hang>/",
+        views.chi_tiet_don_hang,
+        name="chi_tiet",
+    ),
 ]
