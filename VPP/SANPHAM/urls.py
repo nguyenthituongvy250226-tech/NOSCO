@@ -11,6 +11,8 @@ urlpatterns = [
     ),
     path("thuong-hieu/", views.danh_sach_thuong_hieu, name="danh_sach_thuong_hieu"),
     path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
+    path("yeu-thich/", views.san_pham_yeu_thich, name="san_pham_yeu_thich"),
+    path("yeu-thich/toggle/", views.toggle_favorite, name="toggle_favorite"),
     path("<str:ma_san_pham>/", views.chi_tiet_san_pham, name="chi_tiet_san_pham"),
-path("yeu-thich/toggle/", views.toggle_favorite, name="toggle_favorite"),
+
 ]
