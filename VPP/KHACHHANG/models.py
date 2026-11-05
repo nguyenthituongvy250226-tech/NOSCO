@@ -1,5 +1,5 @@
 import uuid
-
+from django.contrib.auth.models import Group, Permission
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -90,6 +90,19 @@ class NguoiDungManager(BaseUserManager):
 
 
 class NguoiDung(AbstractBaseUser, PermissionsMixin):
+    groups = models.ManyToManyField(
+        Group,
+        blank=True,
+        related_name="nguoidung_set",
+        related_query_name="nguoidung",
+    )
+
+    user_permissions = models.ManyToManyField(
+        Permission,
+        blank=True,
+        related_name="nguoidung_set",
+        related_query_name="nguoidung",
+    )
 
     VAI_TRO_CHOICES = [
         ("KHACH_HANG", "Khách hàng"),
@@ -131,6 +144,7 @@ class NguoiDung(AbstractBaseUser, PermissionsMixin):
         default=True,
         db_column="KichHoat"
     )
+
 
     is_staff = models.BooleanField(default=False)
 

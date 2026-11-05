@@ -202,8 +202,9 @@ def dinh_dang_gia(gia):
         return None
     return f"{gia:,.0f}".replace(",", ".")
 
+
 def home(request):
-    # Lấy các sản phẩm đang bán và thông tin liên quan
+    # 1. Lấy các sản phẩm đang bán và thông tin liên quan
     san_pham_queryset = (
         SanPham.objects
         .filter(trang_thai_ban="Đang bán")
@@ -213,7 +214,7 @@ def home(request):
         .order_by("-ngay_tao", "ten_san_pham")
     )
 
-    # Chuyển thông tin sản phẩm thành dữ liệu dùng cho giao diện
+    # 2. Chuyển thông tin sản phẩm thành dữ liệu dùng cho giao diện
     danh_sach_the = []
 
     for san_pham in san_pham_queryset:
@@ -242,62 +243,58 @@ def home(request):
             ),
         })
 
-        # Lấy 8 sản phẩm được chọn trong bộ sưu tập quà tặng
-        danh_sach_theo_ma = {
-            str(the["san_pham"].ma_san_pham): the
-            for the in danh_sach_the
-        }
+    # 3. Lấy sản phẩm trong bộ sưu tập quà tặng
+    # Đặt ngoài vòng lặp để biến luôn được khởi tạo
+    danh_sach_theo_ma = {
+        str(the["san_pham"].ma_san_pham): the
+        for the in danh_sach_the
+    }
 
-        san_pham_qua_tang = []
+    san_pham_qua_tang = []
 
-        cac_san_pham_qua_tang = (
-            SanPhamQuaTang.objects
-            .filter(san_pham__trang_thai_ban="Đang bán")
-            .select_related("san_pham")
-            .order_by("vi_tri")
-        )
+    cac_san_pham_qua_tang = (
+        SanPhamQuaTang.objects
+        .filter(san_pham__trang_thai_ban="Đang bán")
+        .select_related("san_pham")
+        .order_by("vi_tri")
+    )
 
-        for muc in cac_san_pham_qua_tang:
-            the = danh_sach_theo_ma.get(
-                str(muc.san_pham_id)
-            )
+    for muc in cac_san_pham_qua_tang:
+        the = danh_sach_theo_ma.get(str(muc.san_pham_id))
 
-            if the:
-                san_pham_qua_tang.append(the)
+        if the:
+            san_pham_qua_tang.append(the)
 
-    # Nhóm sản phẩm nổi bật: 4 sản phẩm mới nhất
+    # 4. Nhóm sản phẩm nổi bật: 4 sản phẩm mới nhất
     san_pham_noi_bat = danh_sach_the[:4]
 
-    # Nhóm gợi ý hôm nay: 4 sản phẩm tiếp theo
-    goi_y_hom_nay = danh_sach_the[4:8]
-
-    # Lấy tối đa 4 danh mục có sản phẩm đang bán
+    # 5. Lấy tối đa 4 danh mục có sản phẩm đang bán
     danh_muc_noi_bat = (
         DanhMucSanPham.objects
         .filter(san_pham__trang_thai_ban="Đang bán")
         .distinct()
         .order_by("ten_danh_muc")[:4]
     )
-    danh_sach_thuong_hieu = ThuongHieu.objects.all().order_by(
-        "ten_thuong_hieu"
-    )
-    # Sản phẩm nổi bật: giữ nguyên cách lấy 4 sản phẩm mới nhất
-    # 4 sản phẩm nổi bật
-    san_pham_noi_bat = danh_sach_the[:4]
 
-    # Lấy lịch sử xem sản phẩm
+    # Lấy danh sách thương hiệu
+    danh_sach_thuong_hieu = (
+        ThuongHieu.objects.all()
+        .order_by("ten_thuong_hieu")
+    )
+
+    # 6. Lấy lịch sử xem sản phẩm
     lich_su_xem = request.session.get(
         "lich_su_xem_san_pham", []
     )
     lich_su_xem = [str(ma) for ma in lich_su_xem]
 
-    # Lấy mã sản phẩm nổi bật để tránh trùng
+    # 7. Lấy mã sản phẩm nổi bật để tránh trùng
     ma_san_pham_noi_bat = {
         str(the["san_pham"].ma_san_pham)
         for the in san_pham_noi_bat
     }
 
-    # Ưu tiên sản phẩm cùng danh mục với sản phẩm xem gần nhất
+    # 8. Ưu tiên sản phẩm cùng danh mục với sản phẩm vừa xem
     cac_san_pham_goi_y = danh_sach_the.copy()
     ly_do_goi_y = "Khám phá sản phẩm dành cho bạn"
 
@@ -306,7 +303,7 @@ def home(request):
             (
                 the for the in danh_sach_the
                 if str(the["san_pham"].ma_san_pham)
-                   == lich_su_xem[0]
+                == lich_su_xem[0]
             ),
             None
         )
@@ -319,27 +316,27 @@ def home(request):
             san_pham_cung_danh_muc = [
                 the for the in danh_sach_the
                 if the["san_pham"].danh_muc_id == ma_danh_muc
-                   and str(the["san_pham"].ma_san_pham)
-                   not in lich_su_xem
+                and str(the["san_pham"].ma_san_pham)
+                not in lich_su_xem
             ]
 
             if san_pham_cung_danh_muc:
                 cac_san_pham_goi_y = san_pham_cung_danh_muc
                 ly_do_goi_y = "Vì bạn quan tâm đến danh mục này"
 
-    # Loại sản phẩm đã xem và sản phẩm nổi bật
+    # 9. Loại sản phẩm đã xem và sản phẩm nổi bật
     cac_san_pham_goi_y = [
         the for the in cac_san_pham_goi_y
         if str(the["san_pham"].ma_san_pham)
-           not in lich_su_xem
-           and str(the["san_pham"].ma_san_pham)
-           not in ma_san_pham_noi_bat
+        not in lich_su_xem
+        and str(the["san_pham"].ma_san_pham)
+        not in ma_san_pham_noi_bat
     ]
 
-    # Chọn tối đa 4 sản phẩm gợi ý
+    # 10. Chọn tối đa 4 sản phẩm gợi ý
     goi_y_hom_nay = cac_san_pham_goi_y[:4]
 
-    # Nếu không đủ sản phẩm cùng danh mục, lấy sản phẩm khác
+    # Nếu không đủ sản phẩm cùng danh mục, lấy sản phẩm khác bổ sung
     if len(goi_y_hom_nay) < 4:
         ma_da_chon = {
             str(the["san_pham"].ma_san_pham)
@@ -349,28 +346,29 @@ def home(request):
         san_pham_bo_sung = [
             the for the in danh_sach_the
             if str(the["san_pham"].ma_san_pham)
-               not in lich_su_xem
-               and str(the["san_pham"].ma_san_pham)
-               not in ma_san_pham_noi_bat
-               and str(the["san_pham"].ma_san_pham)
-               not in ma_da_chon
+            not in lich_su_xem
+            and str(the["san_pham"].ma_san_pham)
+            not in ma_san_pham_noi_bat
+            and str(the["san_pham"].ma_san_pham)
+            not in ma_da_chon
         ]
 
         goi_y_hom_nay.extend(
             san_pham_bo_sung[:4 - len(goi_y_hom_nay)]
         )
 
-    # Lý do mặc định khi không có lịch sử xem
+    # 11. Lý do mặc định khi không có lịch sử xem
     if not lich_su_xem:
         ly_do_goi_y = "Khám phá sản phẩm dành cho bạn"
-    # Các sản phẩm dùng để xây dựng nhóm gợi ý chủ đề
+
+    # 12. Các sản phẩm dùng để xây dựng nhóm gợi ý chủ đề
     san_pham_chu_de = [
         the for the in danh_sach_the
         if str(the["san_pham"].ma_san_pham)
         not in ma_san_pham_noi_bat
     ]
 
-    # Nhóm Dành cho bạn: giữ kết quả gợi ý cá nhân hóa
+    # 13. Nhóm Dành cho bạn
     cac_nhom_goi_y = [
         {
             "ma_nhom": "ca_nhan",
@@ -378,24 +376,25 @@ def home(request):
         }
     ]
 
-    # Nhóm Học tập hiệu quả: bút, vở và dụng cụ học tập
+    # 14. Nhóm Học tập hiệu quả
     hoc_tap = [
         the for the in san_pham_chu_de
         if the["san_pham"].danh_muc_id in ["DM001", "DM002", "DM004"]
     ][:3]
 
-    # Nhóm Góc làm việc: bút, giấy và dụng cụ hỗ trợ làm việc
+    # 15. Nhóm Góc làm việc
     goc_lam_viec = [
         the for the in san_pham_chu_de
         if the["san_pham"].danh_muc_id in ["DM001", "DM003", "DM004"]
     ][:6]
 
-    # Nhóm Sáng tạo mỗi ngày: vở, giấy và dụng cụ học tập
+    # 16. Nhóm Sáng tạo mỗi ngày
     sang_tao = [
         the for the in san_pham_chu_de
         if the["san_pham"].danh_muc_id in ["DM002", "DM003", "DM004"]
     ][:5]
 
+    # Thêm các nhóm chủ đề
     cac_nhom_goi_y.extend([
         {
             "ma_nhom": "hoc_tap",
@@ -411,7 +410,7 @@ def home(request):
         },
     ])
 
-    # Gộp các nhóm thành danh sách để hiển thị trên giao diện
+    # 17. Gộp các nhóm thành danh sách hiển thị trên giao diện
     danh_sach_goi_y = []
 
     for nhom in cac_nhom_goi_y:
@@ -420,8 +419,11 @@ def home(request):
                 "nhom_goi_y": nhom["ma_nhom"],
                 "the": the,
             })
+
+    # 18. Lấy danh sách sản phẩm yêu thích
     danh_sach_yeu_thich = request.session.get("yeu_thich", [])
 
+    # 19. Trả dữ liệu về giao diện trang chủ
     return render(request, "home.html", {
         "san_pham_noi_bat": san_pham_noi_bat,
         "goi_y_hom_nay": danh_sach_goi_y,
@@ -431,6 +433,7 @@ def home(request):
         "san_pham_qua_tang": san_pham_qua_tang,
         "danh_sach_yeu_thich": danh_sach_yeu_thich,
     })
+
 
 
 def base(request):

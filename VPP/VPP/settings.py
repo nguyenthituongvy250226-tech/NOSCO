@@ -16,7 +16,7 @@ DEBUG = os.environ.get("DEBUG", "True").strip().lower() in {
 }
 
 # Allowed hosts
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", 'rejoice-hug-populate.ngrok-free.dev',]
 
 render_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if render_hostname:
@@ -42,16 +42,23 @@ if render_hostname:
 
 # Application definition
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    'adminconfig.NOSCOAdminConfig',
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "SANPHAM",
-    "KHACHHANG",
+    'THANHTOAN',
+    'KHUYENMAI',
+    'GIOHANG',
+    'CHECKOUT',
+    'DONHANG',
+    'KHACHHANG',
+
+
+
 ]
-AUTH_USER_MODEL = "KHACHHANG.NguoiDung"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -69,14 +76,18 @@ ROOT_URLCONF = "VPP.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [BASE_DIR / 'templates'],
+    "DIRS": [
+    BASE_DIR / 'templates',
+    BASE_DIR / "DONHANG" / "templates",
+],
+
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                'SANPHAM.context_processors.danh_muc_menu',
+                "SANPHAM.context_processors.danh_muc_menu",
             ],
         },
     },
@@ -101,7 +112,11 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
-        }
+        },
+        "sanpham": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR.parent / "db_sanpham.sqlite3",
+        },
     }
 
 # Password validation
@@ -142,6 +157,11 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media" / "media"
+
+
+
 STATICFILES_DIRS = (
     [BASE_DIR / "static"]
     if (BASE_DIR / "static").is_dir()
@@ -173,5 +193,13 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+import os
+
+VNPAY_TMN_CODE = os.getenv('VNPAY_TMN_CODE', '')
+VNPAY_HASH_SECRET = os.getenv('VNPAY_HASH_SECRET', '')
+VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
+VNPAY_RETURN_URL = os.getenv(
+    'VNPAY_RETURN_URL',
+    'http://127.0.0.1:8000/thanh-toan/ket-qua/'
+)
+DATABASE_ROUTERS = ["VPP.database_router.DatabaseRouter"]

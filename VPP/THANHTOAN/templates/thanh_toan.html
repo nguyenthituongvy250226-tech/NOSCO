@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán VNPay - NOSCO</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6f8;
+            color: #333;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 50px auto;
+            padding: 35px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            text-align: center;
+            color: #174a78;
+            margin-bottom: 30px;
+        }
+
+        .order-info {
+            background: #f3f6f9;
+            padding: 25px;
+            border-radius: 6px;
+        }
+
+        .order-info h3 {
+            margin-bottom: 22px;
+            color: #174a78;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-row span {
+            color: #777;
+        }
+
+        .info-row strong {
+            text-align: right;
+        }
+
+        .total {
+            border-top: 1px solid #ddd;
+            padding-top: 18px;
+            margin-bottom: 0;
+            font-size: 18px;
+        }
+
+        .total strong {
+            color: #d62828;
+        }
+
+        .payment-note {
+            margin-top: 25px;
+            padding: 18px;
+            border: 1px solid #d5e8f8;
+            background: #f1f8ff;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        .payment-note strong {
+            display: block;
+            color: #174a78;
+            margin-bottom: 8px;
+        }
+
+        .actions {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        /* Nền xanh trượt giữa hai nút */
+        .actions::before {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 52px;
+            border-radius: 5px;
+            background: #1677c8;
+            transition: transform 0.35s ease;
+            pointer-events: none;
+        }
+
+        .actions:has(.btn-back:hover)::before {
+            transform: translateY(64px);
+        }
+
+        .actions form {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .btn-payment,
+        .btn-back {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 100%;
+            height: 52px;
+            padding: 15px;
+            border: 2px solid #1677c8;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.35s ease;
+        }
+
+        /* Trạng thái ban đầu */
+        .btn-payment {
+            background: transparent;
+            color: white;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: #1677c8;
+        }
+
+        /* Khi di chuột vào nút thứ hai */
+        .actions:has(.btn-back:hover)::before {
+            transform: translateY(64px);
+        }
+
+        .actions:has(.btn-back:hover) .btn-payment {
+            color: #1677c8;
+        }
+
+        .actions:has(.btn-back:hover) .btn-back {
+            color: white;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                margin: 20px 15px;
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <h2>THANH TOÁN ĐƠN HÀNG</h2>
+
+        <div class="order-info">
+            <h3>Thông tin đơn hàng</h3>
+
+            <div class="info-row">
+                <span>Mã đơn hàng</span>
+                <strong>
+                    {{ don_hang.MaDonHang|default:"Chưa có dữ liệu" }}
+                </strong>
+            </div>
+
+            <div class="info-row total">
+                <span>Tổng thanh toán</span>
+                <strong>
+                    {{ don_hang.TongTien|default:"Chưa có dữ liệu" }} VNĐ
+                </strong>
+            </div>
+        </div>
+
+        <div class="payment-note">
+            <strong>Phương thức thanh toán: VNPay</strong>
+            <p>
+                Đơn hàng của bạn đã được ghi nhận.
+                Vui lòng nhấn nút bên dưới để tiếp tục thanh toán qua cổng VNPay.
+            </p>
+        </div>
+
+        <div class="actions">
+
+            <form method="POST" action="{% url 'THANHTOAN:thanh_toan_thu' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-payment">
+                    Tiếp tục thanh toán VNPay
+                </button>
+            </form>
+
+            <a href="#" class="btn-back">
+                Thay đổi phương thức thanh toán
+            </a>
+
+        </div>
+
+    </div>
+</body>
+</html>

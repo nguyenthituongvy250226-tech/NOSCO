@@ -188,21 +188,27 @@ class HoSoKhachHangForm(forms.ModelForm):
         if self.nguoi_dung:
             self.fields["Email"].initial = self.nguoi_dung.Email
 
-    def clean_Email(self):
-        Email = self.cleaned_data["Email"]
 
+def clean_Email(self):
+    Email = self.cleaned_data["Email"]
+
+    if self.nguoi_dung:
         trung_email = NguoiDung.objects.filter(
             Email=Email
         ).exclude(
             MaNguoiDung=self.nguoi_dung.MaNguoiDung
         ).exists()
+    else:
+        trung_email = NguoiDung.objects.filter(
+            Email=Email
+        ).exists()
 
-        if trung_email:
-            raise forms.ValidationError(
-                "Email này đã được sử dụng."
-            )
+    if trung_email:
+        raise forms.ValidationError(
+            "Email này đã được sử dụng."
+        )
 
-        return Email
+    return Email
 
 
 # =====================================================

@@ -61,7 +61,7 @@
                     <i class="fa-regular fa-user"></i>
                     <div class="action-text"><span>Khách hàng</span><small>Đăng nhập</small></div>
                 </a>
-                <a class="action-item" href="/yeu-thich/">
+                <a class="action-item" href="{% url 'sanpham:san_pham_yeu_thich' %}">
                     <i class="fa-regular fa-heart"></i>
                     <div class="action-text"><span>Yêu thích</span></div>
                 </a>
@@ -364,19 +364,3 @@ if (
 </script>
 </body>
 </html>
-
-<div class="action-item">
-    <i class="fa-regular fa-user"></i>
-    <div class="action-text">
-        <span>Khách hàng</span>
-        <small>
-            <a href="{% url 'KHACHHANG:dang_nhap' %}">
-                Đăng nhập
-            </a>
-            |
-            <a href="{% url 'KHACHHANG:dang_ky' %}">
-                Đăng ký
-            </a>
-        </small>
-    </div>
-</div>
