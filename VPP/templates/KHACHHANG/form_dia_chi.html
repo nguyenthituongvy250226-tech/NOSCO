@@ -1,0 +1,33 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+{{ tieu_de }}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>{{ tieu_de }}</h2>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn">
+            Lưu thông tin
+        </button>
+
+        <a href="{% url 'KHACHHANG:so_dia_chi' %}"
+           class="btn btn-danger">
+            Quay lại
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

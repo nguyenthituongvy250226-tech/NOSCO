@@ -1,0 +1,40 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Đăng ký tài khoản
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>ĐĂNG KÝ TÀI KHOẢN</h2>
+
+    <p>
+        Tạo tài khoản khách hàng tại VPP NOSCO.
+    </p>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn">
+            Đăng ký
+        </button>
+
+    </form>
+
+    <p>
+        Đã có tài khoản?
+
+        <a href="{% url 'KHACHHANG:dang_nhap' %}">
+            Đăng nhập ngay
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

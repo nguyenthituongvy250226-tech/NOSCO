@@ -1,0 +1,92 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Quản lý yêu cầu hỗ trợ
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>QUẢN LÝ YÊU CẦU HỖ TRỢ</h2>
+
+    <p>
+        Tiếp nhận, theo dõi và xử lý các yêu cầu từ khách hàng.
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Mã yêu cầu</th>
+                <th>Khách hàng</th>
+                <th>Tiêu đề</th>
+                <th>Trạng thái</th>
+                <th>Ngày gửi</th>
+                <th>Thao tác</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for item in danh_sach %}
+
+                <tr>
+
+                    <td>
+                        {{ item.MaYeuCau }}
+                    </td>
+
+                    <td>
+                        {{ item.MaKhachHang.HoVaTen }}
+                    </td>
+
+                    <td>
+                        {{ item.TieuDe }}
+                    </td>
+
+                    <td>
+                        {{ item.get_TrangThai_display }}
+                    </td>
+
+                    <td>
+                        {{ item.NgayTao|date:"d/m/Y H:i" }}
+                    </td>
+
+                    <td>
+
+                        <a class="btn"
+                           href="{% url 'KHACHHANG:xu_ly_yeu_cau_ho_tro' item.MaYeuCau %}">
+                            Xử lý
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="6">
+                        Hiện không có yêu cầu hỗ trợ.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,24 +1,26 @@
-
 from django.contrib import admin
 from django.urls import path, include
+
 from django.conf import settings
 from django.conf.urls.static import static
+
 from SANPHAM import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # Giao diện chung
+    # Giao diện chung và trang chủ
     path("", views.base, name="base"),
     path("home", views.home, name="home"),
     path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
-path("ve-chung-toi/", views.ve_chung_toi, name="ve_chung_toi"),
-
+    path("ve-chung-toi/", views.ve_chung_toi, name="ve_chung_toi"),
 
     # Module sản phẩm
     path("san-pham/", include("SANPHAM.urls")),
-path("yeu-thich/", views.san_pham_yeu_thich, name="san_pham_yeu_thich"),
+    path("yeu-thich/", views.san_pham_yeu_thich, name="san_pham_yeu_thich"),
 
+    # Module khách hàng
+    path("khach_hang/", include("KHACHHANG.urls")),
 ]
 
 # Phục vụ ảnh tải lên khi chạy ở chế độ phát triển
