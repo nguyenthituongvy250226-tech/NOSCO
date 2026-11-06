@@ -903,3 +903,19 @@
         font-size: 14px;
     }
 }
+/* Nút yêu thích mặc định */
+.favorite-btn {
+    color: #ec4899;
+    background: transparent;
+    border: none;
+}
+
+/* Khi đã yêu thích */
+.favorite-btn.is-favorite {
+    color: #ec4899;
+}
+
+/* Khi rê chuột */
+.favorite-btn:hover {
+    color: #db2777;
+}

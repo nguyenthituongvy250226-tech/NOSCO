@@ -132,19 +132,42 @@
                         </p>
 
                         <div class="product-rating">
-                            <span class="rating-star">★</span>
-                            <span>Chưa có đánh giá</span>
+    <span class="rating-star">★</span>
+    <span>Chưa có đánh giá</span>
 
-                            <button
-                                type="button"
-                                class="favorite-btn"
-                                disabled
-                                title="Chưa kết nối chức năng yêu thích"
-                            >
-                                ♡
-                            </button>
-                        </div>
+    <form
+        method="POST"
+        action="{% url 'sanpham:toggle_favorite' %}"
+        class="wishlist-favorite-form"
+    >
+        {% csrf_token %}
 
+        <input
+            type="hidden"
+            name="ma_san_pham"
+            value="{{ item.ma_san_pham }}"
+        >
+
+        <input
+            type="hidden"
+            name="next"
+            value="{{ request.get_full_path }}"
+        >
+
+        <button
+            type="submit"
+            class="favorite-btn {% if item.ma_san_pham in danh_sach_yeu_thich %}is-favorite{% endif %}"
+            title="{% if item.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+            aria-label="{% if item.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+        >
+            {% if item.ma_san_pham in danh_sach_yeu_thich %}
+                ♥
+            {% else %}
+                ♡
+            {% endif %}
+        </button>
+    </form>
+</div>
                         <div class="product-buy-actions">
 
                             <button

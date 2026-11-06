@@ -8,7 +8,7 @@ from .models import KhuyenMai, ChiTietKhuyenMai
 from .services import kiem_tra_va_tinh_voucher
 
 from SANPHAM.models import SanPham
-
+from SANPHAM.models import SanPham, SanPhamYeuThich
 
 @require_POST
 def ap_dung_voucher(request):
@@ -91,6 +91,19 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
         KhuyenMai,
         MaKhuyenMai=ma_khuyen_mai
     )
+    ma_khach_hang = request.session.get("ma_khach_hang")
+
+    danh_sach_yeu_thich = set()
+
+    if ma_khach_hang:
+        danh_sach_yeu_thich = set(
+            SanPhamYeuThich.objects.filter(
+                ma_khach_hang=ma_khach_hang
+            ).values_list(
+                "san_pham_id",
+                flat=True
+            )
+        )
 
     chi_tiet = ChiTietKhuyenMai.objects.filter(
         MaKhuyenMai=khuyen_mai,
@@ -186,6 +199,7 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
         {
             "khuyen_mai": khuyen_mai,
             "danh_sach_san_pham": danh_sach_hien_thi,
+            "danh_sach_yeu_thich": danh_sach_yeu_thich,
         }
     )
 

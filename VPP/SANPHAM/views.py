@@ -365,6 +365,11 @@ def danh_sach_san_pham(request):
             )
 
             thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+            # Kiểm tra sản phẩm còn ít nhất một biến thể có hàng hay không
+            thong_tin_gia["con_hang"] = any(
+                bien_the.so_luong_ton > 0
+                for bien_the in cac_bien_the
+            )
 
             san_pham_goi_y.append(thong_tin_gia)
 
@@ -1109,6 +1114,10 @@ def san_pham_yeu_thich(request):
         )
 
         thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+        thong_tin_gia["con_hang"] = any(
+            bien_the.so_luong_ton > 0
+            for bien_the in cac_bien_the
+        )
 
         danh_sach_san_pham.append(thong_tin_gia)
 
@@ -1125,6 +1134,7 @@ def san_pham_yeu_thich(request):
 # =========================================================
 # 12. BẬT / TẮT SẢN PHẨM YÊU THÍCH
 # =========================================================
+
 
 @khach_hang_required
 @require_POST

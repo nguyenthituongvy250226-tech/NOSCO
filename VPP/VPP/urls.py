@@ -13,8 +13,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Giao diện chung
-    path("", views.base, name="base"),
-    path("home", views.home, name="home"),
+
+    path("", views.home, name="home"),
 
     path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
     path("ho-tro/<slug:slug>/", views.trang_ho_tro, name="trang_ho_tro"),
