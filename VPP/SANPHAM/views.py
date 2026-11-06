@@ -1,6 +1,6 @@
 from decimal import Decimal, InvalidOperation
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,redirect
 from django.db.models import Min, Q
 
 from .models import SanPham, DanhMucSanPham, ThuongHieu, BaiViet,SanPhamQuaTang
@@ -8,7 +8,20 @@ from django.db.models import Min, Q, Avg, Count
 from .models import DanhGiaSanPham
 from .forms import DanhGiaSanPhamForm
 from django.contrib import messages
-
+from .models import (
+    SanPham,
+    DanhMucSanPham,
+    ThuongHieu,
+    BaiViet,
+    SanPhamQuaTang,
+    DanhGiaSanPham,
+    SanPhamYeuThich,
+)
+from KHACHHANG.views import khach_hang_required
+from DONHANG.models import DonHang, ChiTietDonHang
+from .models import BienTheSanPham, DanhGiaSanPham, SanPhamYeuThich
+from KHACHHANG.views import SESSION_NGUOI_DUNG
+from KHACHHANG.models import HoSoKhachHang
 
 def danh_sach_san_pham(request):
     # 1. Nhận các điều kiện tìm kiếm và lọc từ URL
@@ -175,7 +188,7 @@ def danh_sach_san_pham(request):
                 "gia_hien_thi": dinh_dang_gia(san_pham.gia_thap_nhat),
 
             })
-            danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+
     # 9. Gửi dữ liệu cho giao diện
     return render(
         request,
@@ -421,7 +434,14 @@ def home(request):
             })
 
     # 18. Lấy danh sách sản phẩm yêu thích
-    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+    # 18. Lấy danh sách sản phẩm yêu thích từ database
+    ma_khach_hang = request.session.get("ma_khach_hang")
+
+    danh_sach_yeu_thich = list(
+        SanPhamYeuThich.objects.filter(
+            ma_khach_hang=ma_khach_hang
+        ).values_list("san_pham_id", flat=True)
+    ) if ma_khach_hang else []
 
     # 19. Trả dữ liệu về giao diện trang chủ
     return render(request, "home.html", {
@@ -580,29 +600,70 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "gia_thap_nhat": min(cac_gia) if cac_gia else None,
         })
 
-    # Lấy danh sách đánh giá của sản phẩm
-    danh_sach_danh_gia = san_pham.danh_gia.select_related(
-        "nguoi_danh_gia"
-    ).all()
+    # Lấy mã khách hàng đang đăng nhập
+    ma_khach_hang = request.session.get("ma_khach_hang")
+
     # Xử lý khi khách gửi đánh giá
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            messages.warning(request, "Vui lòng đăng nhập để đánh giá sản phẩm.")
-            return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
 
+        # Kiểm tra khách hàng đã đăng nhập chưa
+        if not ma_khach_hang:
+            messages.warning(
+                request,
+                "Vui lòng đăng nhập tài khoản khách hàng để đánh giá sản phẩm."
+            )
+            return redirect(
+                "KHACHHANG:dang_nhap"
+            )
+
+        # Lấy mã các biến thể thuộc sản phẩm đang xem
+        ma_cac_bien_the = list(
+            BienTheSanPham.objects.using("sanpham")
+            .filter(san_pham=san_pham)
+            .values_list("ma_bien_the", flat=True)
+        )
+
+        # Kiểm tra khách hàng đã mua và nhận sản phẩm chưa
+        da_mua = ChiTietDonHang.objects.using("default").filter(
+            ma_don_hang__ma_khach_hang=ma_khach_hang,
+            ma_don_hang__trang_thai_don="da_giao",
+            trang_thai_giao="da_giao",
+            ma_bien_the__in=ma_cac_bien_the,
+        ).exists()
+
+        if not da_mua:
+            messages.warning(
+                request,
+                "Bạn cần mua và nhận sản phẩm thành công trước khi đánh giá."
+            )
+            return redirect(
+                "sanpham:chi_tiet_san_pham",
+                ma_san_pham=ma_san_pham
+            )
+
+        # Kiểm tra nội dung đánh giá
         form = DanhGiaSanPhamForm(request.POST)
 
         if form.is_valid():
             danh_gia = form.save(commit=False)
             danh_gia.san_pham = san_pham
-            danh_gia.nguoi_danh_gia = request.user
+            danh_gia.ma_khach_hang = ma_khach_hang
             danh_gia.save()
 
-            messages.success(request, "Đánh giá của bạn đã được gửi thành công!")
-            return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
+            messages.success(
+                request,
+                "Đánh giá của bạn đã được gửi thành công!"
+            )
+            return redirect(
+                "sanpham:chi_tiet_san_pham",
+                ma_san_pham=ma_san_pham
+            )
 
     else:
         form = DanhGiaSanPhamForm()
+
+    # Lấy danh sách đánh giá công khai của sản phẩm
+    danh_sach_danh_gia = san_pham.danh_gia.all()
 
     # Tính tổng lượt đánh giá và điểm trung bình
     thong_ke_danh_gia = danh_sach_danh_gia.aggregate(
@@ -620,6 +681,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
         thong_ke_so_sao[sao] = danh_sach_danh_gia.filter(
             so_sao=sao
         ).count()
+
     thong_ke_so_sao_list = []
 
     for sao in range(5, 0, -1):
@@ -635,6 +697,25 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "so_luong": so_luong,
             "ty_le": round(ty_le),
         })
+
+    # Lấy tên khách hàng để hiển thị đánh giá
+    danh_sach_danh_gia = list(danh_sach_danh_gia)
+
+    ma_khach_hang_danh_gia = {
+        dg.ma_khach_hang for dg in danh_sach_danh_gia
+    }
+
+    ten_khach_hang = dict(
+        HoSoKhachHang.objects.using("default")
+        .filter(MaHoSo__in=ma_khach_hang_danh_gia)
+        .values_list("MaHoSo", "HoVaTen")
+    )
+
+    for dg in danh_sach_danh_gia:
+        dg.ten_nguoi_danh_gia = ten_khach_hang.get(
+            dg.ma_khach_hang,
+            "Khách hàng NOSCO"
+        )
     return render(
         request,
         "SANPHAM/chi_tiet_san_pham.html",
@@ -683,9 +764,15 @@ from django.db.models import Prefetch
 from .models import SanPham, BienTheSanPham, HinhAnhSanPham
 
 
+@khach_hang_required
 def san_pham_yeu_thich(request):
-    # Lấy danh sách mã sản phẩm đã lưu trong Session
-    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+    # Lấy mã khách hàng đang đăng nhập
+    ma_khach_hang = request.session.get("ma_khach_hang")
+
+    # Lấy danh sách mã sản phẩm yêu thích từ database
+    danh_sach_yeu_thich = SanPhamYeuThich.objects.filter(
+        ma_khach_hang=ma_khach_hang
+    ).values_list("san_pham_id", flat=True)
 
     san_pham_queryset = (
         SanPham.objects
@@ -741,9 +828,11 @@ from django.views.decorators.http import require_POST
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from django.http import JsonResponse
+@khach_hang_required
 @require_POST
 def toggle_favorite(request):
     ma_san_pham = request.POST.get("ma_san_pham")
+    ma_khach_hang = request.session.get("ma_khach_hang")
 
     san_pham = get_object_or_404(
         SanPham,
@@ -751,17 +840,20 @@ def toggle_favorite(request):
         trang_thai_ban="Đang bán"
     )
 
-    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+    yeu_thich = SanPhamYeuThich.objects.filter(
+        ma_khach_hang=ma_khach_hang,
+        san_pham=san_pham
+    )
 
-    if san_pham.ma_san_pham in danh_sach_yeu_thich:
-        danh_sach_yeu_thich.remove(san_pham.ma_san_pham)
+    if yeu_thich.exists():
+        yeu_thich.delete()
         da_yeu_thich = False
     else:
-        danh_sach_yeu_thich.append(san_pham.ma_san_pham)
+        SanPhamYeuThich.objects.create(
+            ma_khach_hang=ma_khach_hang,
+            san_pham=san_pham
+        )
         da_yeu_thich = True
-
-    request.session["yeu_thich"] = danh_sach_yeu_thich
-    request.session.modified = True
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse({

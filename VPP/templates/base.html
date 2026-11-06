@@ -57,10 +57,20 @@
             </form>
 
             <div class="header-actions">
-                <a class="action-item" href="/tai-khoan/">
-                    <i class="fa-regular fa-user"></i>
-                    <div class="action-text"><span>Khách hàng</span><small>Đăng nhập</small></div>
-                </a>
+                <a class="action-item"
+   href="{% if request.session.khachhang_ma_nguoi_dung %}/tai-khoan/{% else %}{% url 'KHACHHANG:dang_nhap' %}{% endif %}">
+    <i class="fa-regular fa-user"></i>
+    <div class="action-text">
+        <span>Khách hàng</span>
+        <small>
+            {% if request.session.khachhang_ma_nguoi_dung %}
+                Tài khoản của tôi
+            {% else %}
+                Đăng nhập
+            {% endif %}
+        </small>
+    </div>
+</a>
                 <a class="action-item" href="{% url 'sanpham:san_pham_yeu_thich' %}">
                     <i class="fa-regular fa-heart"></i>
                     <div class="action-text"><span>Yêu thích</span></div>
@@ -124,9 +134,23 @@
 
     <!-- Main Content Container -->
     <main class="page-container">
-        {% block content %}
-        {% endblock %}
-    </main>
+
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                     role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+</main>
 
     <!-- Brand Trust Badges -->
     <section class="trust-badges">

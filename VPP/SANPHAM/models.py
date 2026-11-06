@@ -274,10 +274,11 @@ class DanhGiaSanPham(models.Model):
         related_name="danh_gia"
     )
 
-    nguoi_danh_gia = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="danh_gia_san_pham"
+    # Lưu mã hồ sơ khách hàng NOSCO, không dùng ForeignKey xuyên database.
+    ma_khach_hang = models.CharField(
+        max_length=10,
+        db_index=True,
+        verbose_name="Mã khách hàng"
     )
 
     so_sao = models.PositiveSmallIntegerField(
@@ -301,3 +302,32 @@ class DanhGiaSanPham(models.Model):
 
     def __str__(self):
         return f"{self.san_pham.ten_san_pham} - {self.so_sao} sao"
+
+class SanPhamYeuThich(models.Model):
+    ma_khach_hang = models.CharField(
+        max_length=10,
+        db_index=True,
+        verbose_name="Mã khách hàng",
+    )
+
+    san_pham = models.ForeignKey(
+        SanPham,
+        on_delete=models.CASCADE,
+        related_name="luot_yeu_thich",
+        verbose_name="Sản phẩm",
+    )
+
+    ngay_them = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Sản phẩm yêu thích"
+        verbose_name_plural = "Sản phẩm yêu thích"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["ma_khach_hang", "san_pham"],
+                name="unique_khach_hang_san_pham_yeu_thich",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.ma_khach_hang} - {self.san_pham.ten_san_pham}"
