@@ -243,7 +243,7 @@
         </form>
 
         <!-- Mua ngay -->
-        <form method="POST" action="{% url 'checkout' %}" class="flex-fill">
+        <form method="POST" action="{% url 'CHECKOUT:checkout' %}" class="flex-fill">
             {% csrf_token %}
             <input type="hidden" name="ma_bien_the"
                    value="{{ item.bien_the_duy_nhat.ma_bien_the }}">

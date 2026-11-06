@@ -139,7 +139,7 @@ def checkout(request):
         else:
             messages.error(request, "Địa chỉ không hợp lệ.")
 
-        return redirect("checkout")
+        return redirect("CHECKOUT:checkout")
 
     # ======================================
     # LẤY ĐỊA CHỈ ĐANG ĐƯỢC CHỌN
@@ -373,21 +373,21 @@ def checkout(request):
                 request,
                 "Khung giờ giao hàng không hợp lệ."
             )
-            return redirect("checkout")
+            return redirect("CHECKOUT:checkout")
 
         if van_chuyen != "tieu_chuan":
             messages.error(
                 request,
                 "Phương thức vận chuyển không hợp lệ."
             )
-            return redirect("checkout")
+            return redirect("CHECKOUT:checkout")
 
         if phuong_thuc_thanh_toan not in phuong_thuc_hop_le:
             messages.error(
                 request,
                 "Vui lòng chọn phương thức thanh toán."
             )
-            return redirect("checkout")
+            return redirect("CHECKOUT:checkout")
 
         # Hiện tại đã nhận và kiểm tra được phương thức thanh toán.
         # Phần tạo đơn hàng và tích hợp VNPay sẽ xử lý ở bước tiếp theo.
