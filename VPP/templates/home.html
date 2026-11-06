@@ -717,14 +717,14 @@
             </button>
 
             <button
-                type="button"
-                class="btn btn-primary product-buy-now flex-fill"
-                disabled
-                title="Chưa kết nối module đặt hàng"
-            >
-                <span>Mua ngay</span>
-                <i class="fa-solid fa-arrow-right ms-1"></i>
-            </button>
+    type="button"
+    class="product-detail-buy-button"
+    id="buyNowButton"
+    {% if not bien_the_mac_dinh or bien_the_mac_dinh.so_luong_ton <= 0 %}disabled{% endif %}
+    title="Mua sản phẩm này ngay"
+>
+    Mua ngay
+</button>
         </div>
     </div>
 

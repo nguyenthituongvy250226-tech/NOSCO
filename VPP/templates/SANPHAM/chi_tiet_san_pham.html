@@ -232,16 +232,40 @@
                         </button>
 
                         <button
-                            type="button"
-                            class="product-detail-buy-button"
-                            disabled
-                            title="Chức năng mua ngay chưa được kết nối"
-                        >
-                            Mua ngay
-                        </button>
+    type="button"
+    class="product-detail-buy-button"
+    id="buyNowButton"
+    {% if not bien_the_mac_dinh or bien_the_mac_dinh.so_luong_ton <= 0 %}disabled{% endif %}
+    title="Mua sản phẩm này ngay"
+>
+    Mua ngay
+</button>
                     </div>
                 </form>
 
+                <!-- FORM MUA NGAY - KHÔNG THÊM SẢN PHẨM VÀO GIỎ -->
+<form
+    id="buyNowForm"
+    method="POST"
+    action="{% url 'checkout' %}"
+    hidden
+>
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="ma_bien_the"
+        id="buyNowVariantId"
+        value="{% if bien_the_mac_dinh %}{{ bien_the_mac_dinh.ma_bien_the }}{% endif %}"
+    >
+
+    <input
+        type="hidden"
+        name="so_luong"
+        id="buyNowQuantity"
+        value="1"
+    >
+</form>
                 <!-- CHIA SẺ SẢN PHẨM -->
                 <div class="product-detail-share">
                     <span class="product-detail-share-label">Chia sẻ:</span>
@@ -725,7 +749,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const cartVariantInput = document.getElementById("cartVariantId");
     const cartQuantityInput = document.getElementById("cartQuantity");
     const cartButton = document.querySelector(".product-detail-cart-button");
-
+    const buyNowButton = document.getElementById("buyNowButton");
+    const buyNowForm = document.getElementById("buyNowForm");
+    const buyNowVariantInput = document.getElementById("buyNowVariantId");
+    const buyNowQuantityInput = document.getElementById("buyNowQuantity");
 
     /* =====================================
        2. HIỂN THỊ ẢNH SẢN PHẨM
@@ -770,7 +797,21 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cartVariantInput) {
             cartVariantInput.value = selectedVariant.value;
         }
+        // Đồng bộ mã biến thể cho chức năng Mua ngay.
+if (buyNowVariantInput) {
+    buyNowVariantInput.value = selectedVariant.value;
+}
 
+// Khóa nút Mua ngay nếu biến thể hết hàng.
+if (buyNowButton) {
+    buyNowButton.disabled = stock <= 0;
+
+    if (stock > 0) {
+        buyNowButton.style.setProperty("cursor", "pointer", "important");
+    } else {
+        buyNowButton.style.setProperty("cursor", "not-allowed", "important");
+    }
+}
         // Cập nhật trạng thái nút thêm vào giỏ.
         if (cartButton) {
             cartButton.disabled = stock <= 0;
@@ -1024,50 +1065,47 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     if (gallery && mainImage && thumbnails.length > 1) {
+        // Các xử lý chuyển ảnh...
 
-        const prevButton = gallery.querySelector(
-            ".product-gallery-prev"
-        );
+    }
 
-        const nextButton = gallery.querySelector(
-            ".product-gallery-next"
-        );
 
-        let currentIndex = thumbnails.findIndex(function (button) {
+    // DÁN ĐOẠN MUA NGAY Ở ĐÂY
 
-            return button.dataset.image &&
-                new URL(button.dataset.image, document.baseURI).href ===
-                new URL(mainImage.src, document.baseURI).href;
-        });
+    /* =====================================
+       10. MUA NGAY
+    ===================================== */
 
-        if (currentIndex < 0) currentIndex = 0;
+    if (buyNowButton && buyNowForm) {
 
-        function showImage(index) {
+        buyNowButton.addEventListener("click", function () {
 
-            currentIndex =
-                (index + thumbnails.length) % thumbnails.length;
+            const selectedVariant = document.querySelector(
+                'input[name="bien_the"]:checked'
+            );
 
-            activateThumbnail(thumbnails[currentIndex]);
-        }
+            if (!selectedVariant) {
+                alert("Vui lòng chọn phân loại sản phẩm.");
+                return;
+            }
 
-        if (prevButton) {
-            prevButton.addEventListener("click", function () {
-                showImage(currentIndex - 1);
-            });
-        }
+            const stock = Number(selectedVariant.dataset.stock);
+            const quantity = Number(quantityInput.value);
 
-        if (nextButton) {
-            nextButton.addEventListener("click", function () {
-                showImage(currentIndex + 1);
-            });
-        }
+            if (stock <= 0) {
+                alert("Phân loại sản phẩm này hiện đã hết hàng.");
+                return;
+            }
 
-        // Đồng bộ chỉ số khi người dùng nhấn ảnh thu nhỏ.
-        thumbnails.forEach(function (button, index) {
+            if (!Number.isInteger(quantity) || quantity < 1 || quantity > stock) {
+                alert("Số lượng sản phẩm không hợp lệ.");
+                return;
+            }
 
-            button.addEventListener("click", function () {
-                currentIndex = index;
-            });
+            buyNowVariantInput.value = selectedVariant.value;
+            buyNowQuantityInput.value = quantity;
+
+            buyNowForm.submit();
         });
     }
 

@@ -123,7 +123,12 @@ def danh_sach_san_pham(request):
 
     for san_pham in san_pham_queryset:
         cac_bien_the = list(san_pham.bien_the.all())
-
+        bien_the_duy_nhat = (
+            cac_bien_the[0]
+            if len(cac_bien_the) == 1
+               and cac_bien_the[0].so_luong_ton > 0
+            else None
+        )
         cac_anh = [
             anh
             for bien_the in cac_bien_the
@@ -141,6 +146,8 @@ def danh_sach_san_pham(request):
             "anh_dai_dien": anh_dai_dien,
             "gia_thap_nhat": san_pham.gia_thap_nhat,
             "gia_hien_thi": dinh_dang_gia(san_pham.gia_thap_nhat),
+            "bien_the_duy_nhat": bien_the_duy_nhat,
+            "co_the_mua_truc_tiep": bien_the_duy_nhat is not None,
         })
         # 9. Khởi tạo danh sách sản phẩm gợi ý
     san_pham_goi_y = []

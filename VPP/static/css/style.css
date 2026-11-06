@@ -5863,6 +5863,14 @@ a:active {
 .product-buy-actions .buy-now:hover {
     background-color: #083579 !important;
 }
+/* Con trỏ chuột cho nút Mua ngay trang chi tiết */
+.product-detail-buy-button {
+    cursor: pointer !important;
+}
+
+.product-detail-buy-button:disabled {
+    cursor: not-allowed !important;
+}
 /* Đồng bộ giao diện thẻ sản phẩm bán chạy */
 .best-seller-card {
     display: flex;

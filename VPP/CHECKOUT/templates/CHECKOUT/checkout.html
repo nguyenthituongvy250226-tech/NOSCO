@@ -6,7 +6,7 @@
 {% block title %}Thanh toán | NOSCO{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CHECKOUT/checkout.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'CHECKOUT/checkout.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
@@ -18,9 +18,14 @@
         <div>
             <p class="checkout-breadcrumb">
                 <a href="/">Trang chủ</a>
-                <span>›</span>
-                <a href="{% url 'GIOHANG:xem_gio_hang' %}">Giỏ hàng</a>
-                <span>›</span>
+                <span>/</span>
+                {% if che_do_thanh_toan == "mua_ngay" %}
+                  <a href="{% url 'sanpham:danh_sach_san_pham' %}">Sản phẩm</a>
+                {% else %}
+                  <a href="{% url 'GIOHANG:xem_gio_hang' %}">Giỏ hàng</a>
+                {% endif %}
+
+                <span>/</span>
                 <strong>Thanh toán</strong>
             </p>
             <h1>Thanh toán</h1>
@@ -44,7 +49,11 @@
 
     <form method="POST" id="checkout-form" class="checkout-layout">
         {% csrf_token %}
-
+<input
+    type="hidden"
+    name="che_do_thanh_toan"
+    value="{{ che_do_thanh_toan }}"
+>
         <!-- CỘT TRÁI -->
         <div class="checkout-main">
 
@@ -174,6 +183,59 @@
                     </p>
                 {% endif %}
             </section>
+
+<section class="checkout-card">
+    <div class="card-head">
+        <div class="card-title">
+            <span class="card-icon">
+                <i class="fa-solid fa-wallet"></i>
+            </span>
+            <h2>Phương thức thanh toán</h2>
+        </div>
+    </div>
+
+    <div class="payment-options">
+
+        <label class="payment-option">
+            <input
+                type="radio"
+                name="phuong_thuc_thanh_toan"
+                value="vnpay"
+                required
+            >
+
+            <span class="payment-icon">
+                <i class="fa-solid fa-credit-card"></i>
+            </span>
+
+            <span class="payment-info">
+                <strong>VNPay</strong>
+                <small>Thanh toán trực tuyến qua VNPay</small>
+            </span>
+        </label>
+
+        <label class="payment-option">
+            <input
+                type="radio"
+                name="phuong_thuc_thanh_toan"
+                value="cod"
+                checked
+                required
+            >
+
+            <span class="payment-icon">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </span>
+
+            <span class="payment-info">
+                <strong>Thanh toán khi nhận hàng (COD)</strong>
+                <small>Thanh toán bằng tiền mặt khi nhận hàng</small>
+
+            </span>
+        </label>
+
+    </div>
+</section>
 
         </div>
 

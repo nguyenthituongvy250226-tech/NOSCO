@@ -225,25 +225,54 @@
 
 
 <div class="product-buy-actions d-flex gap-2 mt-3">
-    <button
-        type="button"
-        class="btn btn-outline-primary product-add-cart flex-fill"
-        disabled
-        title="Chưa kết nối module giỏ hàng"
-    >
-        <i class="fa-solid fa-cart-shopping me-1"></i>
-        <span>Thêm vào giỏ</span>
-    </button>
 
-    <button
-        type="button"
-        class="btn btn-primary product-buy-now flex-fill"
-        disabled
-        title="Chưa kết nối module đặt hàng"
-    >
-        <span>Mua ngay</span>
-        <i class="fa-solid fa-arrow-right ms-1"></i>
-    </button>
+    {% if item.co_the_mua_truc_tiep %}
+
+        <!-- Thêm vào giỏ hàng -->
+        <form method="POST" action="{% url 'GIOHANG:them_vao_gio' %}" class="flex-fill">
+            {% csrf_token %}
+            <input type="hidden" name="ma_bien_the"
+                   value="{{ item.bien_the_duy_nhat.ma_bien_the }}">
+            <input type="hidden" name="so_luong" value="1">
+
+            <button type="submit"
+                    class="btn btn-outline-primary product-add-cart w-100">
+                <i class="fa-solid fa-cart-shopping me-1"></i>
+                Thêm vào giỏ
+            </button>
+        </form>
+
+        <!-- Mua ngay -->
+        <form method="POST" action="{% url 'checkout' %}" class="flex-fill">
+            {% csrf_token %}
+            <input type="hidden" name="ma_bien_the"
+                   value="{{ item.bien_the_duy_nhat.ma_bien_the }}">
+            <input type="hidden" name="so_luong" value="1">
+
+            <button type="submit"
+                    class="btn btn-primary product-buy-now w-100">
+                Mua ngay
+                <i class="fa-solid fa-arrow-right ms-1"></i>
+            </button>
+        </form>
+
+    {% else %}
+
+        <!-- Có nhiều biến thể: chuyển đến trang chi tiết -->
+        <a href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+           class="btn btn-outline-primary product-add-cart flex-fill">
+            <i class="fa-solid fa-cart-shopping me-1"></i>
+            Thêm vào giỏ
+        </a>
+
+        <a href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+           class="btn btn-primary product-buy-now flex-fill">
+            Mua ngay
+            <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+
+    {% endif %}
+
 </div>
 
     </div>
