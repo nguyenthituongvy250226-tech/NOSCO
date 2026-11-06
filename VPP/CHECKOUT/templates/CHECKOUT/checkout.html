@@ -1,26 +1,40 @@
+
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
+{% load l10n %}
 
 {% block title %}Thanh toán | NOSCO{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CHECKOUT/checkout.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'CHECKOUT/checkout.css' %}?v=6">
 {% endblock %}
 
 {% block content %}
 
 <div class="checkout-page">
 
-    <!-- Tiêu đề -->
+    <!-- TIÊU ĐỀ -->
     <div class="checkout-heading">
         <div>
             <p class="checkout-breadcrumb">
                 <a href="/">Trang chủ</a>
-                <span>›</span>
-                <a href="{% url 'xem_gio_hang' %}">Giỏ hàng</a>
-                <span>›</span>
+                <span>/</span>
+
+                {% if che_do_thanh_toan == "mua_ngay" %}
+                    <a href="{% url 'sanpham:danh_sach_san_pham' %}">
+                        Sản phẩm
+                    </a>
+                {% else %}
+                    <a href="{% url 'GIOHANG:xem_gio_hang' %}">
+                        Giỏ hàng
+                    </a>
+                {% endif %}
+
+                <span>/</span>
                 <strong>Thanh toán</strong>
             </p>
+
             <h1>Thanh toán</h1>
         </div>
 
@@ -30,10 +44,13 @@
         </div>
     </div>
 
+    <!-- THÔNG BÁO -->
     {% if messages %}
         <div class="checkout-messages">
             {% for message in messages %}
-                <div class="checkout-message {{ message.tags }}">{{ message }}</div>
+                <div class="checkout-message {{ message.tags }}">
+                    {{ message }}
+                </div>
             {% endfor %}
         </div>
     {% endif %}
@@ -41,199 +58,365 @@
     <form method="POST" id="checkout-form" class="checkout-layout">
         {% csrf_token %}
 
-        <!-- ================= CỘT TRÁI ================= -->
+        <input
+            type="hidden"
+            name="che_do_thanh_toan"
+            value="{{ che_do_thanh_toan }}"
+        >
+
+        <!-- CỘT TRÁI -->
         <div class="checkout-main">
 
-            <!-- Thông tin nhận hàng -->
+            <!-- THÔNG TIN NHẬN HÀNG -->
             <section class="checkout-card">
+
                 <div class="card-head">
                     <div class="card-title">
-                        <span class="card-icon"><i class="fa-solid fa-location-dot"></i></span>
+                        <span class="card-icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </span>
                         <h2>Thông tin nhận hàng</h2>
                     </div>
-                    <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="card-link">Thay đổi</a>
-                </div>
 
-                {% if dia_chi %}
-                <div class="address-box">
-                    <div class="address-top">
-                        <strong>{{ dia_chi.TenNguoiNhan }}</strong>
-                        <span class="address-phone">{{ dia_chi.SoDienThoai }}</span>
-                        {% if dia_chi.MacDinh %}
-                            <span class="address-badge">Mặc định</span>
+                    <!-- ĐIỀU HƯỚNG ĐẾN SỔ ĐỊA CHỈ KHÁCH HÀNG -->
+                    <div class="address-action">
+                        {% if dia_chi %}
+                            <a
+                                href="{% url 'KHACHHANG:so_dia_chi' %}"
+                                class="card-link"
+                            >
+                                Thay đổi
+                            </a>
+                        {% else %}
+                            <a
+                                href="{% url 'KHACHHANG:so_dia_chi' %}"
+                                class="add-address"
+                            >
+                                + Thêm địa chỉ mới
+                            </a>
                         {% endif %}
                     </div>
-                    <p class="address-line">
-                        <i class="fa-solid fa-location-dot"></i>
-                        {{ dia_chi.DiaChi }}
-                    </p>
                 </div>
-                {% else %}
-                <p>Bạn chưa có địa chỉ nhận hàng. Hãy thêm địa chỉ trước khi đặt hàng.</p>
-                {% endif %}
 
-                <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="add-address">+ Quản lý địa chỉ</a>
+                <!-- ĐỊA CHỈ ĐANG ĐƯỢC CHỌN -->
+                {% if dia_chi %}
+
+                    <div class="address-info">
+                        <p>
+                            <strong>{{ dia_chi.ho_ten }}</strong>
+                        </p>
+
+                        <p>{{ dia_chi.so_dien_thoai }}</p>
+
+                        <p>{{ dia_chi.dia_chi }}</p>
+
+                        {% if dia_chi.mac_dinh %}
+                            <span class="default-address-badge">
+                                Mặc định
+                            </span>
+                        {% endif %}
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-address">
+                        <p>Bạn chưa có địa chỉ nhận hàng.</p>
+                    </div>
+
+                {% endif %}
 
                 <div class="card-divider"></div>
 
+                <!-- GHI CHÚ VÀ THỜI GIAN GIAO -->
                 <div class="form-grid">
+
                     <div class="form-field">
-                        <label for="ghi_chu">Ghi chú đơn hàng</label>
-                        <textarea id="ghi_chu" name="ghi_chu" rows="4"
-                                  placeholder="Ví dụ: Giao giờ hành chính, liên hệ trước khi giao..."></textarea>
+                        <label for="ghi_chu">
+                            Ghi chú đơn hàng
+                        </label>
+
+                        <textarea
+                            id="ghi_chu"
+                            name="ghi_chu"
+                            rows="4"
+                            placeholder="Ví dụ: Giao giờ hành chính, liên hệ trước khi giao..."
+                        ></textarea>
                     </div>
 
                     <div class="form-field">
-                        <label for="khung_gio">Thời gian giao hàng</label>
+                        <label for="khung_gio">
+                            Thời gian giao hàng
+                        </label>
+
                         <select id="khung_gio" name="khung_gio">
-                            <option value="hanh_chinh">Giao trong giờ hành chính (8h - 17h)</option>
-                            <option value="sang">Buổi sáng (8h - 12h)</option>
-                            <option value="chieu">Buổi chiều (13h - 17h)</option>
+                            <option value="hanh_chinh">
+                                Giao trong giờ hành chính (8h - 17h)
+                            </option>
+
+                            <option value="sang">
+                                Buổi sáng (8h - 12h)
+                            </option>
+
+                            <option value="chieu">
+                                Buổi chiều (13h - 17h)
+                            </option>
                         </select>
+
                         <p class="field-note">
                             <i class="fa-regular fa-clock"></i>
                             Thời gian giao hàng có thể thay đổi tùy khu vực.
                         </p>
                     </div>
+
                 </div>
             </section>
 
-            <!-- Các bước sau: phương thức vận chuyển, phương thức thanh toán -->
-           <!-- Phương thức vận chuyển -->
-<section class="checkout-card">
-    <div class="card-head">
-        <div class="card-title">
-            <span class="card-icon"><i class="fa-solid fa-truck-fast"></i></span>
-            <h2>Phương thức vận chuyển</h2>
-        </div>
-        {% if mien_phi %}
-            <span class="freeship-tag">● FREESHIP</span>
-        {% endif %}
-    </div>
+            <!-- PHƯƠNG THỨC VẬN CHUYỂN -->
+            <section class="checkout-card">
 
-    <label class="ship-option">
-        <input type="radio" name="van_chuyen" value="tieu_chuan" checked>
-        <span class="ship-icon"><i class="fa-solid fa-truck"></i></span>
-        <span class="ship-info">
-            <strong>Giao hàng tiêu chuẩn</strong>
-            <small>Dự kiến giao hàng: 2–4 ngày</small>
-        </span>
-        <span class="ship-price">
-            <strong>{{ phi_van_chuyen|floatformat:"0g" }}₫</strong>
-            {% if mien_phi %}
-                <em>Miễn phí vận chuyển</em>
-            {% endif %}
-        </span>
-    </label>
+                <div class="card-head">
+                    <div class="card-title">
+                        <span class="card-icon">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </span>
+                        <h2>Phương thức vận chuyển</h2>
+                    </div>
 
-    {% if mien_phi %}
-        <p class="ship-note">
-            <i class="fa-solid fa-check"></i>
-            Miễn phí vận chuyển cho đơn hàng có địa chỉ nhận hàng tại TP. Đà Nẵng.
-        </p>
-    {% else %}
-        <p class="ship-note ship-note-plain">
-            Phí vận chuyển được tính theo địa chỉ nhận hàng.
-        </p>
-    {% endif %}
-</section>
+                    {% if mien_phi %}
+                        <span class="freeship-tag">● FREESHIP</span>
+                    {% endif %}
+                </div>
 
-<section class="checkout-card">
-    <div class="card-head">
-        <div class="card-title">
-            <span class="card-icon"><i class="fa-regular fa-credit-card"></i></span>
-            <h2>Phương thức thanh toán</h2>
-        </div>
-    </div>
-    {% for ma_phuong_thuc, ten_phuong_thuc in cac_phuong_thuc_thanh_toan %}
-        <label class="ship-option">
-            <input type="radio" name="phuong_thuc_thanh_toan" value="{{ ma_phuong_thuc }}"
-                   {% if phuong_thuc_thanh_toan == ma_phuong_thuc %}checked{% endif %}
-                   {% if forloop.first %}required{% endif %}>
-            <span class="ship-icon">
-                {% if ma_phuong_thuc == "COD" %}
-                    <i class="fa-solid fa-money-bill-wave"></i>
+                <label class="ship-option">
+
+                    <input
+                        type="radio"
+                        name="van_chuyen"
+                        value="tieu_chuan"
+                        checked
+                    >
+
+                    <span class="ship-icon">
+                        <i class="fa-solid fa-truck"></i>
+                    </span>
+
+                    <span class="ship-info">
+                        <strong>Giao hàng tiêu chuẩn</strong>
+                        <small>Dự kiến giao hàng: 2–4 ngày</small>
+                    </span>
+
+                    <span class="ship-price">
+                        <strong>
+                            {{ phi_van_chuyen|floatformat:0|localize }}₫
+                        </strong>
+
+                        {% if mien_phi %}
+                            <em>Miễn phí vận chuyển</em>
+                        {% endif %}
+                    </span>
+
+                </label>
+
+                {% if mien_phi %}
+                    <p class="ship-note">
+                        <i class="fa-solid fa-check"></i>
+                        Miễn phí vận chuyển cho đơn hàng có địa chỉ nhận hàng
+                        tại TP. Đà Nẵng.
+                    </p>
                 {% else %}
-                    <i class="fa-regular fa-credit-card"></i>
+                    <p class="ship-note ship-note-plain">
+                        Phí vận chuyển được tính theo địa chỉ nhận hàng.
+                    </p>
                 {% endif %}
-            </span>
-            <span class="ship-info">
-                <strong>{{ ten_phuong_thuc }}</strong>
-                {% if ma_phuong_thuc == "COD" %}
-                    <small>Thanh toán khi nhận hàng.</small>
-                {% else %}
-                    <small>Đơn hàng chờ thanh toán được giữ trong 24 giờ.</small>
-                {% endif %}
-            </span>
-        </label>
-    {% endfor %}
-</section>
-</div>
 
-        <!-- ================= CỘT PHẢI ================= -->
+            </section>
+
+            <!-- PHƯƠNG THỨC THANH TOÁN -->
+            <section class="checkout-card">
+
+                <div class="card-head">
+                    <div class="card-title">
+                        <span class="card-icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </span>
+                        <h2>Phương thức thanh toán</h2>
+                    </div>
+                </div>
+
+                <div class="payment-options">
+
+                    <label class="payment-option">
+                        <input
+                            type="radio"
+                            name="phuong_thuc_thanh_toan"
+                            value="vnpay"
+                            required
+                        >
+
+                        <span class="payment-icon">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </span>
+
+                        <span class="payment-info">
+                            <strong>VNPay</strong>
+                            <small>Thanh toán trực tuyến qua VNPay</small>
+                        </span>
+                    </label>
+
+                    <label class="payment-option">
+                        <input
+                            type="radio"
+                            name="phuong_thuc_thanh_toan"
+                            value="cod"
+                            checked
+                            required
+                        >
+
+                        <span class="payment-icon">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </span>
+
+                        <span class="payment-info">
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <small>
+                                Thanh toán bằng tiền mặt khi nhận hàng
+                            </small>
+                        </span>
+                    </label>
+
+                </div>
+            </section>
+
+        </div>
+
+        <!-- CỘT PHẢI -->
         <aside class="checkout-side">
+
             <section class="checkout-card order-card">
 
                 <div class="order-head">
                     <h2>Xem lại đơn hàng</h2>
-                    <span class="order-count">{{ danh_sach|length }} sản phẩm</span>
+
+                    <span class="order-count">
+                        {{ danh_sach|length }} sản phẩm
+                    </span>
                 </div>
 
+                <!-- DANH SÁCH SẢN PHẨM -->
                 <div class="order-items">
+
                     {% for item in danh_sach %}
-                    <div class="order-item">
-                        <div class="order-thumb">
-                            {% if item.hinh_anh %}
-                                <img src="{{ item.hinh_anh }}" alt="{{ item.ten_san_pham }}">
-                            {% else %}
-                                <i class="fa-regular fa-image"></i>
-                            {% endif %}
+
+                        <div class="order-item">
+
+                            <div class="order-thumb">
+                                {% if item.hinh_anh %}
+                                    <img
+                                        src="{{ item.hinh_anh }}"
+                                        alt="{{ item.ten_san_pham }}"
+                                    >
+                                {% else %}
+                                    <i class="fa-regular fa-image"></i>
+                                {% endif %}
+                            </div>
+
+                            <div class="order-info">
+                                <p class="order-name">
+                                    {{ item.ten_san_pham }}
+                                </p>
+
+                                <p class="order-qty">
+                                    Số lượng: {{ item.so_luong }}
+                                </p>
+                            </div>
+
+                            <strong class="order-price">
+                                {{ item.thanh_tien|floatformat:0|localize }}₫
+                            </strong>
+
                         </div>
-                        <div class="order-info">
-                            <p class="order-name">{{ item.ten_san_pham }}</p>
-                            <p class="order-qty">Số lượng: {{ item.so_luong }}</p>
-                        </div>
-                        <strong class="order-price">{{ item.thanh_tien|floatformat:"0g" }}₫</strong>
-                    </div>
+
+                    {% empty %}
+
+                        <p class="checkout-empty">
+                            Giỏ hàng hiện chưa có sản phẩm.
+                        </p>
+
                     {% endfor %}
+
                 </div>
 
-                <!-- Mã giảm giá (chưa hoạt động) -->
+                <!-- MÃ GIẢM GIÁ -->
                 <div class="voucher">
                     <label for="ma_giam_gia">Mã giảm giá</label>
+
                     <div class="voucher-row">
+
                         <div class="voucher-input">
                             <i class="fa-solid fa-tag"></i>
-                            <input type="text" id="ma_giam_gia" name="ma_giam_gia"
-                                   placeholder="Nhập mã giảm giá">
+
+                            <input
+                                type="text"
+                                id="ma_giam_gia"
+                                name="ma_giam_gia"
+                                placeholder="Nhập mã giảm giá"
+                            >
                         </div>
-                        <button type="button" class="voucher-btn">Áp dụng</button>
+
+                        <button
+                            type="button"
+                            class="voucher-btn"
+                            disabled
+                        >
+                            Áp dụng
+                        </button>
+
                     </div>
                 </div>
 
+                <!-- TỔNG TIỀN -->
                 <div class="order-sum">
+
                     <div class="sum-row">
                         <span>Tạm tính</span>
-                        <strong>{{ tam_tinh|floatformat:"0g" }}₫</strong>
+
+                        <strong>
+                            {{ tam_tinh|floatformat:0|localize }}₫
+                        </strong>
                     </div>
+
                     <div class="sum-row">
                         <span>Giảm giá</span>
                         <strong>0₫</strong>
                     </div>
+
                     <div class="sum-row">
                         <span>Phí vận chuyển</span>
+
                         <strong class="free">
-                            {% if phi_van_chuyen == 0 %}Miễn phí{% else %}{{ phi_van_chuyen|floatformat:"0g" }}₫{% endif %}
+                            {% if phi_van_chuyen == 0 %}
+                                Miễn phí
+                            {% else %}
+                                {{ phi_van_chuyen|floatformat:0|localize }}₫
+                            {% endif %}
                         </strong>
                     </div>
+
                 </div>
 
                 <div class="order-total">
                     <span>Tổng cộng</span>
-                    <strong>{{ tong_tien|floatformat:"0g" }}₫</strong>
+
+                    <strong>
+                        {{ tong_tien|floatformat:0|localize }}₫
+                    </strong>
                 </div>
 
-                <button type="submit" class="place-order-btn" {% if not dia_chi %}disabled{% endif %}>
+                <button
+                    type="submit"
+                    class="place-order-btn"
+                    {% if not danh_sach or not dia_chi %}disabled{% endif %}
+                >
                     Đặt hàng
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>

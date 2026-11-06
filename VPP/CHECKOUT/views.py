@@ -1,147 +1,424 @@
 from decimal import Decimal
+from types import SimpleNamespace
 
-from django.conf import settings
-from django.db import transaction
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_http_methods
 
-from DONHANG.services import (
-    DuLieuDonHangKhongHopLe,
-    tao_don_hang,
-    tinh_phi_van_chuyen,
-)
 from GIOHANG.views import (
-    bo_sung_thong_tin_san_pham,
     lay_gio_hang,
-    lay_thong_tin_bien_the,
+    bo_sung_thong_tin_san_pham,
 )
+
+from SANPHAM.models import BienTheSanPham
 from KHACHHANG.models import HoSoKhachHang, SoDiaChi
-from THANHTOAN.models import ThanhToan
-from THANHTOAN.services import tao_thanh_toan_cho_don
-from THANHTOAN.vnpay import tao_url_thanh_toan
+
+# ==========================================
+# CẤU HÌNH PHÍ VẬN CHUYỂN
+# ==========================================
+
+PHI_VAN_CHUYEN_TIEU_CHUAN = Decimal("30000")
+KHU_VUC_MIEN_PHI = "Đà Nẵng"
+
+# Lưu thông tin mua ngay trong session
+SESSION_MUA_NGAY = "checkout_mua_ngay"
 
 
-def checkout(request):
-    cac_phuong_thuc_thanh_toan = ThanhToan._meta.get_field(
-        "PhuongThucThanhToan"
-    ).choices
-    gio_hang = lay_gio_hang(request)
-    danh_sach = list(
-        gio_hang.chi_tiet.filter(trang_thai_chon=True)
-        .order_by("ma_chi_tiet_gio_hang")
+# ==========================================
+# LẤY ẢNH ĐẠI DIỆN CỦA BIẾN THỂ
+# ==========================================
+
+def lay_anh_bien_the(bien_the):
+    anh = (
+        bien_the.hinh_anh.filter(anh_dai_dien=True).first()
+        or bien_the.hinh_anh.order_by("thu_tu_hien_thi").first()
     )
 
-    if not danh_sach:
-        messages.warning(request, "Bạn chưa chọn sản phẩm nào để đặt hàng.")
-        return redirect("xem_gio_hang")
+    if anh and anh.duong_dan_anh:
+        return anh.duong_dan_anh.url
 
-    danh_sach = bo_sung_thong_tin_san_pham(danh_sach)
-    ma_khach_hang = request.session.get("ma_khach_hang")
-    ho_so = HoSoKhachHang.objects.filter(
-        MaHoSo=ma_khach_hang,
-        MaNguoiDung=request.nguoi_dung,
-    ).first()
-    if ho_so is None:
-        messages.error(request, "Không tìm thấy hồ sơ khách hàng của bạn.")
-        return redirect("KHACHHANG:ho_so_ca_nhan")
+    return ""
 
-    dia_chi = SoDiaChi.objects.filter(
-        MaKhachHang=ho_so,
-    ).order_by("-MacDinh", "TenNguoiNhan").first()
 
-    if request.method == "POST":
-        if dia_chi is None:
-            messages.warning(request, "Vui lòng thêm địa chỉ nhận hàng trước khi đặt hàng.")
-            return redirect("KHACHHANG:so_dia_chi")
+# ==========================================
+# TẠO DỮ LIỆU SẢN PHẨM MUA NGAY
+# ==========================================
 
-        phuong_thuc = request.POST.get("phuong_thuc_thanh_toan", "COD")
-        if phuong_thuc not in dict(cac_phuong_thuc_thanh_toan):
-            messages.error(request, "Vui lòng chọn phương thức thanh toán hợp lệ.")
-            return redirect("checkout")
-        if phuong_thuc != "COD" and phuong_thuc != "VNPAY":
-            messages.error(
-                request,
-                "Phương thức thanh toán này chưa được kết nối với cổng thanh toán.",
+def tao_san_pham_mua_ngay(ma_bien_the, so_luong):
+    bien_the = get_object_or_404(
+        BienTheSanPham.objects.select_related("san_pham"),
+        ma_bien_the=ma_bien_the,
+    )
+
+    san_pham = bien_the.san_pham
+
+    # Kiểm tra trạng thái kinh doanh
+    if san_pham.trang_thai_ban != "Đang bán":
+        raise ValueError("Sản phẩm hiện không được kinh doanh.")
+
+    # Kiểm tra giá và tồn kho
+    if bien_the.gia_ban is None or bien_the.gia_ban <= 0:
+        raise ValueError("Giá bán của sản phẩm không hợp lệ.")
+
+    if bien_the.so_luong_ton <= 0:
+        raise ValueError("Sản phẩm hiện đã hết hàng.")
+
+    if so_luong > bien_the.so_luong_ton:
+        raise ValueError(
+            f"Sản phẩm chỉ còn {bien_the.so_luong_ton} sản phẩm trong kho."
+        )
+
+    don_gia = Decimal(str(bien_the.gia_ban))
+    thanh_tien = don_gia * so_luong
+
+    # Tạo đối tượng tạm thời, KHÔNG lưu vào database
+    item = SimpleNamespace(
+        ma_bien_the_sp=bien_the.ma_bien_the,
+        so_luong=so_luong,
+        ten_san_pham=san_pham.ten_san_pham,
+        mau_sac=bien_the.mau_sac,
+        kich_thuoc=bien_the.kich_thuoc,
+        don_gia=don_gia,
+        so_luong_ton=bien_the.so_luong_ton,
+        hinh_anh=lay_anh_bien_the(bien_the),
+        thanh_tien=thanh_tien,
+    )
+
+    return item
+
+
+# ==========================================
+# TRANG THANH TOÁN
+# ==========================================
+
+@require_http_methods(["GET", "POST"])
+def checkout(request):
+
+    gio_hang = None
+    danh_sach = []
+    che_do_thanh_toan = "gio_hang"
+    # ======================================
+    # LẤY SỔ ĐỊA CHỈ CỦA KHÁCH HÀNG
+    # ======================================
+
+    ma_nguoi_dung = request.session.get("khachhang_ma_nguoi_dung")
+
+    ho_so = None
+    danh_sach_dia_chi = SoDiaChi.objects.none()
+    dia_chi_obj = None
+
+    if ma_nguoi_dung:
+        ho_so = HoSoKhachHang.objects.filter(
+            MaNguoiDung_id=ma_nguoi_dung
+        ).first()
+
+        if ho_so:
+            danh_sach_dia_chi = SoDiaChi.objects.filter(
+                MaKhachHang=ho_so
+            ).order_by("-MacDinh", "TenNguoiNhan")
+
+    # ======================================
+    # XỬ LÝ KHI CHỌN ĐỊA CHỈ TRONG CHECKOUT
+    # ======================================
+
+    if (
+            request.method == "POST"
+            and request.POST.get("hanh_dong") == "chon_dia_chi"
+    ):
+        ma_dia_chi = request.POST.get("ma_dia_chi", "")
+
+        dia_chi_chon = danh_sach_dia_chi.filter(
+            MaDiaChi=ma_dia_chi
+        ).first()
+
+        if dia_chi_chon:
+            request.session["checkout_ma_dia_chi"] = (
+                dia_chi_chon.MaDiaChi
             )
-            return redirect("checkout")
-        if phuong_thuc != "COD" and not (
-            settings.VNPAY_TMN_CODE and settings.VNPAY_HASH_SECRET
-        ):
-            messages.error(
-                request,
-                "Thanh toán VNPay chưa được cấu hình. Vui lòng chọn COD hoặc thử lại sau.",
-            )
-            return redirect("checkout")
+            messages.success(request, "Đã cập nhật địa chỉ nhận hàng.")
+        else:
+            messages.error(request, "Địa chỉ không hợp lệ.")
 
-        ghi_chu = request.POST.get("ghi_chu", "").strip()
-        if len(ghi_chu) > 300:
-            messages.error(request, "Ghi chú đơn hàng không được vượt quá 300 ký tự.")
-            return redirect("checkout")
+        return redirect("CHECKOUT:checkout")
 
-        items = []
-        for item in danh_sach:
-            san_pham = lay_thong_tin_bien_the(item.ma_bien_the_sp)
-            if san_pham is None:
-                messages.error(
-                    request,
-                    f"Sản phẩm {item.ma_bien_the_sp} không còn khả dụng.",
-                )
-                return redirect("xem_gio_hang")
-            items.append({
-                "ma_bien_the": item.ma_bien_the_sp,
-                "so_luong": item.so_luong,
-                "don_gia": str(san_pham["don_gia"]),
-            })
+    # ======================================
+    # LẤY ĐỊA CHỈ ĐANG ĐƯỢC CHỌN
+    # ======================================
+
+    ma_dia_chi_session = request.session.get(
+        "checkout_ma_dia_chi"
+    )
+
+    if ma_dia_chi_session:
+        dia_chi_obj = danh_sach_dia_chi.filter(
+            MaDiaChi=ma_dia_chi_session
+        ).first()
+
+    # Nếu chưa chọn hoặc địa chỉ cũ không còn tồn tại
+    if not dia_chi_obj:
+        dia_chi_obj = (
+                danh_sach_dia_chi.filter(MacDinh=True).first()
+                or danh_sach_dia_chi.first()
+        )
+
+    if dia_chi_obj:
+        request.session["checkout_ma_dia_chi"] = (
+            dia_chi_obj.MaDiaChi
+        )
+
+        dia_chi = {
+            "ma_dia_chi": dia_chi_obj.MaDiaChi,
+            "ho_ten": dia_chi_obj.TenNguoiNhan,
+            "so_dien_thoai": dia_chi_obj.SoDienThoai,
+            "dia_chi": dia_chi_obj.DiaChi,
+            "mac_dinh": dia_chi_obj.MacDinh,
+        }
+    else:
+        dia_chi = None
+    # ======================================
+    # 1. XÁC ĐỊNH LUỒNG THANH TOÁN
+    # ======================================
+
+    # Trường hợp nhấn Mua ngay từ trang chi tiết
+    if request.method == "POST" and request.POST.get("ma_bien_the"):
+
+        ma_bien_the = request.POST.get("ma_bien_the", "").strip()
 
         try:
-            with transaction.atomic():
-                don = tao_don_hang({
-                    "ma_khach_hang": ho_so.MaHoSo,
-                    "ma_dia_chi": dia_chi.MaDiaChi,
-                    "ten_nguoi_nhan": dia_chi.TenNguoiNhan,
-                    "sdt_nguoi_nhan": dia_chi.SoDienThoai,
-                    "dia_chi_nhan_hang": dia_chi.DiaChi,
-                    "ghi_chu": ghi_chu,
-                    "phi_van_chuyen": str(tinh_phi_van_chuyen(dia_chi.DiaChi)),
-                    "items": items,
-                })
-                thanh_toan = tao_thanh_toan_cho_don(don, phuong_thuc)
-                if phuong_thuc != "COD":
-                    url_thanh_toan = tao_url_thanh_toan(
-                        request,
-                        thanh_toan.MaGiaoDich,
-                        thanh_toan.SoTienThanhToan,
-                    )
-                gio_hang.chi_tiet.filter(trang_thai_chon=True).delete()
-        except DuLieuDonHangKhongHopLe as exc:
-            messages.error(request, str(exc) or "Không thể tạo đơn hàng.")
-            return redirect("checkout")
+            so_luong = int(request.POST.get("so_luong", "1"))
 
-        if phuong_thuc != "COD":
-            return redirect(url_thanh_toan)
+            if so_luong < 1:
+                raise ValueError
 
-        messages.success(
-            request,
-            f"Đặt hàng thành công. Mã đơn hàng: {don.ma_don_hang}. "
-            "Bạn sẽ thanh toán khi nhận hàng.",
+            item = tao_san_pham_mua_ngay(
+                ma_bien_the,
+                so_luong,
+            )
+
+        except (ValueError, TypeError):
+            messages.error(
+                request,
+                "Số lượng sản phẩm không hợp lệ."
+            )
+            return redirect("sanpham:danh_sach_san_pham")
+
+        except Exception as error:
+            from django.http import Http404
+
+            if isinstance(error, Http404):
+                messages.error(
+                    request,
+                    "Không tìm thấy biến thể sản phẩm."
+                )
+            else:
+                messages.error(request, str(error))
+
+            return redirect("sanpham:danh_sach_san_pham")
+
+        # Lưu thông tin mua ngay để checkout không bị mất
+        # khi người dùng gửi form Đặt hàng.
+        request.session[SESSION_MUA_NGAY] = {
+            "ma_bien_the": str(ma_bien_the),
+            "so_luong": so_luong,
+        }
+
+        che_do_thanh_toan = "mua_ngay"
+        danh_sach = [item]
+
+    # Trường hợp đang ở checkout và gửi form Đặt hàng
+    elif (
+        request.POST.get("che_do_thanh_toan") == "mua_ngay"
+        or (
+            request.method == "GET"
+            and SESSION_MUA_NGAY in request.session
         )
-        return redirect("DONHANG:danh_sach")
+    ):
 
-    tam_tinh = sum((item.thanh_tien for item in danh_sach), Decimal("0"))
-    dia_chi_giao = dia_chi.DiaChi if dia_chi else ""
-    phi_van_chuyen = tinh_phi_van_chuyen(dia_chi_giao)
-    mien_phi = phi_van_chuyen == Decimal("0")
+        thong_tin_mua_ngay = request.session.get(SESSION_MUA_NGAY)
 
-    return render(request, "CHECKOUT/checkout.html", {
-        "danh_sach": danh_sach,
-        "tam_tinh": tam_tinh,
-        "dia_chi": dia_chi,
-        "phi_van_chuyen": phi_van_chuyen,
-        "tong_tien": tam_tinh + phi_van_chuyen,
-        "mien_phi": mien_phi,
-        "phuong_thuc_thanh_toan": (
-            request.POST.get("phuong_thuc_thanh_toan", "COD")
-            if request.method == "POST" else "COD"
+        if not thong_tin_mua_ngay:
+            messages.warning(
+                request,
+                "Thông tin mua ngay không còn tồn tại. Vui lòng chọn lại sản phẩm."
+            )
+            return redirect("sanpham:danh_sach_san_pham")
+
+        try:
+            item = tao_san_pham_mua_ngay(
+                thong_tin_mua_ngay["ma_bien_the"],
+                int(thong_tin_mua_ngay["so_luong"]),
+            )
+
+        except Exception as error:
+            messages.error(request, str(error))
+            return redirect("sanpham:danh_sach_san_pham")
+
+        che_do_thanh_toan = "mua_ngay"
+        danh_sach = [item]
+
+    # Trường hợp thanh toán từ giỏ hàng
+    else:
+
+        # Xóa thông tin mua ngay cũ nếu người dùng chọn
+        # thanh toán theo giỏ hàng.
+        if request.method == "POST":
+            request.session.pop(SESSION_MUA_NGAY, None)
+
+        gio_hang = lay_gio_hang(request)
+
+        danh_sach = list(
+            gio_hang.chi_tiet.filter(
+                trang_thai_chon=True
+            ).order_by("ma_chi_tiet_gio_hang")
+        )
+
+        if not danh_sach:
+            messages.warning(
+                request,
+                "Bạn chưa chọn sản phẩm nào để thanh toán."
+            )
+            return redirect("GIOHANG:xem_gio_hang")
+
+        danh_sach = bo_sung_thong_tin_san_pham(danh_sach)
+
+        san_pham_khong_hop_le = [
+            item for item in danh_sach
+            if item.don_gia <= 0
+            or item.so_luong_ton < item.so_luong
+        ]
+
+        if san_pham_khong_hop_le:
+            messages.error(
+                request,
+                "Một số sản phẩm đã hết hàng hoặc không còn hợp lệ. "
+                "Vui lòng kiểm tra lại giỏ hàng."
+            )
+            return redirect("GIOHANG:xem_gio_hang")
+
+    # ======================================
+    # 2. TÍNH TIỀN
+    # ======================================
+
+    tam_tinh = sum(
+        (
+            Decimal(str(item.thanh_tien))
+            for item in danh_sach
         ),
-        "cac_phuong_thuc_thanh_toan": cac_phuong_thuc_thanh_toan,
-    })
+        Decimal("0")
+    )
+
+    # ======================================
+    # 3. THÔNG TIN NHẬN HÀNG TẠM THỜI
+    # ======================================
+
+    # ==========================================
+    # 4. PHÍ VẬN CHUYỂN
+    # ==========================================
+
+    mien_phi = (
+            dia_chi is not None
+            and KHU_VUC_MIEN_PHI.casefold()
+            in dia_chi["dia_chi"].casefold()
+    )
+
+    phi_van_chuyen = (
+        Decimal("0")
+        if mien_phi
+        else PHI_VAN_CHUYEN_TIEU_CHUAN
+    )
+
+    tong_tien = tam_tinh + phi_van_chuyen
+    # ======================================
+
+    # ======================================
+
+    # ======================================
+    # 5. XỬ LÝ FORM ĐẶT HÀNG
+    # ======================================
+
+    # Không xử lý đặt hàng ở lần POST đầu tiên
+    # khi khách nhấn Mua ngay từ trang sản phẩm.
+    if request.method == "POST" and not request.POST.get("ma_bien_the"):
+
+        ghi_chu = request.POST.get("ghi_chu", "").strip()
+
+        khung_gio = request.POST.get(
+            "khung_gio",
+            "hanh_chinh"
+        )
+
+        van_chuyen = request.POST.get(
+            "van_chuyen",
+            "tieu_chuan"
+        )
+
+        phuong_thuc_thanh_toan = request.POST.get(
+            "phuong_thuc_thanh_toan",
+            ""
+        )
+
+        khung_gio_hop_le = [
+            "hanh_chinh",
+            "sang",
+            "chieu",
+        ]
+
+        phuong_thuc_hop_le = [
+            "vnpay",
+            "cod",
+        ]
+
+        if khung_gio not in khung_gio_hop_le:
+            messages.error(
+                request,
+                "Khung giờ giao hàng không hợp lệ."
+            )
+            return redirect("CHECKOUT:checkout")
+
+        if van_chuyen != "tieu_chuan":
+            messages.error(
+                request,
+                "Phương thức vận chuyển không hợp lệ."
+            )
+            return redirect("CHECKOUT:checkout")
+
+        if phuong_thuc_thanh_toan not in phuong_thuc_hop_le:
+            messages.error(
+                request,
+                "Vui lòng chọn phương thức thanh toán."
+            )
+            return redirect("CHECKOUT:checkout")
+
+        # Hiện tại đã nhận và kiểm tra được phương thức thanh toán.
+        # Phần tạo đơn hàng và tích hợp VNPay sẽ xử lý ở bước tiếp theo.
+
+
+
+    # ======================================
+    # 6. DỮ LIỆU TRUYỀN SANG TEMPLATE
+    # ======================================
+
+    context = {
+        "gio_hang": gio_hang,
+        "danh_sach": danh_sach,
+        "dia_chi": dia_chi,
+        "danh_sach_dia_chi": danh_sach_dia_chi,
+
+        "tam_tinh": tam_tinh,
+        "phi_van_chuyen": phi_van_chuyen,
+        "tong_tien": tong_tien,
+
+        "mien_phi": mien_phi,
+        "che_do_thanh_toan": che_do_thanh_toan,
+    }
+
+    return render(
+        request,
+        "CHECKOUT/checkout.html",
+        context
+    )
+def xem_trang_thanh_cong(request):
+    return render(
+        request,
+        "CHECKOUT/dat_hang_thanh_cong.html"
+    )

@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% load static %}
 
@@ -12,7 +13,7 @@
 <div class="share-page">
     <div class="share-card">
 
-        <a href="{% url 'xem_gio_hang' %}" class="share-back">
+        <a href="{% url 'GIOHANG:xem_gio_hang' %}" class="share-back">
             <i class="fa-solid fa-arrow-left"></i>
             Quay lại giỏ hàng
         </a>
@@ -21,128 +22,201 @@
         <div class="share-illustration" aria-hidden="true">
             <span class="spark spark-1">+</span>
             <span class="spark spark-2">+</span>
-            <span class="share-screen"><i class="fa-solid fa-cart-shopping"></i></span>
-            <span class="share-badge"><i class="fa-solid fa-share-nodes"></i></span>
-            <span class="share-arrow"><i class="fa-solid fa-arrow-left"></i></span>
+            <span class="share-screen">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </span>
+            <span class="share-badge">
+                <i class="fa-solid fa-share-nodes"></i>
+            </span>
+            <span class="share-arrow">
+                <i class="fa-solid fa-arrow-left"></i>
+            </span>
             <span class="share-ground"></span>
         </div>
 
         <h1>Chia sẻ giỏ hàng của bạn</h1>
+
         <p class="share-desc">
             Gửi danh sách {{ so_san_pham }} sản phẩm trong giỏ hàng cho bạn bè, người thân
             để cùng tham khảo hoặc mua sắm dễ dàng hơn!
         </p>
 
-        <!-- Đường dẫn -->
+        <!-- Đường dẫn chia sẻ -->
         <div class="share-link-box">
             <i class="fa-solid fa-link"></i>
-            <input type="text" id="share-url" value="{{ duong_dan }}" readonly>
+
+            <input
+                type="text"
+                id="share-url"
+                value="{{ duong_dan }}"
+                readonly
+            >
+
             <button type="button" id="btn-copy" class="share-copy-btn">
                 <i class="fa-regular fa-copy"></i>
                 <span>Sao chép</span>
             </button>
         </div>
 
-        <div class="share-or"><span>Hoặc chia sẻ qua</span></div>
+        <div class="share-or">
+            <span>Hoặc chia sẻ qua</span>
+        </div>
 
         <!-- Nền tảng chia sẻ -->
         <div class="share-channels">
+
             <button type="button" class="channel" data-channel="zalo">
                 <span class="channel-icon zalo">Zalo</span>
                 <span class="channel-name">Zalo</span>
             </button>
 
             <button type="button" class="channel" data-channel="facebook">
-                <span class="channel-icon facebook"><i class="fa-brands fa-facebook-f"></i></span>
+                <span class="channel-icon facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </span>
                 <span class="channel-name">Facebook</span>
             </button>
 
             <button type="button" class="channel" data-channel="messenger">
-                <span class="channel-icon messenger"><i class="fa-brands fa-facebook-messenger"></i></span>
+                <span class="channel-icon messenger">
+                    <i class="fa-brands fa-facebook-messenger"></i>
+                </span>
                 <span class="channel-name">Messenger</span>
             </button>
 
             <button type="button" class="channel" data-channel="other">
-                <span class="channel-icon other"><i class="fa-solid fa-ellipsis"></i></span>
+                <span class="channel-icon other">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </span>
                 <span class="channel-name">Khác</span>
             </button>
+
         </div>
 
         <p class="share-toast" id="share-toast" hidden></p>
 
-        <!-- Bước 2: mã QR -->
+        <!-- Khu vực mã QR có thể bổ sung sau -->
 
     </div>
 </div>
 
 <script>
 (function () {
-    var input = document.getElementById("share-url");
-    var toast = document.getElementById("share-toast");
-    var url = input.value;
-    var timer = null;
+    const input = document.getElementById("share-url");
+    const toast = document.getElementById("share-toast");
+    const copyButton = document.getElementById("btn-copy");
 
-    function showToast(text) {
-        toast.textContent = text;
+    if (!input || !toast || !copyButton) {
+        return;
+    }
+
+    const url = input.value;
+    let timer = null;
+
+    function showToast(message) {
+        toast.textContent = message;
         toast.hidden = false;
+
         clearTimeout(timer);
-        timer = setTimeout(function () { toast.hidden = true; }, 3500);
+
+        timer = setTimeout(function () {
+            toast.hidden = true;
+        }, 3500);
     }
 
     function copyLink() {
         if (navigator.clipboard && navigator.clipboard.writeText) {
             return navigator.clipboard.writeText(url);
         }
+
         // Dự phòng cho trình duyệt cũ
         input.select();
-        document.execCommand("copy");
-        return Promise.resolve();
+        input.setSelectionRange(0, 99999);
+
+        const copied = document.execCommand("copy");
+
+        return copied
+            ? Promise.resolve()
+            : Promise.reject(new Error("Không thể sao chép đường dẫn."));
     }
 
-    document.getElementById("btn-copy").addEventListener("click", function () {
-        var label = this.querySelector("span");
-        copyLink().then(function () {
-            label.textContent = "Đã sao chép";
-            showToast("Đã sao chép đường dẫn.");
-            setTimeout(function () { label.textContent = "Sao chép"; }, 2000);
-        });
+    // Sao chép đường dẫn
+    copyButton.addEventListener("click", function () {
+        const label = this.querySelector("span");
+
+        copyLink()
+            .then(function () {
+                label.textContent = "Đã sao chép";
+                showToast("Đã sao chép đường dẫn.");
+
+                setTimeout(function () {
+                    label.textContent = "Sao chép";
+                }, 2000);
+            })
+            .catch(function () {
+                showToast("Không thể sao chép. Vui lòng sao chép đường dẫn thủ công.");
+            });
     });
 
+    // Chia sẻ qua các nền tảng
     document.querySelectorAll(".channel").forEach(function (btn) {
         btn.addEventListener("click", function () {
-            var channel = btn.dataset.channel;
+            const channel = btn.dataset.channel;
 
+            // Facebook
             if (channel === "facebook") {
-                window.open(
-                    "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url),
-                    "_blank", "noopener"
-                );
+                const facebookUrl =
+                    "https://www.facebook.com/sharer/sharer.php?u=" +
+                    encodeURIComponent(url);
+
+                window.open(facebookUrl, "_blank", "noopener");
                 return;
             }
 
+            // Chia sẻ qua ứng dụng khác
             if (channel === "other") {
                 if (navigator.share) {
-                    navigator.share({ title: "Giỏ hàng NOSCO", url: url }).catch(function () {});
+                    navigator.share({
+                        title: "Giỏ hàng NOSCO",
+                        url: url
+                    }).catch(function () {});
                 } else {
-                    copyLink().then(function () {
-                        showToast("Đã sao chép đường dẫn, hãy dán vào nơi bạn muốn gửi.");
-                    });
+                    copyLink()
+                        .then(function () {
+                            showToast(
+                                "Đã sao chép đường dẫn, hãy dán vào nơi bạn muốn gửi."
+                            );
+                        })
+                        .catch(function () {
+                            showToast("Không thể sao chép đường dẫn.");
+                        });
                 }
+
                 return;
             }
 
-            // Zalo, Messenger: sao chép link rồi mở ứng dụng để dán
-            var dich = channel === "zalo"
+            // Zalo và Messenger
+            const dich = channel === "zalo"
                 ? "https://chat.zalo.me/"
                 : "https://www.messenger.com/";
-            var ten = channel === "zalo" ? "Zalo" : "Messenger";
 
-            copyLink().then(function () {
-                showToast("Đã sao chép đường dẫn. Dán vào cuộc trò chuyện " + ten + " để gửi.");
-                window.open(dich, "_blank", "noopener");
-            });
+            const ten = channel === "zalo" ? "Zalo" : "Messenger";
+
+            copyLink()
+                .then(function () {
+                    showToast(
+                        "Đã sao chép đường dẫn. Dán vào cuộc trò chuyện " +
+                        ten + " để gửi."
+                    );
+
+                    window.open(dich, "_blank", "noopener");
+                })
+                .catch(function () {
+                    showToast("Không thể sao chép đường dẫn.");
+                });
         });
     });
+
 })();
 </script>
 

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     "SANPHAM",
     'THANHTOAN',
     'KHUYENMAI',
@@ -59,7 +60,11 @@ INSTALLED_APPS = [
 
 
 ]
-
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
+THOUSAND_SEPARATOR = "."
+DECIMAL_SEPARATOR = ","
+USE_L10N = True
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

@@ -1,35 +1,24 @@
 
 import uuid
+import secrets
+
 from decimal import Decimal
-from typing import TypedDict
 
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-import secrets
-
 from django.http import HttpResponse
 from django.urls import reverse
+
 from .models import GioHang, ChiTietGioHang, ChiaSeGioHang
 from SANPHAM.models import BienTheSanPham
+
+
 SO_BIEN_THE_TOI_DA = 10
-
-
-class ThongTinBienThe(TypedDict):
-    ten_san_pham: str
-    mau_sac: str
-    kich_thuoc: str
-    don_gia: Decimal
-    hinh_anh: str
-    so_luong_ton: int
 
 # Mã khách hàng cố định để demo
 MA_KHACH_HANG_DEMO = "KHDEMO001"
 
-
-# ==========================================
-# HÀM TẠO MÃ TỰ ĐỘNG
-# ==========================================
 
 def tao_ma(model):
     """
@@ -49,18 +38,17 @@ def tao_ma(model):
 
 def lay_gio_hang(request):
     """
-    Lấy giỏ hàng của khách đang đăng nhập; dùng giỏ demo khi chưa có mã khách.
+    Lấy giỏ hàng của KHDEMO001.
+    Nếu chưa có thì tạo mới.
     """
-
-    ma_khach_hang = request.session.get("ma_khach_hang") or MA_KHACH_HANG_DEMO
     gio_hang = GioHang.objects.filter(
-        ma_khach_hang=ma_khach_hang
+        ma_khach_hang=MA_KHACH_HANG_DEMO
     ).first()
 
     if gio_hang is None:
         gio_hang = GioHang.objects.create(
             ma_gio_hang=tao_ma(GioHang),
-            ma_khach_hang=ma_khach_hang,
+            ma_khach_hang=MA_KHACH_HANG_DEMO,
             loai_gio_hang=False,
         )
 
@@ -85,77 +73,54 @@ def lay_chi_tiet_gio_hang(request, id):
 # BỔ SUNG THÔNG TIN SẢN PHẨM ĐỂ HIỂN THỊ
 # ==========================================
 
-def lay_thong_tin_bien_the(ma_bien_the: str) -> ThongTinBienThe | None:
-    bien_the = (
-        BienTheSanPham.objects.using("sanpham")
-        .select_related("san_pham")
-        .prefetch_related("hinh_anh")
-        .filter(pk=ma_bien_the, san_pham__trang_thai_ban="Đang bán")
-        .first()
-    )
-    if bien_the is None:
-        return None
-
-    danh_sach_anh = list(bien_the.hinh_anh.all())
-    anh = next((item for item in danh_sach_anh if item.anh_dai_dien), None)
-    if anh is None and danh_sach_anh:
-        anh = danh_sach_anh[0]
-
-    return {
-        "ten_san_pham": bien_the.san_pham.ten_san_pham,
-        "mau_sac": bien_the.mau_sac,
-        "kich_thuoc": bien_the.kich_thuoc,
-        "don_gia": bien_the.gia_ban,
-        "hinh_anh": anh.duong_dan_anh.url if anh and anh.duong_dan_anh else "",
-        "so_luong_ton": bien_the.so_luong_ton,
-    }
-
-
 def bo_sung_thong_tin_san_pham(danh_sach):
     """
-    Lấy thông tin biến thể từ cơ sở dữ liệu SANPHAM
-    và gắn tạm vào đối tượng chi tiết giỏ hàng.
-    Không lưu các thông tin này vào database.
+    Lấy thông tin biến thể và sản phẩm trực tiếp từ SANPHAM.
     """
+    ma_bien_the_list = [
+        item.ma_bien_the_sp for item in danh_sach
+    ]
 
-    ma_bien_thes = {item.ma_bien_the_sp for item in danh_sach}
-    bien_thes = (
-        BienTheSanPham.objects.using("sanpham")
-        .filter(
-            ma_bien_the__in=ma_bien_thes,
-            san_pham__trang_thai_ban="Đang bán",
-        )
+    bien_the_dict = {
+        bt.ma_bien_the: bt
+        for bt in BienTheSanPham.objects
+        .filter(ma_bien_the__in=ma_bien_the_list)
         .select_related("san_pham")
         .prefetch_related("hinh_anh")
-    )
-    thong_tin: dict[str, ThongTinBienThe] = {}
-    for bien_the in bien_thes:
-        danh_sach_anh = list(bien_the.hinh_anh.all())
-        anh = next((item for item in danh_sach_anh if item.anh_dai_dien), None)
-        if anh is None and danh_sach_anh:
-            anh = danh_sach_anh[0]
-        thong_tin[bien_the.ma_bien_the] = {
-            "ten_san_pham": bien_the.san_pham.ten_san_pham,
-            "mau_sac": bien_the.mau_sac,
-            "kich_thuoc": bien_the.kich_thuoc,
-            "don_gia": bien_the.gia_ban,
-            "hinh_anh": (
-                anh.duong_dan_anh.url if anh and anh.duong_dan_anh else ""
-            ),
-            "so_luong_ton": bien_the.so_luong_ton,
-        }
+    }
 
     for item in danh_sach:
-        san_pham = thong_tin.get(item.ma_bien_the_sp)
+        bien_the = bien_the_dict.get(item.ma_bien_the_sp)
 
-        if san_pham is not None:
-            item.ten_san_pham = san_pham["ten_san_pham"]
-            item.mau_sac = san_pham["mau_sac"]
-            item.kich_thuoc = san_pham["kich_thuoc"]
-            item.don_gia = san_pham["don_gia"]
-            item.hinh_anh = san_pham["hinh_anh"]
-            item.so_luong_ton = san_pham["so_luong_ton"]
-            item.thanh_tien = item.so_luong * item.don_gia
+        if bien_the:
+            san_pham = bien_the.san_pham
+
+            item.ten_san_pham = san_pham.ten_san_pham
+            item.mau_sac = bien_the.mau_sac
+            item.kich_thuoc = bien_the.kich_thuoc
+            item.don_gia = bien_the.gia_ban
+            item.so_luong_ton = bien_the.so_luong_ton
+
+            # Lấy ảnh đại diện của biến thể.
+            anh = bien_the.hinh_anh.filter(
+                anh_dai_dien=True
+            ).first()
+
+            if anh is None:
+                anh = bien_the.hinh_anh.order_by(
+                    "thu_tu_hien_thi"
+                ).first()
+
+            item.hinh_anh = (
+                anh.duong_dan_anh.url
+                if anh and anh.duong_dan_anh
+                else ""
+            )
+
+            item.thanh_tien = (
+                item.so_luong * item.don_gia
+            )
+
         else:
             item.ten_san_pham = "Sản phẩm không còn tồn tại"
             item.mau_sac = ""
@@ -176,18 +141,25 @@ def xem_gio_hang(request):
     gio_hang = lay_gio_hang(request)
 
     danh_sach = list(
-        gio_hang.chi_tiet.all().order_by("ma_chi_tiet_gio_hang")
+        gio_hang.chi_tiet.all().order_by(
+            "ma_chi_tiet_gio_hang"
+        )
     )
 
     danh_sach = bo_sung_thong_tin_san_pham(danh_sach)
 
     # Tổng số lượng sản phẩm trong giỏ
-    tong_so_luong = sum(item.so_luong for item in danh_sach)
-    # Số lượng của các sản phẩm được chọn
-
-    so_luong_chon = sum(
-        item.so_luong for item in danh_sach if item.trang_thai_chon
+    tong_so_luong = sum(
+        item.so_luong for item in danh_sach
     )
+
+    # Số lượng của các sản phẩm được chọn
+    so_luong_chon = sum(
+        item.so_luong
+        for item in danh_sach
+        if item.trang_thai_chon
+    )
+
     # Tổng tiền các sản phẩm được chọn
     tam_tinh = sum(
         (
@@ -209,7 +181,11 @@ def xem_gio_hang(request):
         ),
     }
 
-    return render(request, "GIOHANG/gio_hang.html", context)
+    return render(
+        request,
+        "GIOHANG/gio_hang.html",
+        context
+    )
 
 
 # ==========================================
@@ -221,25 +197,32 @@ def them_vao_gio(request):
     ma_bien_the = (
         request.POST.get("ma_bien_the")
         or request.POST.get("ma_bien_the_sp")
-        or request.POST.get("bien_the")
         or ""
     ).strip()
 
+    if not ma_bien_the:
+        messages.error(request, "Vui lòng chọn biến thể sản phẩm.")
+        return redirect("GIOHANG:xem_gio_hang")
+
+    # Kiểm tra số lượng
     try:
         so_luong = int(request.POST.get("so_luong", 1))
     except (ValueError, TypeError):
         messages.error(request, "Số lượng không hợp lệ.")
-        return redirect("xem_gio_hang")
+        return redirect("GIOHANG:xem_gio_hang")
 
     if so_luong < 1 or so_luong > 999:
         messages.error(request, "Số lượng phải từ 1 đến 999.")
-        return redirect("xem_gio_hang")
+        return redirect("GIOHANG:xem_gio_hang")
 
-    san_pham = lay_thong_tin_bien_the(ma_bien_the)
+    # Lấy biến thể sản phẩm từ database
+    bien_the = BienTheSanPham.objects.filter(
+        ma_bien_the=ma_bien_the
+    ).first()
 
-    if san_pham is None:
-        messages.error(request, "Không tìm thấy sản phẩm.")
-        return redirect("xem_gio_hang")
+    if not bien_the:
+        messages.error(request, "Không tìm thấy biến thể sản phẩm.")
+        return redirect("GIOHANG:xem_gio_hang")
 
     gio_hang = lay_gio_hang(request)
 
@@ -248,15 +231,32 @@ def them_vao_gio(request):
         ma_bien_the_sp=ma_bien_the,
     ).first()
 
-    so_luong_hien_tai = chi_tiet.so_luong if chi_tiet else 0
+    so_luong_hien_tai = (
+        chi_tiet.so_luong if chi_tiet else 0
+    )
 
-    if so_luong_hien_tai + so_luong > san_pham["so_luong_ton"]:
+    # Kiểm tra tồn kho
+    if so_luong_hien_tai + so_luong > bien_the.so_luong_ton:
         messages.error(request, "Số lượng vượt quá tồn kho.")
-        return redirect("xem_gio_hang")
+        return redirect("GIOHANG:xem_gio_hang")
 
+    # Kiểm tra giới hạn số biến thể trong giỏ
+    if (
+        chi_tiet is None
+        and gio_hang.chi_tiet.count() >= SO_BIEN_THE_TOI_DA
+    ):
+        messages.error(
+            request,
+            f"Giỏ hàng chỉ chứa tối đa {SO_BIEN_THE_TOI_DA} sản phẩm khác nhau.",
+        )
+        return redirect("GIOHANG:xem_gio_hang")
+
+    # Cập nhật số lượng nếu sản phẩm đã có trong giỏ
     if chi_tiet:
         chi_tiet.so_luong += so_luong
         chi_tiet.save(update_fields=["so_luong"])
+
+    # Nếu chưa có thì tạo chi tiết giỏ hàng mới
     else:
         ChiTietGioHang.objects.create(
             ma_chi_tiet_gio_hang=tao_ma(ChiTietGioHang),
@@ -265,14 +265,9 @@ def them_vao_gio(request):
             so_luong=so_luong,
             trang_thai_chon=True,
         )
-    if chi_tiet is None and gio_hang.chi_tiet.count() >= SO_BIEN_THE_TOI_DA:
-        messages.error(
-            request,
-            f"Giỏ hàng chỉ chứa tối đa {SO_BIEN_THE_TOI_DA} sản phẩm khác nhau.",
-        )
-        return redirect("xem_gio_hang")
+
     messages.success(request, "Đã thêm sản phẩm vào giỏ hàng.")
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
 
 
 # ==========================================
@@ -287,17 +282,19 @@ def cap_nhat_so_luong(request, id):
         so_luong = int(request.POST.get("so_luong", 1))
     except (ValueError, TypeError):
         messages.error(request, "Số lượng không hợp lệ.")
-        return redirect("xem_gio_hang")
+        return redirect("GIOHANG:xem_gio_hang")
 
-    san_pham = lay_thong_tin_bien_the(chi_tiet.ma_bien_the_sp)
+    bien_the = BienTheSanPham.objects.filter(
+        ma_bien_the=chi_tiet.ma_bien_the_sp
+    ).first()
 
     if so_luong < 1 or so_luong > 999:
         messages.error(request, "Số lượng phải từ 1 đến 999.")
 
-    elif san_pham is None:
+    elif not bien_the:
         messages.error(request, "Không tìm thấy thông tin sản phẩm.")
 
-    elif so_luong > san_pham["so_luong_ton"]:
+    elif so_luong > bien_the.so_luong_ton:
         messages.error(request, "Số lượng vượt quá tồn kho.")
 
     else:
@@ -305,7 +302,7 @@ def cap_nhat_so_luong(request, id):
         chi_tiet.save(update_fields=["so_luong"])
         messages.success(request, "Đã cập nhật số lượng.")
 
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
 
 
 # ==========================================
@@ -316,15 +313,17 @@ def cap_nhat_so_luong(request, id):
 def tang_so_luong(request, id):
     chi_tiet = lay_chi_tiet_gio_hang(request, id)
 
-    san_pham = lay_thong_tin_bien_the(chi_tiet.ma_bien_the_sp)
+    bien_the = BienTheSanPham.objects.filter(
+        ma_bien_the=chi_tiet.ma_bien_the_sp
+    ).first()
 
     if chi_tiet.so_luong >= 999:
         messages.error(request, "Số lượng không được vượt quá 999.")
 
-    elif san_pham is None:
+    elif not bien_the:
         messages.error(request, "Không tìm thấy thông tin sản phẩm.")
 
-    elif chi_tiet.so_luong >= san_pham["so_luong_ton"]:
+    elif chi_tiet.so_luong >= bien_the.so_luong_ton:
         messages.error(request, "Sản phẩm đã đạt số lượng tồn kho.")
 
     else:
@@ -332,7 +331,7 @@ def tang_so_luong(request, id):
         chi_tiet.save(update_fields=["so_luong"])
         messages.success(request, "Đã tăng số lượng sản phẩm.")
 
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
 
 
 # ==========================================
@@ -350,7 +349,7 @@ def giam_so_luong(request, id):
     else:
         messages.error(request, "Số lượng tối thiểu là 1.")
 
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
 
 
 # ==========================================
@@ -363,7 +362,8 @@ def xoa_san_pham(request, id):
     chi_tiet.delete()
 
     messages.success(request, "Đã xóa sản phẩm khỏi giỏ hàng.")
-    return redirect("xem_gio_hang")
+
+    return redirect("GIOHANG:xem_gio_hang")
 
 
 # ==========================================
@@ -377,7 +377,7 @@ def chon_san_pham(request, id):
     chi_tiet.trang_thai_chon = not chi_tiet.trang_thai_chon
     chi_tiet.save(update_fields=["trang_thai_chon"])
 
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
 
 
 # ==========================================
@@ -394,18 +394,35 @@ def chon_tat_ca(request):
         trang_thai_chon=gia_tri
     )
 
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
+
+
+# ==========================================
+# XÓA CÁC SẢN PHẨM ĐÃ CHỌN
+# ==========================================
+
 @require_POST
 def xoa_da_chon(request):
     gio_hang = lay_gio_hang(request)
-    so_dong, _ = gio_hang.chi_tiet.filter(trang_thai_chon=True).delete()
+
+    so_dong, _ = gio_hang.chi_tiet.filter(
+        trang_thai_chon=True
+    ).delete()
 
     if so_dong:
-        messages.success(request, f"Đã xóa {so_dong} sản phẩm khỏi giỏ hàng.")
+        messages.success(
+            request,
+            f"Đã xóa {so_dong} sản phẩm khỏi giỏ hàng."
+        )
     else:
-        messages.warning(request, "Bạn chưa chọn sản phẩm nào để xóa.")
+        messages.warning(
+            request,
+            "Bạn chưa chọn sản phẩm nào để xóa."
+        )
 
-    return redirect("xem_gio_hang")
+    return redirect("GIOHANG:xem_gio_hang")
+
+
 # ==========================================
 # CHIA SẺ GIỎ HÀNG
 # ==========================================
@@ -416,43 +433,59 @@ def tao_chia_se(request):
     danh_sach = list(gio_hang.chi_tiet.all())
 
     if not danh_sach:
-        messages.warning(request, "Giỏ hàng đang trống, chưa có gì để chia sẻ.")
-        return redirect("xem_gio_hang")
+        messages.warning(
+            request,
+            "Giỏ hàng đang trống, chưa có gì để chia sẻ."
+        )
+        return redirect("GIOHANG:xem_gio_hang")
 
     chia_se = ChiaSeGioHang.objects.create(
         ma_chia_se=secrets.token_urlsafe(9),
         ma_khach_hang=gio_hang.ma_khach_hang,
         noi_dung=[
-            {"ma_bien_the": i.ma_bien_the_sp, "so_luong": i.so_luong}
-            for i in danh_sach
+            {
+                "ma_bien_the": item.ma_bien_the_sp,
+                "so_luong": item.so_luong
+            }
+            for item in danh_sach
         ],
     )
 
-    return redirect("trang_chia_se", ma=chia_se.ma_chia_se)
+    return redirect(
+        "GIOHANG:trang_chia_se",
+        ma=chia_se.ma_chia_se
+    )
 
 
 def trang_chia_se(request, ma):
     chia_se = get_object_or_404(
         ChiaSeGioHang,
         ma_chia_se=ma,
-        ma_khach_hang=(
-            request.session.get("ma_khach_hang") or MA_KHACH_HANG_DEMO
-        ),
+        ma_khach_hang=MA_KHACH_HANG_DEMO,
     )
 
     duong_dan = request.build_absolute_uri(
-        reverse("nhan_gio_hang", args=[ma])
+        reverse("GIOHANG:nhan_gio_hang", args=[ma])
     )
 
-    return render(request, "GIOHANG/chia_se.html", {
-        "duong_dan": duong_dan,
-        "so_san_pham": len(chia_se.noi_dung),
-    })
+    return render(
+        request,
+        "GIOHANG/chia_se.html",
+        {
+            "duong_dan": duong_dan,
+            "so_san_pham": len(chia_se.noi_dung),
+        }
+    )
 
 
 def nhan_gio_hang(request, ma):
     # Tạm thời: bước 2 sẽ làm trang xem và nạp vào giỏ
-    chia_se = get_object_or_404(ChiaSeGioHang, ma_chia_se=ma)
+    chia_se = get_object_or_404(
+        ChiaSeGioHang,
+        ma_chia_se=ma
+    )
+
     return HttpResponse(
-        f"Link hợp lệ, gồm {len(chia_se.noi_dung)} sản phẩm. Bước 2 sẽ làm tiếp."
+        f"Link hợp lệ, gồm {len(chia_se.noi_dung)} sản phẩm. "
+        "Bước 2 sẽ làm tiếp."
     )

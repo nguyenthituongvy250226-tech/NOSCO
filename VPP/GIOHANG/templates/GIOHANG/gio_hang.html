@@ -1,10 +1,13 @@
+
 {% extends 'base.html' %}
 {% load static %}
-
+{% load humanize %}
+{% load l10n %}
 {% block title %}Giỏ hàng | NOSCO{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'GIOHANG/gio_hang.css' %}?v=cart-heading-2">
+<link rel="stylesheet" href="{% static 'GIOHANG/gio_hang.css' %}">
+
 <style>
     .cart-page a.checkout-btn {
         opacity: 1;
@@ -12,126 +15,147 @@
         text-decoration: none;
         box-sizing: border-box;
     }
+
     .cart-page a.checkout-btn:hover {
         background: var(--primary-dark);
     }
+
     .cart-page button.checkout-btn:disabled {
         opacity: .55;
         cursor: not-allowed;
     }
 
-    /* Nhóm nút "Chọn tất cả" + "Xóa đã chọn" */
+    /* Nhóm nút Chọn tất cả + Xóa đã chọn */
     .cart-page .cart-products-actions {
         display: flex;
         align-items: center;
         gap: 18px;
+        flex-wrap: wrap;
     }
+
     .cart-page .cart-products-actions form {
         margin: 0;
     }
+
     .cart-page .remove-selected-btn {
         color: #d64545;
     }
+
     .cart-page .remove-selected-btn:hover {
         color: #b93030;
     }
-    /* ===== Tách mỗi sản phẩm thành 1 thẻ bo góc ===== */
-.cart-page .cart-products {
-    padding: 0;
-    border: none;
-    background: transparent;
-}
 
-.cart-page .cart-products-header {
-    margin-bottom: 12px;
-    padding: 14px 18px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: #fff;
-}
+    /* Tách mỗi sản phẩm thành một thẻ bo góc */
+    .cart-page .cart-products {
+        padding: 0;
+        border: none;
+        background: transparent;
+    }
 
-.cart-page .cart-product {
-    margin-bottom: 12px;
-    padding: 16px 18px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: #fff;
-    transition: border-color .2s, box-shadow .2s;
-}
+    .cart-page .cart-products-header {
+        margin-bottom: 12px;
+        padding: 14px 18px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+    }
 
-.cart-page .cart-product:hover {
-    border-color: #cfe1f3;
-    box-shadow: 0 6px 18px rgba(24, 59, 89, .07);
-}
+    .cart-page .cart-product {
+        margin-bottom: 12px;
+        padding: 16px 18px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        transition: border-color .2s, box-shadow .2s;
+    }
 
-.cart-page .cart-product.is-selected {
-    border-color: #cfe1f3;
-    background: #fbfdff;
-}
+    .cart-page .cart-product:hover {
+        border-color: #cfe1f3;
+        box-shadow: 0 6px 18px rgba(24, 59, 89, .07);
+    }
 
-/* ===== Bo góc các thành phần nhỏ ===== */
-.cart-page .product-image { border-radius: 10px; }
-.cart-page .quantity-control { border-radius: 8px; }
-.cart-page .checkbox-btn { border-radius: 5px; }
-/* Dòng thông tin bảo mật màu xanh
+    .cart-page .cart-product.is-selected {
+        border-color: #cfe1f3;
+        background: #fbfdff;
+    }
 
- */
-.cart-page .checkout-note,
-.cart-page .checkout-note i {
-    color: #2e9e5b !important;
-}
+    /* Bo góc các thành phần nhỏ */
+    .cart-page .product-image {
+        border-radius: 10px;
+    }
 
-.cart-page .checkout-note {
-    font-weight: 600;
-}
-/* ===== Nền xám xanh + thẻ trắng (ép ưu tiên cao) ===== */
+    .cart-page .quantity-control {
+        border-radius: 8px;
+    }
 
-/* Nền xám xanh phủ ngang toàn màn hình, không phụ thuộc khối bọc ngoài */
-.cart-page {
-    background: #eef2f7 !important;
-    box-shadow: 0 0 0 100vmax #eef2f7 !important;
-    clip-path: inset(0 -100vmax) !important;
-}
+    .cart-page .checkbox-btn {
+        border-radius: 5px;
+    }
 
-/* Bỏ khung trắng bọc ngoài danh sách */
-.cart-page .cart-products {
-    padding: 0 !important;
-    border: none !important;
-    background: transparent !important;
-}
+    /* Dòng thông tin bảo mật */
+    .cart-page .checkout-note,
+    .cart-page .checkout-note i {
+        color: #2e9e5b !important;
+    }
 
-/* Thanh tiêu đề, từng sản phẩm, khung tóm tắt: nền trắng, bo góc */
-.cart-page .cart-products-header,
-.cart-page .cart-product,
-.cart-page .cart-summary,
-.cart-page .empty-cart {
-    background: #fff !important;
-    border: 1px solid #e3e9f0 !important;
-    border-radius: 12px !important;
-}
+    .cart-page .checkout-note {
+        font-weight: 600;
+    }
 
-.cart-page .cart-products-header {
-    margin-bottom: 12px !important;
-    padding: 14px 18px !important;
-}
+    /* Nền xám xanh */
+    .cart-page {
+        background: #eef2f7 !important;
+        box-shadow: 0 0 0 100vmax #eef2f7 !important;
+        clip-path: inset(0 -100vmax) !important;
+    }
 
-.cart-page .cart-product {
-    margin-bottom: 12px !important;
-    padding: 16px 18px !important;
-}
+    /* Bỏ khung trắng bọc ngoài danh sách */
+    .cart-page .cart-products {
+        padding: 0 !important;
+        border: none !important;
+        background: transparent !important;
+    }
 
-.cart-page .cart-product.is-selected {
-    border-color: #cfe1f3 !important;
-}
+    /* Các thẻ nền trắng */
+    .cart-page .cart-products-header,
+    .cart-page .cart-product,
+    .cart-page .cart-summary,
+    .cart-page .empty-cart {
+        background: #fff !important;
+        border: 1px solid #e3e9f0 !important;
+        border-radius: 12px !important;
+    }
 
-/* Tiêu đề nhỏ phía trên "Giỏ hàng" */
-.cart-page .cart-heading h1 span {
-    color: var(--muted) !important;
-    font-weight: 500 !important;
-}
+    .cart-page .cart-products-header {
+        margin-bottom: 12px !important;
+        padding: 14px 18px !important;
+    }
+
+    .cart-page .cart-product {
+        margin-bottom: 12px !important;
+        padding: 16px 18px !important;
+    }
+
+    .cart-page .cart-product.is-selected {
+        border-color: #cfe1f3 !important;
+    }
+
+    /* Tiêu đề nhỏ phía trên Giỏ hàng */
+    .cart-page .cart-eyebrow {
+        color: var(--primary) !important;
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        letter-spacing: 1.2px !important;
+        text-transform: uppercase !important;
+    }
+
+    .cart-page .cart-heading h1 span {
+        color: var(--muted) !important;
+        font-weight: 500 !important;
+    }
 </style>
-<link rel="stylesheet" href="{% static 'GIOHANG/gio_hang.css' %}">
 {% endblock %}
+
 
 {% block content %}
 
@@ -140,13 +164,17 @@
     <!-- Tiêu đề -->
     <div class="cart-heading">
         <div>
-<h1>Giỏ hàng <span>({{ tong_so_luong }} sản phẩm)</span></h1>
+            <p class="cart-breadcrumb">Trang chủ / Giỏ hàng</p>
+
+            <h1>
+                Giỏ hàng
+                <span>({{ danh_sach|length }} sản phẩm)</span>
+            </h1>
         </div>
-        <div class="cart-count">
-            <i class="fa-solid fa-bag-shopping"></i>
-            {{ tong_so_luong }} sản phẩm
-        </div>
+
+
     </div>
+
 
     <!-- Thông báo -->
     {% if messages %}
@@ -159,6 +187,7 @@
         </div>
     {% endif %}
 
+
     {% if danh_sach %}
 
     <div class="cart-layout">
@@ -170,46 +199,72 @@
                 <h3>Sản phẩm trong giỏ hàng</h3>
 
                 <div class="cart-products-actions">
-                    <form method="POST" action="{% url 'chon_tat_ca' %}">
+
+                    <!-- Chọn tất cả -->
+                    <form method="POST"
+                          action="{% url 'GIOHANG:chon_tat_ca' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="chon_tat_ca" value="{% if tat_ca_duoc_chon %}false{% else %}true{% endif %}">
+
+                        <input type="hidden"
+                               name="chon_tat_ca"
+                               value="{% if tat_ca_duoc_chon %}false{% else %}true{% endif %}">
+
                         <button type="submit" class="select-all-btn">
                             Chọn tất cả
                         </button>
                     </form>
 
-                    <form method="POST" action="{% url 'xoa_da_chon' %}"
+
+                    <!-- Xóa sản phẩm đã chọn -->
+                    <form method="POST"
+                          action="{% url 'GIOHANG:xoa_da_chon' %}"
                           onsubmit="return confirm('Xóa các sản phẩm đã chọn khỏi giỏ hàng?');">
                         {% csrf_token %}
-                        <button type="submit" class="select-all-btn remove-selected-btn">
+
+                        <button type="submit"
+                                class="select-all-btn remove-selected-btn">
                             Xóa đã chọn
                         </button>
                     </form>
-                    <form method="POST" action="{% url 'tao_chia_se' %}" data-no-ajax>
-    {% csrf_token %}
-    <button type="submit" class="select-all-btn">
-        <i class="fa-solid fa-share-nodes"></i> Chia sẻ giỏ hàng
-    </button>
-</form>
+
+
+                    <!-- Chia sẻ giỏ hàng -->
+                    <form method="POST"
+                          action="{% url 'GIOHANG:tao_chia_se' %}"
+                          data-no-ajax>
+                        {% csrf_token %}
+
+                        <button type="submit" class="select-all-btn">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            Chia sẻ giỏ hàng
+                        </button>
+                    </form>
+
                 </div>
             </div>
 
+
             {% for item in danh_sach %}
-            <div class="cart-product">
+
+            <div class="cart-product {% if item.trang_thai_chon %}is-selected{% endif %}">
 
                 <!-- Chọn sản phẩm -->
                 <form method="POST"
-                      action="{% url 'chon_san_pham' item.ma_chi_tiet_gio_hang %}"
+                      action="{% url 'GIOHANG:chon_san_pham' item.ma_chi_tiet_gio_hang %}"
                       class="product-checkbox">
                     {% csrf_token %}
+
                     <button type="submit"
                             class="checkbox-btn {% if item.trang_thai_chon %}checked{% endif %}"
                             aria-label="Chọn sản phẩm">
+
                         {% if item.trang_thai_chon %}
                             <i class="fa-solid fa-check"></i>
                         {% endif %}
+
                     </button>
                 </form>
+
 
                 <!-- Hình ảnh -->
                 <div class="product-image">
@@ -222,6 +277,7 @@
                         </div>
                     {% endif %}
                 </div>
+
 
                 <!-- Thông tin sản phẩm -->
                 <div class="product-info">
@@ -241,9 +297,11 @@
                     </p>
 
                     <div class="product-price">
-                        {{ item.don_gia|floatformat:"0g" }}₫
+                        {{ item.don_gia|floatformat:0|localize }}₫
                     </div>
+
                 </div>
+
 
                 <!-- Số lượng -->
                 <div class="product-quantity">
@@ -251,9 +309,11 @@
 
                     <div class="quantity-control">
 
+                        <!-- Giảm số lượng -->
                         <form method="POST"
-                              action="{% url 'giam_so_luong' item.ma_chi_tiet_gio_hang %}">
+                              action="{% url 'GIOHANG:giam_so_luong' item.ma_chi_tiet_gio_hang %}">
                             {% csrf_token %}
+
                             <button type="submit"
                                     {% if item.so_luong <= 1 %}disabled{% endif %}>
                                 <i class="fa-solid fa-minus"></i>
@@ -264,9 +324,11 @@
                             {{ item.so_luong }}
                         </span>
 
+                        <!-- Tăng số lượng -->
                         <form method="POST"
-                              action="{% url 'tang_so_luong' item.ma_chi_tiet_gio_hang %}">
+                              action="{% url 'GIOHANG:tang_so_luong' item.ma_chi_tiet_gio_hang %}">
                             {% csrf_token %}
+
                             <button type="submit">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
@@ -275,33 +337,44 @@
                     </div>
                 </div>
 
+
                 <!-- Thành tiền và xóa -->
                 <div class="product-total">
-                    <strong>{{ item.thanh_tien|floatformat:"0g" }}₫</strong>
+
+                    <strong>
+                        {{ item.thanh_tien|floatformat:0|localize }}₫
+                    </strong>
 
                     <form method="POST"
-                          action="{% url 'xoa_san_pham' item.ma_chi_tiet_gio_hang %}"
+                          action="{% url 'GIOHANG:xoa_san_pham' item.ma_chi_tiet_gio_hang %}"
                           onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?');">
                         {% csrf_token %}
+
                         <button type="submit" class="remove-btn">
                             <i class="fa-regular fa-trash-can"></i>
                             Xóa
                         </button>
                     </form>
+
                 </div>
 
             </div>
+
             {% endfor %}
 
-            <a href="{% url 'home' %}" class="continue-shopping">
+
+            <!-- Tiếp tục mua sắm -->
+            <a href="/" class="continue-shopping">
                 <i class="fa-solid fa-arrow-left"></i>
                 Tiếp tục mua sắm
             </a>
 
         </div>
 
+
         <!-- Tổng kết đơn hàng -->
         <div class="cart-summary">
+
             <h3>Tổng đơn hàng</h3>
 
             <div class="summary-row">
@@ -311,7 +384,7 @@
 
             <div class="summary-row">
                 <span>Tạm tính</span>
-                <strong>{{ tam_tinh|floatformat:"0g" }}₫</strong>
+                <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
             </div>
 
             <div class="summary-row">
@@ -323,33 +396,44 @@
 
             <div class="summary-total">
                 <span>Tổng cộng</span>
-                <strong>{{ tam_tinh|floatformat:"0g" }}₫</strong>
+                <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
             </div>
 
+
             {% if so_luong_chon > 0 %}
+
                 <a href="/checkout/" class="checkout-btn">
                     Tiến hành đặt hàng
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
+
             {% else %}
-                <button type="button" class="checkout-btn" disabled>
+
+                <button type="button"
+                        class="checkout-btn"
+                        disabled>
                     Tiến hành đặt hàng
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>
+
             {% endif %}
+
 
             <p class="checkout-note">
                 <i class="fa-solid fa-shield-halved"></i>
                 Thông tin mua hàng của bạn được bảo mật.
             </p>
+
         </div>
 
     </div>
+
 
     {% else %}
 
     <!-- Giỏ hàng trống -->
     <div class="empty-cart">
+
         <div class="empty-cart-icon">
             <i class="fa-solid fa-bag-shopping"></i>
         </div>
@@ -365,11 +449,13 @@
             Khám phá sản phẩm
             <i class="fa-solid fa-arrow-right"></i>
         </a>
+
     </div>
 
     {% endif %}
 
 </div>
+
 
 <!-- Cập nhật giỏ hàng không tải lại trang -->
 <script>
@@ -381,12 +467,15 @@
 
         // Chỉ xử lý form nằm trong giỏ hàng
         if (!form.closest(".cart-page")) return;
+
+        // Không AJAX đối với form chia sẻ giỏ hàng
         if (form.hasAttribute("data-no-ajax")) return;
 
-        // Bấm "Hủy" ở hộp xác nhận xóa thì dừng
+        // Nếu người dùng hủy xác nhận thì không gửi form
         if (e.defaultPrevented) return;
 
         e.preventDefault();
+
         if (busy) return;
         busy = true;
 
@@ -396,26 +485,22 @@
             credentials: "same-origin"
         })
         .then(function (res) {
-            if (!res.ok) throw new Error("HTTP " + res.status);
+            if (!res.ok) {
+                throw new Error("HTTP " + res.status);
+            }
+
             return res.text();
         })
         .then(function (html) {
             var doc = new DOMParser().parseFromString(html, "text/html");
             var moi = doc.querySelector(".cart-page");
             var cu = document.querySelector(".cart-page");
-            if (!moi || !cu) throw new Error("Không đọc được giỏ hàng");
-            cu.innerHTML = moi.innerHTML;
 
-            var oldCartBadge = document.querySelector(".header-cart-count-badge");
-            var newCartBadge = doc.querySelector(".header-cart-count-badge");
-            if (oldCartBadge && newCartBadge) {
-                oldCartBadge.replaceWith(newCartBadge);
-            } else if (oldCartBadge) {
-                oldCartBadge.remove();
-            } else if (newCartBadge) {
-                var cartIcon = document.querySelector(".cart-trigger .header-icon-wrap");
-                if (cartIcon) cartIcon.appendChild(newCartBadge);
+            if (!moi || !cu) {
+                throw new Error("Không đọc được giỏ hàng");
             }
+
+            cu.innerHTML = moi.innerHTML;
 
             // Tự ẩn thông báo sau 3 giây
             setTimeout(function () {
@@ -424,7 +509,7 @@
             }, 3000);
         })
         .catch(function () {
-            // Lỗi thì quay về cách cũ: gửi form và tải lại trang
+            // Nếu AJAX lỗi thì gửi form theo cách thông thường
             form.submit();
         })
         .finally(function () {
@@ -432,7 +517,6 @@
         });
     });
 })();
-
 </script>
 
 {% endblock %}

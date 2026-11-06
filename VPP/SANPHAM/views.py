@@ -1,6 +1,5 @@
 
 from decimal import Decimal, InvalidOperation
-from KHUYENMAI.models import ChiTietKhuyenMai
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Min, Q, Avg, Count
 from django.contrib import messages

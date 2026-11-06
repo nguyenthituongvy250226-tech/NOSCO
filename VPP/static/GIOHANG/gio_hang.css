@@ -8,11 +8,8 @@
 ========================= */
 
 .cart-page {
-    box-sizing: border-box;
     width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: clamp(24px, 3vw, 38px) 0 clamp(38px, 4vw, 55px);
+    padding: 38px 0 55px;
     color: var(--text);
 }
 
@@ -37,7 +34,7 @@
 .cart-page .cart-heading h1 {
     margin: 0;
     color: var(--navy);
-    font-size: 26px;
+    font-size: 30px;
     font-weight: 800;
     line-height: 1.3;
 }
@@ -534,20 +531,10 @@
 
     .cart-page .cart-layout {
         grid-template-columns: 1fr;
-        gap: 18px;
     }
 
     .cart-page .cart-summary {
         position: static;
-    }
-
-    .cart-page .cart-products-header {
-        flex-wrap: wrap;
-    }
-
-    .cart-page .cart-products-actions {
-        flex-wrap: wrap;
-        gap: 8px 14px;
     }
 
 }
@@ -559,7 +546,7 @@
 @media (max-width: 650px) {
 
     .cart-page {
-        padding: 20px 0 32px;
+        padding: 25px 0 40px;
     }
 
     .cart-page .cart-heading {
@@ -583,17 +570,6 @@
 
     .cart-page .cart-products {
         padding: 15px;
-    }
-
-    .cart-page .cart-products-header {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .cart-page .cart-products-actions {
-        width: 100%;
-        justify-content: flex-start;
     }
 
     .cart-page .cart-products-header h3 {
@@ -672,23 +648,6 @@
         padding: 11px;
     }
 
-    @media (min-width: 651px) and (max-width: 1000px) {
-        .cart-page {
-            padding-top: 28px;
-            padding-bottom: 40px;
-        }
-
-        .cart-page .cart-product {
-            grid-template-columns: 22px 86px minmax(0, 1fr) 100px 100px;
-            gap: 12px;
-        }
-
-        .cart-page .product-image {
-            width: 86px;
-            height: 92px;
-        }
-    }
-
     .cart-page .cart-product {
         grid-template-columns: 18px 65px minmax(0, 1fr);
         gap: 8px;
@@ -703,4 +662,30 @@
         font-size: 12px;
     }
 
+}
+.cart-page .cart-products-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+}
+
+.cart-page .cart-products-actions form {
+    margin: 0;
+}
+@media (max-width: 650px) {
+    .cart-page .cart-products-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cart-page .cart-products-actions {
+        width: 100%;
+        gap: 8px 15px;
+    }
+
+    .cart-page .cart-products-actions button {
+        font-size: 11px;
+    }
 }
