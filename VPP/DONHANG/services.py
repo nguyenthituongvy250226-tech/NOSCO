@@ -2,6 +2,8 @@
 
 from decimal import Decimal, InvalidOperation
 from datetime import timedelta
+import re
+import unicodedata
 from uuid import uuid4
 
 from django.db import transaction
@@ -15,6 +17,25 @@ from .models import (
     GiaoHang,
     YeuCauTraHang,
 )
+
+PHI_VAN_CHUYEN_TIEU_CHUAN = Decimal("30000")
+
+
+def dia_chi_duoc_mien_phi(dia_chi):
+    khong_dau = str(dia_chi or "").replace("Đ", "D").replace("đ", "d")
+    khong_dau = unicodedata.normalize("NFKD", khong_dau)
+    khong_dau = "".join(
+        ky_tu for ky_tu in khong_dau if not unicodedata.combining(ky_tu)
+    ).casefold()
+    return bool(re.search(r"\bda\s+nang\b", khong_dau))
+
+
+def tinh_phi_van_chuyen(dia_chi):
+    return (
+        Decimal("0")
+        if dia_chi_duoc_mien_phi(dia_chi)
+        else PHI_VAN_CHUYEN_TIEU_CHUAN
+    )
 
 
 def _tra_yeu_cau(yeu_cau, trang_thai, ket_qua=""):
@@ -34,6 +55,23 @@ def xu_ly_don_hang(don, *, hanh_dong):
     if don.trang_thai_don != "cho_xac_nhan":
         raise DuLieuDonHangKhongHopLe("Chỉ xử lý được đơn đang chờ xác nhận.")
     if hanh_dong == "xac_nhan":
+        from THANHTOAN.models import ThanhToan
+
+        thanh_toan_chua_hoan_tat = ThanhToan.objects.filter(
+            DonHang=don,
+        ).exclude(
+            PhuongThucThanhToan="COD",
+        ).filter(
+            TrangThaiThanhToan__in=["ChoThanhToan", "ThatBai"],
+        )
+        da_thanh_toan = ThanhToan.objects.filter(
+            DonHang=don,
+            TrangThaiThanhToan="DaThanhToan",
+        ).exists()
+        if thanh_toan_chua_hoan_tat.exists() and not da_thanh_toan:
+            raise DuLieuDonHangKhongHopLe(
+                "Đơn hàng chưa được thanh toán nên chưa thể xác nhận."
+            )
         don.trang_thai_don = "cho_lay_hang"
         try:
             giao = don.giao_hang
@@ -60,14 +98,45 @@ def xu_ly_don_hang(don, *, hanh_dong):
 
 @transaction.atomic
 def khach_huy_don_hang(don):
-    """Khách chỉ hủy được đơn còn đang chờ nhân viên xác nhận."""
+    """Khách hủy đơn trước khi đơn được bàn giao cho đơn vị vận chuyển."""
     don = DonHang.objects.select_for_update().get(pk=don.pk)
     previous_status = don.trang_thai_don
-    if don.trang_thai_don != "cho_xac_nhan":
-        raise DuLieuDonHangKhongHopLe("Chỉ hủy được đơn đang chờ xác nhận.")
+    if don.trang_thai_don == "cho_lay_hang":
+        try:
+            giao = don.giao_hang
+        except GiaoHang.DoesNotExist:
+            giao = None
+        if not giao or giao.trang_thai != "cho_lay_hang":
+            raise DuLieuDonHangKhongHopLe(
+                "Đơn hàng đã được bàn giao vận chuyển nên không thể hủy."
+            )
+
+        from THANHTOAN.models import ThanhToan
+
+        da_thanh_toan_truoc = ThanhToan.objects.filter(
+            DonHang=don,
+            TrangThaiThanhToan="DaThanhToan",
+        ).exclude(PhuongThucThanhToan="COD").exists()
+        if da_thanh_toan_truoc:
+            raise DuLieuDonHangKhongHopLe(
+                "Đơn đã thanh toán trước; vui lòng liên hệ hỗ trợ để được xử lý."
+            )
+    elif don.trang_thai_don != "cho_xac_nhan":
+        raise DuLieuDonHangKhongHopLe(
+            "Chỉ hủy được đơn đang chờ xác nhận hoặc chờ lấy hàng."
+        )
+
     don.trang_thai_don = "da_huy"
     don.save(update_fields=["trang_thai_don"])
     ChiTietDonHang.objects.filter(ma_don_hang=don).update(trang_thai_giao="da_huy")
+    try:
+        giao = don.giao_hang
+    except GiaoHang.DoesNotExist:
+        giao = None
+    if giao:
+        giao.trang_thai = "giao_that_bai"
+        giao.ly_do_that_bai = "Khách hàng hủy trước khi bàn giao vận chuyển"
+        giao.save(update_fields=["trang_thai", "ly_do_that_bai", "cap_nhat_luc"])
     _phat_tin_trang_thai(don, previous_status)
     return don
 
@@ -113,6 +182,7 @@ def khach_xac_nhan_da_nhan(don):
 def tao_yeu_cau_tra_hang(
     don, *, ly_do_tra, mo_ta_van_de, ma_van_don_khach,
     phuong_thuc_hoan_tien, san_pham, tep_minh_chung=(), ma_thanh_toan="",
+    ngan_hang_hoan_tien="", ten_chu_tai_khoan="", so_tai_khoan="",
 ):
     """Lưu yêu cầu trả một phần/toàn bộ sản phẩm đã giao."""
     don = DonHang.objects.select_for_update().get(pk=don.pk)
@@ -145,6 +215,9 @@ def tao_yeu_cau_tra_hang(
         mo_ta_van_de=mo_ta_van_de.strip(),
         ma_van_don_khach=ma_van_don_khach.strip(),
         phuong_thuc_hoan_tien=phuong_thuc_hoan_tien,
+        ngan_hang_hoan_tien=ngan_hang_hoan_tien,
+        ten_chu_tai_khoan=ten_chu_tai_khoan.strip(),
+        so_tai_khoan=so_tai_khoan.strip(),
         ma_van_don_tra=f"MVD{ma_yeu_cau_tra[2:]}",
     )
     items = {str(item.pk): item for item in don.chi_tiet.all()}
@@ -173,6 +246,28 @@ def tao_yeu_cau_tra_hang(
         don_hang=don,
     ), robust=True)
     return request
+
+
+@transaction.atomic
+def huy_yeu_cau_tra_hang(don):
+    """Khách có thể rút yêu cầu trả khi nhân viên chưa xử lý."""
+    don = DonHang.objects.select_for_update().get(pk=don.pk)
+    try:
+        yeu_cau = YeuCauTraHang.objects.select_for_update().get(ma_don_hang=don)
+    except YeuCauTraHang.DoesNotExist:
+        raise DuLieuDonHangKhongHopLe("Không tìm thấy yêu cầu trả hàng.")
+    if yeu_cau.trang_thai_tra != "cho_xu_ly":
+        raise DuLieuDonHangKhongHopLe(
+            "Chỉ có thể hủy yêu cầu trả hàng khi yêu cầu chưa được duyệt."
+        )
+    if don.trang_thai_don != "tra_hang":
+        raise DuLieuDonHangKhongHopLe("Trạng thái đơn hàng không cho phép hủy yêu cầu.")
+
+    yeu_cau.delete()
+    don.trang_thai_don = "cho_giao_hang"
+    don.save(update_fields=["trang_thai_don"])
+    _phat_tin_trang_thai(don, "tra_hang")
+    return don
 
 
 @transaction.atomic
@@ -439,3 +534,50 @@ def chot_don_cho_xac_nhan_qua_han(ma_don_hang=None):
             don.save(update_fields=["trang_thai_don"])
             _phat_tin_trang_thai(don, previous_status)
     return updated
+
+
+def het_han_don_chua_thanh_toan(ma_don_hang=None):
+    """Hủy đơn dùng phương thức thanh toán trước nhưng chưa trả sau 24 giờ."""
+    from THANHTOAN.models import ThanhToan
+
+    cutoff = timezone.now() - timedelta(hours=24)
+    candidates = DonHang.objects.filter(
+        trang_thai_don="cho_xac_nhan",
+        ngay_dat__lte=cutoff,
+        thanh_toans__TrangThaiThanhToan__in=["ChoThanhToan", "ThatBai"],
+    ).distinct()
+    candidates = candidates.exclude(thanh_toans__PhuongThucThanhToan="COD")
+    if ma_don_hang is not None:
+        candidates = candidates.filter(pk=ma_don_hang)
+
+    expired = 0
+    for order_id in candidates.values_list("pk", flat=True).iterator():
+        with transaction.atomic():
+            don = DonHang.objects.select_for_update().get(pk=order_id)
+            if (
+                don.trang_thai_don != "cho_xac_nhan"
+                or don.ngay_dat > cutoff
+                or not ThanhToan.objects.filter(
+                    DonHang=don,
+                    TrangThaiThanhToan__in=["ChoThanhToan", "ThatBai"],
+                ).exclude(PhuongThucThanhToan="COD").exists()
+                or ThanhToan.objects.filter(
+                    DonHang=don,
+                    TrangThaiThanhToan="DaThanhToan",
+                ).exists()
+            ):
+                continue
+
+            previous_status = don.trang_thai_don
+            don.trang_thai_don = "da_huy"
+            don.save(update_fields=["trang_thai_don"])
+            ChiTietDonHang.objects.filter(ma_don_hang=don).update(
+                trang_thai_giao="da_huy"
+            )
+            GiaoHang.objects.filter(don_hang=don).update(
+                trang_thai="giao_that_bai",
+                ly_do_that_bai="Đơn hàng chưa thanh toán trong vòng 24 giờ",
+            )
+            _phat_tin_trang_thai(don, previous_status)
+            expired += 1
+    return expired

@@ -222,17 +222,17 @@
 
         <div class="actions">
 
-            <a href="/home" class="btn">
+            <a href="{% url 'home' %}" class="btn">
                 Tiếp tục mua sắm
             </a>
 
             {% if thanh_cong %}
-                <a href="#" class="btn btn-outline">
-                    Theo dõi đơn hàng
+                <a href="{% url 'DONHANG:danh_sach' %}" class="btn btn-outline">
+                    Xem đơn hàng của tôi
                 </a>
             {% else %}
-                <a href="/thanh-toan/" class="btn btn-outline">
-                    Thử thanh toán lại
+                <a href="{% url 'DONHANG:danh_sach' %}" class="btn btn-outline">
+                    Quay lại đơn hàng
                 </a>
             {% endif %}
 

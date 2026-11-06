@@ -23,6 +23,7 @@ urlpatterns = [
 
     # Lịch sử tích điểm
     path("lich-su-tich-diem/", views.lich_su_tich_diem, name="lich_su_tich_diem"),
+    path("voucher/", views.voucher_cua_toi, name="voucher_cua_toi"),
 
     # Thông báo
     path("thong-bao/", views.danh_sach_thong_bao, name="danh_sach_thong_bao"),

@@ -166,6 +166,12 @@ class HoSoKhachHangForm(forms.ModelForm):
             "GioiTinh"
         ]
 
+        labels = {
+            "HoVaTen": "Họ và tên",
+            "SoDienThoai": "Số điện thoại",
+            "GioiTinh": "Giới tính",
+        }
+
         widgets = {
             "HoVaTen": forms.TextInput(attrs={
                 "class": "form-control"
@@ -187,6 +193,16 @@ class HoSoKhachHangForm(forms.ModelForm):
 
         if self.nguoi_dung:
             self.fields["Email"].initial = self.nguoi_dung.Email
+
+
+class AnhDaiDienForm(forms.Form):
+    AnhDaiDien = forms.ImageField(label="Ảnh đại diện")
+
+    def clean_AnhDaiDien(self):
+        image = self.cleaned_data["AnhDaiDien"]
+        if image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Ảnh đại diện không được lớn hơn 5 MB.")
+        return image
 
 
 def clean_Email(self):
@@ -227,6 +243,13 @@ class SoDiaChiForm(forms.ModelForm):
             "MacDinh"
         ]
 
+        labels = {
+            "TenNguoiNhan": "Tên người nhận",
+            "SoDienThoai": "Số điện thoại",
+            "DiaChi": "Địa chỉ chi tiết",
+            "MacDinh": "Đặt làm địa chỉ mặc định",
+        }
+
         widgets = {
             "TenNguoiNhan": forms.TextInput(attrs={
                 "class": "form-control"
@@ -259,6 +282,11 @@ class YeuCauHoTroForm(forms.ModelForm):
             "TieuDe",
             "NoiDung"
         ]
+
+        labels = {
+            "TieuDe": "Tiêu đề yêu cầu",
+            "NoiDung": "Nội dung cần hỗ trợ",
+        }
 
         widgets = {
             "TieuDe": forms.TextInput(attrs={

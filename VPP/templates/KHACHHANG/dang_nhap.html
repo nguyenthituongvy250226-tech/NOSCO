@@ -1,40 +1,42 @@
-{% extends "KHACHHANG/base.html" %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block title %}
-Đăng nhập
+{% block title %}Đăng nhập | NOSCO{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 {% endblock %}
 
-
 {% block content %}
-
-<div class="card">
-
-    <h2>ĐĂNG NHẬP</h2>
-
-    <p>
-        Đăng nhập để sử dụng các chức năng của VPP NOSCO.
-    </p>
-
-    <form method="POST">
-
-        {% csrf_token %}
-
-        {{ form.as_p }}
-
-        <button type="submit" class="btn">
-            Đăng nhập
-        </button>
-
-    </form>
-
-    <p>
-        Chưa có tài khoản?
-
-        <a href="{% url 'KHACHHANG:dang_ky' %}">
-            Đăng ký ngay
-        </a>
-    </p>
-
-</div>
-
+<nav class="auth-breadcrumb" aria-label="Điều hướng">
+    <a href="{% url 'home' %}">Trang chủ</a>
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">Đăng nhập</span>
+</nav>
+<section class="auth-layout" aria-labelledby="auth-title">
+    <aside class="auth-visual auth-visual-login">
+        <div class="auth-promo">
+            <span class="auth-eyebrow"><span aria-hidden="true">●</span> THÀNH VIÊN NOSCO</span>
+            <h1>Viết tiếp những ý tưởng của bạn.</h1>
+            <p>Đồng hành cùng bạn trong học tập, công việc và từng khoảnh khắc sáng tạo.</p>
+        </div>
+        <div class="auth-image" role="img" aria-label="Sổ tay và dụng cụ văn phòng phẩm"></div>
+        <span class="auth-image-caption"><i class="fa-solid fa-sparkles" aria-hidden="true"></i> Văn phòng phẩm cho mọi nhu cầu</span>
+    </aside>
+    <div class="auth-form-panel">
+        <div class="auth-form-content">
+            <h2 id="auth-title">ĐĂNG NHẬP</h2>
+            <p class="auth-intro">Đăng nhập để sử dụng các chức năng của VPP NOSCO.</p>
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="auth-submit">Đăng nhập</button>
+            </form>
+            <p class="auth-switch">
+                Chưa có tài khoản?
+                <a href="{% url 'KHACHHANG:dang_ky' %}">Đăng ký ngay</a>
+            </p>
+        </div>
+    </div>
+</section>
 {% endblock %}

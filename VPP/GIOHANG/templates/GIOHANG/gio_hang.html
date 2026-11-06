@@ -4,7 +4,7 @@
 {% block title %}Giỏ hàng | NOSCO{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'GIOHANG/gio_hang.css' %}">
+<link rel="stylesheet" href="{% static 'GIOHANG/gio_hang.css' %}?v=cart-heading-2">
 <style>
     .cart-page a.checkout-btn {
         opacity: 1;
@@ -125,14 +125,6 @@
 }
 
 /* Tiêu đề nhỏ phía trên "Giỏ hàng" */
-.cart-page .cart-eyebrow {
-    color: var(--primary) !important;
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    letter-spacing: 1.2px !important;
-    text-transform: uppercase !important;
-}
-
 .cart-page .cart-heading h1 span {
     color: var(--muted) !important;
     font-weight: 500 !important;
@@ -148,8 +140,6 @@
     <!-- Tiêu đề -->
     <div class="cart-heading">
         <div>
-            <p class="cart-breadcrumb">Trang chủ > Giỏ hàng</p>
-            <p class="cart-eyebrow">ĐƠN HÀNG CỦA BẠN</p>
 <h1>Giỏ hàng <span>({{ tong_so_luong }} sản phẩm)</span></h1>
         </div>
         <div class="cart-count">
@@ -303,7 +293,7 @@
             </div>
             {% endfor %}
 
-            <a href="/" class="continue-shopping">
+            <a href="{% url 'home' %}" class="continue-shopping">
                 <i class="fa-solid fa-arrow-left"></i>
                 Tiếp tục mua sắm
             </a>
@@ -415,6 +405,17 @@
             var cu = document.querySelector(".cart-page");
             if (!moi || !cu) throw new Error("Không đọc được giỏ hàng");
             cu.innerHTML = moi.innerHTML;
+
+            var oldCartBadge = document.querySelector(".header-cart-count-badge");
+            var newCartBadge = doc.querySelector(".header-cart-count-badge");
+            if (oldCartBadge && newCartBadge) {
+                oldCartBadge.replaceWith(newCartBadge);
+            } else if (oldCartBadge) {
+                oldCartBadge.remove();
+            } else if (newCartBadge) {
+                var cartIcon = document.querySelector(".cart-trigger .header-icon-wrap");
+                if (cartIcon) cartIcon.appendChild(newCartBadge);
+            }
 
             // Tự ẩn thông báo sau 3 giây
             setTimeout(function () {

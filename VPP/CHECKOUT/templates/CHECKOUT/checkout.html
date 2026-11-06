@@ -51,22 +51,28 @@
                         <span class="card-icon"><i class="fa-solid fa-location-dot"></i></span>
                         <h2>Thông tin nhận hàng</h2>
                     </div>
-                    <a href="#" class="card-link">Thay đổi</a>
+                    <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="card-link">Thay đổi</a>
                 </div>
 
+                {% if dia_chi %}
                 <div class="address-box">
                     <div class="address-top">
-                        <strong>{{ dia_chi.ho_ten }}</strong>
-                        <span class="address-phone">{{ dia_chi.so_dien_thoai }}</span>
-                        <span class="address-badge">Mặc định</span>
+                        <strong>{{ dia_chi.TenNguoiNhan }}</strong>
+                        <span class="address-phone">{{ dia_chi.SoDienThoai }}</span>
+                        {% if dia_chi.MacDinh %}
+                            <span class="address-badge">Mặc định</span>
+                        {% endif %}
                     </div>
                     <p class="address-line">
                         <i class="fa-solid fa-location-dot"></i>
-                        {{ dia_chi.dia_chi }}
+                        {{ dia_chi.DiaChi }}
                     </p>
                 </div>
+                {% else %}
+                <p>Bạn chưa có địa chỉ nhận hàng. Hãy thêm địa chỉ trước khi đặt hàng.</p>
+                {% endif %}
 
-                <a href="#" class="add-address">+ Thêm địa chỉ mới</a>
+                <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="add-address">+ Quản lý địa chỉ</a>
 
                 <div class="card-divider"></div>
 
@@ -131,7 +137,38 @@
         </p>
     {% endif %}
 </section>
+
+<section class="checkout-card">
+    <div class="card-head">
+        <div class="card-title">
+            <span class="card-icon"><i class="fa-regular fa-credit-card"></i></span>
+            <h2>Phương thức thanh toán</h2>
         </div>
+    </div>
+    {% for ma_phuong_thuc, ten_phuong_thuc in cac_phuong_thuc_thanh_toan %}
+        <label class="ship-option">
+            <input type="radio" name="phuong_thuc_thanh_toan" value="{{ ma_phuong_thuc }}"
+                   {% if phuong_thuc_thanh_toan == ma_phuong_thuc %}checked{% endif %}
+                   {% if forloop.first %}required{% endif %}>
+            <span class="ship-icon">
+                {% if ma_phuong_thuc == "COD" %}
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                {% else %}
+                    <i class="fa-regular fa-credit-card"></i>
+                {% endif %}
+            </span>
+            <span class="ship-info">
+                <strong>{{ ten_phuong_thuc }}</strong>
+                {% if ma_phuong_thuc == "COD" %}
+                    <small>Thanh toán khi nhận hàng.</small>
+                {% else %}
+                    <small>Đơn hàng chờ thanh toán được giữ trong 24 giờ.</small>
+                {% endif %}
+            </span>
+        </label>
+    {% endfor %}
+</section>
+</div>
 
         <!-- ================= CỘT PHẢI ================= -->
         <aside class="checkout-side">
@@ -196,8 +233,7 @@
                     <strong>{{ tong_tien|floatformat:"0g" }}₫</strong>
                 </div>
 
-                <!-- Chưa gắn chức năng đặt hàng (bước sau) -->
-                <button type="button" class="place-order-btn">
+                <button type="submit" class="place-order-btn" {% if not dia_chi %}disabled{% endif %}>
                     Đặt hàng
                     <i class="fa-solid fa-arrow-right"></i>
                 </button>

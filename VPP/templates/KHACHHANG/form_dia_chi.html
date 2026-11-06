@@ -5,29 +5,24 @@
 {% endblock %}
 
 
-{% block content %}
-
-<div class="card">
-
-    <h2>{{ tieu_de }}</h2>
-
-    <form method="POST">
-
-        {% csrf_token %}
-
-        {{ form.as_p }}
-
-        <button type="submit" class="btn">
-            Lưu thông tin
-        </button>
-
-        <a href="{% url 'KHACHHANG:so_dia_chi' %}"
-           class="btn btn-danger">
-            Quay lại
-        </a>
-
-    </form>
-
-</div>
-
+{% block account_content %}
+<section class="customer-form-page">
+    <header class="customer-page-heading">
+        <div>
+            <p class="customer-page-eyebrow">ĐỊA CHỈ NHẬN HÀNG</p>
+            <h2>{{ tieu_de }}</h2>
+            <p>Điền thông tin người nhận và địa chỉ giao hàng.</p>
+        </div>
+    </header>
+    <div class="customer-account-panel customer-form-panel">
+        <form method="POST" class="customer-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="customer-form-actions">
+                <button type="submit" class="customer-primary-button">Lưu thông tin</button>
+                <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="customer-secondary-button">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock %}

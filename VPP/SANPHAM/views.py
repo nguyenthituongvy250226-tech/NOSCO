@@ -1,6 +1,7 @@
 from decimal import Decimal, InvalidOperation
 
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.db.models import Min, Q
 
 from .models import SanPham, DanhMucSanPham, ThuongHieu, BaiViet,SanPhamQuaTang
@@ -8,6 +9,7 @@ from django.db.models import Min, Q, Avg, Count
 from .models import DanhGiaSanPham
 from .forms import DanhGiaSanPhamForm
 from django.contrib import messages
+from KHACHHANG.models import NguoiDung
 
 
 def danh_sach_san_pham(request):
@@ -580,32 +582,96 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "gia_thap_nhat": min(cac_gia) if cac_gia else None,
         })
 
-    # Lấy danh sách đánh giá của sản phẩm
-    danh_sach_danh_gia = san_pham.danh_gia.select_related(
-        "nguoi_danh_gia"
-    ).all()
-    # Xử lý khi khách gửi đánh giá
+    customer = getattr(request, "nguoi_dung", None)
+    customer_id = (
+        customer.MaNguoiDung
+        if customer and customer.VaiTro == "KHACH_HANG"
+        else None
+    )
+    reviews = san_pham.danh_gia.all()
+    review_to_edit = None
+    form_danh_gia = DanhGiaSanPhamForm()
+    dang_sua_danh_gia = False
+
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            messages.warning(request, "Vui lòng đăng nhập để đánh giá sản phẩm.")
+        if not customer_id:
+            messages.warning(
+                request,
+                "Vui lòng đăng nhập bằng tài khoản khách hàng để đánh giá.",
+            )
             return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
 
-        form = DanhGiaSanPhamForm(request.POST)
-
-        if form.is_valid():
-            danh_gia = form.save(commit=False)
-            danh_gia.san_pham = san_pham
-            danh_gia.nguoi_danh_gia = request.user
-            danh_gia.save()
-
-            messages.success(request, "Đánh giá của bạn đã được gửi thành công!")
+        if request.POST.get("hanh_dong") == "xoa_danh_gia":
+            review = get_object_or_404(
+                reviews,
+                pk=request.POST.get("review_id"),
+                nguoi_danh_gia=customer_id,
+            )
+            review.delete()
+            messages.success(request, "Đánh giá đã được xóa.")
             return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
 
-    else:
-        form = DanhGiaSanPhamForm()
+        review_id = request.POST.get("review_id")
+        if review_id:
+            review_to_edit = get_object_or_404(
+                reviews, pk=review_id, nguoi_danh_gia=customer_id
+            )
+            dang_sua_danh_gia = True
+        elif reviews.filter(nguoi_danh_gia=customer_id).exists():
+            review_to_edit = reviews.get(nguoi_danh_gia=customer_id)
+            messages.info(
+                request,
+                "Bạn đã đánh giá sản phẩm này. Hãy chỉnh sửa đánh giá hiện có.",
+            )
+            return redirect(
+                f"{reverse('sanpham:chi_tiet_san_pham', args=[ma_san_pham])}"
+                f"?sua_danh_gia={review_to_edit.pk}#reviews"
+            )
+
+        form_danh_gia = DanhGiaSanPhamForm(
+            request.POST, instance=review_to_edit
+        )
+        if form_danh_gia.is_valid():
+            review = form_danh_gia.save(commit=False)
+            review.san_pham = san_pham
+            review.nguoi_danh_gia = customer_id
+            review.save()
+            messages.success(
+                request,
+                "Đánh giá đã được cập nhật."
+                if dang_sua_danh_gia
+                else "Đánh giá của bạn đã được gửi thành công!",
+            )
+            return redirect("sanpham:chi_tiet_san_pham", ma_san_pham=ma_san_pham)
+    elif customer_id and request.GET.get("sua_danh_gia"):
+        review_to_edit = get_object_or_404(
+            reviews,
+            pk=request.GET["sua_danh_gia"],
+            nguoi_danh_gia=customer_id,
+        )
+        dang_sua_danh_gia = True
+        form_danh_gia = DanhGiaSanPhamForm(instance=review_to_edit)
+
+    danh_sach_danh_gia = list(reviews)
+    reviewer_names = dict(
+        NguoiDung.objects.filter(
+            MaNguoiDung__in={
+                review.nguoi_danh_gia for review in danh_sach_danh_gia
+            }
+        ).values_list("MaNguoiDung", "TenDangNhap")
+    )
+    review_cua_toi = (
+        reviews.filter(nguoi_danh_gia=customer_id).first()
+        if customer_id else None
+    )
+    for review in danh_sach_danh_gia:
+        review.ten_nguoi_danh_gia = reviewer_names.get(
+            review.nguoi_danh_gia, "Khách hàng"
+        )
+        review.la_cua_toi = review.nguoi_danh_gia == customer_id
 
     # Tính tổng lượt đánh giá và điểm trung bình
-    thong_ke_danh_gia = danh_sach_danh_gia.aggregate(
+    thong_ke_danh_gia = reviews.aggregate(
         tong_luot=Count("id"),
         diem_trung_binh=Avg("so_sao")
     )
@@ -617,7 +683,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
     thong_ke_so_sao = {}
 
     for sao in range(1, 6):
-        thong_ke_so_sao[sao] = danh_sach_danh_gia.filter(
+        thong_ke_so_sao[sao] = reviews.filter(
             so_sao=sao
         ).count()
     thong_ke_so_sao_list = []
@@ -647,11 +713,15 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "gia_thap_nhat": gia_thap_nhat,
             "danh_sach_goi_y": danh_sach_goi_y,
             "danh_sach_danh_gia": danh_sach_danh_gia,
+            "co_the_danh_gia": bool(customer_id),
+            "co_danh_gia_cua_toi": bool(review_cua_toi),
+            "dang_sua_danh_gia": dang_sua_danh_gia,
+            "review_id_dang_sua": review_to_edit.pk if review_to_edit else "",
             "tong_luot_danh_gia": tong_luot_danh_gia,
             "diem_trung_binh": diem_trung_binh,
             "thong_ke_so_sao": thong_ke_so_sao,
             "thong_ke_so_sao_list": thong_ke_so_sao_list,
-            "form_danh_gia": form,
+            "form_danh_gia": form_danh_gia,
         },
     )
 
@@ -678,6 +748,21 @@ def danh_sach_bai_viet(request):
 
 def ve_chung_toi(request):
     return render(request, "ve_chung_toi.html")
+
+
+def trang_ho_tro(request, slug):
+    cac_trang = {
+        "huong-dan-dat-hang": "Hướng dẫn đặt hàng",
+        "chinh-sach-giao-hang": "Chính sách giao hàng",
+        "phuong-thuc-thanh-toan": "Phương thức thanh toán",
+        "chinh-sach-bao-mat": "Chính sách bảo mật",
+    }
+    tieu_de = cac_trang.get(slug)
+    if tieu_de is None:
+        from django.http import Http404
+        raise Http404
+
+    return render(request, "SANPHAM/trang_ho_tro.html", {"tieu_de": tieu_de})
 
 from django.db.models import Prefetch
 from .models import SanPham, BienTheSanPham, HinhAnhSanPham

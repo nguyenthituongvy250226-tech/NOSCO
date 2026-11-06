@@ -128,6 +128,8 @@
 
 
                 <!-- CHỌN BIẾN THỂ -->
+                <form method="POST" action="{% url 'them_vao_gio' %}" class="product-purchase-form">
+                    {% csrf_token %}
                 <div class="product-detail-variants">
                     <h3>Chọn phân loại sản phẩm</h3>
 
@@ -178,7 +180,7 @@
         <button type="button" data-quantity-change="-1"
                 aria-label="Giảm số lượng">−</button>
 
-        <input type="number" id="productQuantity"
+        <input type="number" id="productQuantity" name="so_luong"
                value="1" min="1"
                max="{% if bien_the_mac_dinh and bien_the_mac_dinh.so_luong_ton > 0 %}{{ bien_the_mac_dinh.so_luong_ton }}{% else %}1{% endif %}">
 
@@ -189,21 +191,13 @@
 
 <!-- NÚT MUA HÀNG -->
 <div class="product-detail-actions">
-    <button type="button"
-            class="product-detail-cart-button"
-            disabled
-            title="Chưa kết nối module giỏ hàng">
+    <button type="submit" class="product-detail-cart-button"
+            {% if not bien_the_mac_dinh or bien_the_mac_dinh.so_luong_ton <= 0 %}disabled{% endif %}>
         <i class="fa-solid fa-cart-shopping"></i>
         Thêm vào giỏ hàng
     </button>
-
-    <button type="button"
-            class="product-detail-buy-button"
-            disabled
-            title="Chưa kết nối module đặt hàng">
-        Mua ngay
-    </button>
 </div>
+                </form>
 
 <!-- CHIA SẺ SẢN PHẨM -->
 <div class="product-detail-share">
@@ -232,11 +226,6 @@
 
     <span id="shareCopyStatus" aria-live="polite"></span>
 </div>
-
-<p class="product-detail-note">
-    Chức năng mua hàng sẽ được kết nối với module giỏ hàng và thanh toán.
-</p>
-
 
                 <!-- THÔNG TIN HỖ TRỢ -->
                 <div class="product-detail-benefits">
@@ -434,7 +423,7 @@
             <article class="review-item">
                 <div class="review-item-header">
                     <strong>
-                        {{ danh_gia.nguoi_danh_gia.get_full_name|default:danh_gia.nguoi_danh_gia.username }}
+                        {{ danh_gia.ten_nguoi_danh_gia }}
                     </strong>
 
                     <span>{{ danh_gia.ngay_danh_gia|date:"d/m/Y" }}</span>
@@ -451,6 +440,17 @@
                 </div>
 
                 <p>{{ danh_gia.noi_dung|linebreaksbr }}</p>
+                {% if danh_gia.la_cua_toi %}
+                    <div class="review-owner-actions">
+                        <a href="?sua_danh_gia={{ danh_gia.pk }}#reviews">Chỉnh sửa</a>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="hanh_dong" value="xoa_danh_gia">
+                            <input type="hidden" name="review_id" value="{{ danh_gia.pk }}">
+                            <button type="submit" onclick="return confirm('Bạn muốn xóa đánh giá này?')">Xóa</button>
+                        </form>
+                    </div>
+                {% endif %}
             </article>
         {% endfor %}
     </div>
@@ -476,15 +476,22 @@
 {% endif %}
 
         <!-- FORM VIẾT ĐÁNH GIÁ -->
-<div class="review-form-container">
+<div class="review-form-container" id="reviews">
     <div class="review-form-heading">
         <span class="reviews-eyebrow">CHIA SẺ TRẢI NGHIỆM</span>
-        <h3>Viết đánh giá của bạn</h3>
+        <h3>{% if dang_sua_danh_gia %}Chỉnh sửa đánh giá{% else %}Viết đánh giá của bạn{% endif %}</h3>
         <p>Ý kiến của bạn sẽ giúp khách hàng khác lựa chọn sản phẩm phù hợp hơn.</p>
     </div>
 
+    {% if not co_the_danh_gia %}
+        <p>Vui lòng đăng nhập bằng tài khoản khách hàng để đánh giá sản phẩm.</p>
+    {% elif co_danh_gia_cua_toi and not dang_sua_danh_gia %}
+        <p>Bạn đã gửi đánh giá cho sản phẩm này. Bạn có thể chỉnh sửa hoặc xóa đánh giá ở phía trên.</p>
+    {% else %}
     <form class="review-form" method="POST">
     {% csrf_token %}
+    <input type="hidden" name="hanh_dong" value="luu_danh_gia">
+    {% if dang_sua_danh_gia %}<input type="hidden" name="review_id" value="{{ review_id_dang_sua }}">{% endif %}
 
     <div class="review-form-group">
         <label>Đánh giá của bạn</label>
@@ -506,9 +513,11 @@
     </div>
 
     <button type="submit" class="review-submit-button">
-        Gửi đánh giá
+        {% if dang_sua_danh_gia %}Cập nhật đánh giá{% else %}Gửi đánh giá{% endif %}
     </button>
+    {% if dang_sua_danh_gia %}<a class="review-cancel-edit" href="{% url 'sanpham:chi_tiet_san_pham' san_pham.ma_san_pham %}#reviews">Hủy chỉnh sửa</a>{% endif %}
 </form>
+    {% endif %}
 </div>
         <div class="reviews-footer">
             <span class="reviews-footer-icon">✦</span>
@@ -601,6 +610,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const priceElement = document.getElementById("selectedVariantPrice");
     const stockElement = document.getElementById("selectedVariantStock");
     const quantityInput = document.getElementById("productQuantity");
+    const addToCartButton = document.querySelector(
+        ".product-detail-cart-button"
+    );
 
     // Đổi ảnh lớn khi nhấn vào ảnh thu nhỏ.
     function activateThumbnail(button) {
@@ -632,6 +644,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const price = Number(selectedVariant.dataset.price);
         const stock = Number(selectedVariant.dataset.stock);
+
+        if (addToCartButton) {
+            addToCartButton.disabled = stock <= 0;
+        }
 
         if (priceElement && Number.isFinite(price)) {
             priceElement.textContent = price.toLocaleString("vi-VN") + " đ";

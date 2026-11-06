@@ -1,7 +1,6 @@
 
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
 
 class DanhMucSanPham(models.Model):
     ma_danh_muc = models.CharField(
@@ -274,10 +273,10 @@ class DanhGiaSanPham(models.Model):
         related_name="danh_gia"
     )
 
-    nguoi_danh_gia = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="danh_gia_san_pham"
+    nguoi_danh_gia = models.CharField(
+        max_length=10,
+        db_column="nguoi_danh_gia_id",
+        verbose_name="Mã người đánh giá",
     )
 
     so_sao = models.PositiveSmallIntegerField(

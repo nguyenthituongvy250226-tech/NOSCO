@@ -19,6 +19,7 @@ body:has(.order-page), body:has(.order-form-page), body:has(.staff-order-page) {
   color: var(--order-ink);
   font-family: "Be Vietnam Pro", Arial, sans-serif;
 }
+.customer-account-content .order-page { width:100%; margin:0; }
 .order-breadcrumb { margin-bottom: 18px; color: var(--order-muted); font-size: 12px; }
 .order-breadcrumb a { color: var(--order-blue); }
 .order-heading { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:20px; }
@@ -29,6 +30,7 @@ body:has(.order-page), body:has(.order-form-page), body:has(.staff-order-page) {
 .order-status-pill { display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:24px; background:var(--order-blue-soft); color:var(--order-blue); font-size:12px; font-weight:700; white-space:nowrap; }
 .order-status-pill.is-delivered { background:var(--order-green-soft); color:var(--order-green); }
 .order-status-pill.is-cancelled { background:var(--order-red-soft); color:var(--order-red); }
+.order-status-pill.is-returning { background:var(--order-blue-soft); color:var(--order-blue); text-decoration:none; }
 .order-progress-card { padding:20px 24px; margin-bottom:18px; }
 .order-progress-track { position:relative; display:flex; justify-content:space-between; margin:25px 2% 6px; }
 .order-progress-track:before { content:""; position:absolute; top:16px; left:8%; right:8%; height:3px; background:#e6ebf0; }
@@ -42,7 +44,10 @@ body:has(.order-page), body:has(.order-form-page), body:has(.staff-order-page) {
 .order-banner { margin-top:14px; padding:13px 15px; border-radius:8px; background:var(--order-blue-soft); color:#174f9c; font-size:12px; line-height:1.7; }
 .order-banner.is-success { background:var(--order-green-soft); color:#17663b; }
 .order-banner.is-error { background:var(--order-red-soft); color:#a52525; }
+.order-banner.is-return-processing { background:var(--order-blue-soft); color:#174f9c; }
 .order-banner strong { display:block; margin-bottom:2px; }
+.order-return-state-row { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--order-border); color:var(--order-ink); font-size:12px; }
+.order-return-state-row a { color:var(--order-blue); }
 .order-columns { display:grid; grid-template-columns:minmax(0, 1.8fr) minmax(270px, 1fr); gap:18px; align-items:start; }
 .order-main-column, .order-side-column { display:grid; gap:18px; }
 .order-section-card { padding:20px; }
@@ -135,9 +140,56 @@ body:has(.order-page), body:has(.order-form-page), body:has(.staff-order-page) {
 .return-refund-options { display:grid; gap:10px; margin-top:12px; }
 .return-refund-options label { display:flex; align-items:center; gap:9px; padding:12px; border:1px solid var(--order-border); border-radius:7px; font-size:12px; cursor:pointer; }
 .return-refund-options input { accent-color:var(--order-blue); }
+.return-refund-options .return-refund-option { min-height:42px; margin:0; }
+.return-bank-details { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:14px; padding:14px; border:1px solid var(--order-border); border-radius:8px; background:#f8fbff; }
+.return-bank-details[hidden] { display:none; }
+.return-bank-details .return-field { min-width:0; margin:0; }
+.return-bank-details .return-field label { font-size:11px; }
+.return-bank-details .return-bank-error { grid-column:1/-1; }
 .return-submit-row { display:flex; justify-content:flex-end; gap:9px; margin-top:18px; }
+.return-guide-page { width:min(1120px,94%); margin:42px auto 60px; padding:28px; border:1px solid #e6edf5; border-radius:12px; background:linear-gradient(145deg,#fff,#f8fbff); color:var(--order-ink); font-family:"Be Vietnam Pro",Arial,sans-serif; }
+.return-guide-heading { display:flex; align-items:center; gap:18px; margin-bottom:22px; }
+.return-guide-heading-icon { display:grid; width:72px; height:72px; flex:none; place-items:center; border-radius:50%; background:var(--order-blue-soft); color:var(--order-blue); font-size:32px; }
+.return-guide-heading h1 { margin:0 0 6px; color:#164b82; font-size:28px; font-weight:800; }
+.return-guide-heading p { margin:0; color:#617a91; font-size:13px; }
+.return-guide-codes { display:grid; grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(180px,.8fr)); gap:14px; align-items:center; padding:16px; border:1px solid #d5e8fb; border-radius:10px; background:#eff7ff; }
+.return-guide-code-intro { display:flex; align-items:center; gap:13px; }
+.return-guide-code-icon { display:grid; width:48px; height:48px; flex:none; place-items:center; border-radius:50%; background:#fff; color:var(--order-blue); font-size:22px; }
+.return-guide-code-intro strong { color:#174f87; font-size:13px; }
+.return-guide-code-intro p { margin:5px 0 0; color:#617a91; font-size:11px; line-height:1.55; }
+.return-guide-code { display:grid; gap:6px; min-width:0; padding:10px 13px; border:1px solid #cfe2f5; border-radius:7px; background:#fff; }
+.return-guide-code span { color:#55748f; font-size:10px; }
+.return-guide-code strong { color:var(--order-blue); font-size:15px; overflow-wrap:anywhere; }
+.return-guide-waybill { display:inline-block; margin-top:10px; padding:6px 10px; border:1px dashed #8ebce8; border-radius:5px; background:#f0f7ff; color:var(--order-blue); font-size:11px; letter-spacing:.04em; }
+.return-guide-steps { display:grid; grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr) 26px minmax(0,1fr); gap:12px; align-items:center; padding:26px 8px 18px; }
+.return-guide-step { display:grid; justify-items:center; text-align:center; }
+.return-guide-step-number { display:grid; width:40px; height:40px; margin-bottom:12px; place-items:center; border-radius:50%; background:#e2f0ff; color:var(--order-blue); font-size:22px; font-weight:800; }
+.return-guide-step-icon { display:grid; min-height:58px; place-items:center; color:var(--order-blue); font-size:42px; }
+.return-guide-step h2 { min-height:40px; margin:8px 0 4px; color:#164b82; font-size:14px; font-weight:700; }
+.return-guide-step p { max-width:280px; margin:0; color:#688096; font-size:11px; line-height:1.8; }
+.return-guide-arrow { color:#83b9f1; font-size:18px; }
+.return-guide-note { display:flex; align-items:center; gap:10px; margin:0; padding:13px 15px; border-radius:8px; background:#eaf4ff; color:#276ba7; font-size:11px; line-height:1.6; }
+.return-guide-note i { flex:none; font-size:17px; }
+.return-guide-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:18px; }
+.return-confirmation-page { width:min(900px,94%); margin:42px auto 60px; color:var(--order-ink); font-family:"Be Vietnam Pro",Arial,sans-serif; }
+.return-confirmation-card { display:grid; justify-items:center; padding:40px 30px 32px; border:1px solid #e6edf5; border-radius:12px; background:linear-gradient(145deg,#fff,#f8fbff); text-align:center; }
+.return-confirmation-icon { display:grid; width:58px; height:58px; margin-bottom:14px; place-items:center; border-radius:50%; background:var(--order-blue-soft); color:var(--order-blue); font-size:25px; }
+.return-confirmation-card.is-rejected .return-confirmation-icon { background:var(--order-red-soft); color:var(--order-red); }
+.return-confirmation-card h1 { margin:0 0 8px; color:#164b82; font-size:22px; }
+.return-confirmation-subtitle,.return-confirmation-note { max-width:620px; color:#687f94; font-size:12px; line-height:1.7; }
+.return-confirmation-reference { display:grid; min-width:min(360px,100%); gap:6px; margin-top:12px; padding:14px 20px; border:1px solid #d5e8fb; border-radius:8px; background:#eff7ff; }
+.return-confirmation-reference span { color:#55748f; font-size:11px; }
+.return-confirmation-reference strong { color:var(--order-blue); font-size:19px; letter-spacing:.04em; }
+.return-confirmation-order { margin:14px 0 4px; color:#526a80; font-size:12px; }
+.return-confirmation-order strong { color:#164b82; }
+.return-confirmation-note { margin:6px 0 16px; }
+.return-confirmation-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:9px; }
+.return-confirmation-details { margin-top:18px; padding:20px; }
 .return-tracking-card { padding:15px; border:1px solid var(--order-border); border-radius:8px; background:#fff; }
-.return-tracking-meta { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:17px; }
+.return-status-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; padding:10px 12px; border-radius:6px; background:var(--order-blue-soft); color:var(--order-blue-dark); font-size:12px; }
+.return-status-row strong { color:var(--order-blue); }
+.return-tracking-meta { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:17px; }
+.return-detail-actions { display:flex; justify-content:flex-end; margin-top:16px; padding-top:14px; border-top:1px solid var(--order-border); }
 .return-tracking-meta div { display:grid; gap:5px; color:var(--order-muted); font-size:10px; }
 .return-tracking-meta strong { color:var(--order-ink); font-size:11px; font-weight:600; overflow-wrap:anywhere; }
 .return-progress { position:relative; display:flex; justify-content:space-between; margin:20px 0 12px; }
@@ -174,6 +226,26 @@ body:has(.order-page), body:has(.order-form-page), body:has(.staff-order-page) {
   .return-tracking-meta { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .return-order-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .return-request-form { padding:14px; }
+  .return-guide-page { width:calc(100% - 24px); margin:18px auto 34px; padding:18px 14px; }
+  .return-guide-heading { align-items:flex-start; gap:12px; }
+  .return-guide-heading-icon { width:52px; height:52px; font-size:23px; }
+  .return-guide-heading h1 { font-size:21px; }
+  .return-guide-heading p { font-size:11px; line-height:1.6; }
+  .return-guide-codes { grid-template-columns:1fr; gap:9px; padding:12px; }
+  .return-guide-steps { grid-template-columns:1fr; gap:10px; padding:20px 4px; }
+  .return-guide-arrow { transform:rotate(90deg); }
+  .return-guide-step h2 { min-height:0; }
+  .return-guide-actions { flex-direction:column-reverse; }
+  .return-guide-actions .order-btn { width:100%; }
+  .return-confirmation-page { width:calc(100% - 24px); margin:18px auto 34px; }
+  .return-confirmation-card { padding:28px 16px 22px; }
+  .return-confirmation-card h1 { font-size:19px; }
+  .return-bank-details { grid-template-columns:1fr; }
+  .return-confirmation-actions { width:100%; flex-direction:column; }
+  .return-confirmation-actions .order-btn { width:100%; }
+  .return-detail-actions { justify-content:stretch; }
+  .return-detail-actions form, .return-detail-actions .order-btn { width:100%; }
+  .return-tracking-meta { grid-template-columns:1fr; }
   .return-shipping-details { grid-template-columns:1fr; }
   .return-request-meta { grid-template-columns:1fr; }
   .return-request-meta > strong, .return-request-meta .return-request-description { grid-column:auto; }
