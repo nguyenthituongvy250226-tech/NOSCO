@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load l10n %}
 {% block title %}Thanh toán | NOSCO{% endblock %}
 
 {% block extra_css %}
@@ -211,7 +212,7 @@
                             </div>
 
                             <strong class="order-price">
-                                {{ item.thanh_tien|floatformat:0|intcomma }}₫
+                                {{ item.thanh_tien|floatformat:0|localize }}₫
                             </strong>
                         </div>
                     {% empty %}
@@ -250,7 +251,7 @@
                     <div class="sum-row">
                         <span>Tạm tính</span>
                         <strong>
-                            {{ tam_tinh|floatformat:0|intcomma }}₫
+                            {{ tam_tinh|floatformat:0|localize}}₫
                         </strong>
                     </div>
 
@@ -265,7 +266,7 @@
                             {% if phi_van_chuyen == 0 %}
                                 Miễn phí
                             {% else %}
-                                {{ phi_van_chuyen|floatformat:0|intcomma }}₫
+                                {{ phi_van_chuyen|floatformat:0|localize }}₫
                             {% endif %}
                         </strong>
                     </div>
@@ -274,7 +275,7 @@
                 <div class="order-total">
                     <span>Tổng cộng</span>
                     <strong>
-                        {{ tong_tien|floatformat:0|intcomma }}₫
+                        {{ tong_tien|floatformat:0|localize }}₫
                     </strong>
                 </div>
 

@@ -2,6 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load l10n %}
 {% block title %}Giỏ hàng | NOSCO{% endblock %}
 
 {% block extra_css %}
@@ -299,7 +300,7 @@
                     </p>
 
                     <div class="product-price">
-                        {{ item.don_gia|floatformat:0|intcomma }}₫
+                        {{ item.don_gia|floatformat:0|localize }}₫
                     </div>
 
                 </div>
@@ -344,7 +345,7 @@
                 <div class="product-total">
 
                     <strong>
-                        {{ item.thanh_tien|floatformat:0|intcomma }}₫
+                        {{ item.thanh_tien|floatformat:0|localize }}₫
                     </strong>
 
                     <form method="POST"
@@ -386,7 +387,7 @@
 
             <div class="summary-row">
                 <span>Tạm tính</span>
-                <strong>{{ tam_tinh|floatformat:0|intcomma }}₫</strong>
+                <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
             </div>
 
             <div class="summary-row">
@@ -398,7 +399,7 @@
 
             <div class="summary-total">
                 <span>Tổng cộng</span>
-                <strong>{{ tam_tinh|floatformat:0|intcomma }}₫</strong>
+                <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
             </div>
 
 
