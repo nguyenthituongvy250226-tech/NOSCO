@@ -1,0 +1,1076 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ san_pham.ten_san_pham }} | NOSCO{% endblock %}
+
+{% block content %}
+<section class="product-detail-page">
+    <div class="product-detail-container">
+
+        <!-- ĐƯỜNG DẪN -->
+        <nav class="product-detail-breadcrumb" aria-label="Đường dẫn">
+            <a href="/">Trang chủ</a>
+            <span>/</span>
+            <a href="{% url 'sanpham:danh_sach_san_pham' %}">Tất cả sản phẩm</a>
+            <span>/</span>
+            <span>{{ san_pham.ten_san_pham }}</span>
+        </nav>
+
+        <div class="product-detail-layout">
+
+            <!-- KHU VỰC ẢNH SẢN PHẨM -->
+            <div class="product-detail-gallery {% if danh_sach_anh %}has-thumbnails{% endif %}">
+
+                <div class="product-detail-main-image">
+                    {% if anh_dai_dien and anh_dai_dien.duong_dan_anh %}
+                        <img
+                            id="mainProductImage"
+                            src="{{ anh_dai_dien.duong_dan_anh.url }}"
+                            alt="{{ san_pham.ten_san_pham }}"
+                        >
+                    {% else %}
+                        <div class="product-detail-no-image">
+                            Sản phẩm chưa có hình ảnh
+                        </div>
+                    {% endif %}
+
+                    {% if danh_sach_anh|length > 1 %}
+                        <button type="button"
+                                class="product-gallery-arrow product-gallery-prev"
+                                aria-label="Xem ảnh trước"
+                                title="Ảnh trước">
+                            &#8249;
+                        </button>
+
+                        <button type="button"
+                                class="product-gallery-arrow product-gallery-next"
+                                aria-label="Xem ảnh tiếp theo"
+                                title="Ảnh tiếp theo">
+                            &#8250;
+                        </button>
+                    {% endif %}
+                </div>
+
+                {% if danh_sach_anh %}
+                    <div class="product-detail-thumbnails">
+                        {% for item in danh_sach_anh %}
+                            <button
+                                type="button"
+                                class="product-detail-thumbnail {% if item.hinh_anh == anh_dai_dien %}active{% endif %}"
+                                data-image="{{ item.hinh_anh.duong_dan_anh.url }}"
+                                data-alt="{{ san_pham.ten_san_pham }} - ảnh {{ forloop.counter }}"
+                                data-variant="{{ item.bien_the.ma_bien_the }}"
+                                aria-label="Xem ảnh {{ forloop.counter }}"
+                            >
+                                <img
+                                    src="{{ item.hinh_anh.duong_dan_anh.url }}"
+                                    alt="{{ san_pham.ten_san_pham }} - ảnh {{ forloop.counter }}"
+                                    loading="lazy"
+                                >
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- KHU VỰC THÔNG TIN -->
+            <div class="product-detail-info">
+
+                <p class="product-detail-brand">
+                    {{ san_pham.thuong_hieu.ten_thuong_hieu }}
+                </p>
+
+                <h1>{{ san_pham.ten_san_pham }}</h1>
+
+                <div class="product-detail-meta">
+                    <span>
+                        Mã sản phẩm:
+                        <strong>{{ san_pham.ma_san_pham }}</strong>
+                    </span>
+
+                    <span>
+                        Danh mục:
+                        <strong>{{ san_pham.danh_muc.ten_danh_muc }}</strong>
+                    </span>
+                </div>
+
+                <!-- GIÁ BÁN -->
+                <div class="product-detail-price-box">
+                    <span class="product-detail-price-label">Giá bán</span>
+
+                    <div class="product-detail-price" id="selectedVariantPrice">
+                        {% if gia_thap_nhat != None %}
+                            {{ gia_thap_nhat|floatformat:0 }} đ
+                        {% else %}
+                            Chưa có giá
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- TỒN KHO -->
+                <div class="product-detail-stock">
+                    Tình trạng:
+
+                    <span
+                        id="selectedVariantStock"
+                        class="stock-status {% if bien_the_mac_dinh %}{% if bien_the_mac_dinh.so_luong_ton > 0 %}in-stock{% else %}out-of-stock{% endif %}{% endif %}"
+                    >
+                        {% if bien_the_mac_dinh %}
+                            {% if bien_the_mac_dinh.so_luong_ton > 0 %}
+                                Còn hàng ({{ bien_the_mac_dinh.so_luong_ton }})
+                            {% else %}
+                                Tạm hết hàng
+                            {% endif %}
+                        {% else %}
+                            Chưa có biến thể
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- CHỌN BIẾN THỂ -->
+                <div class="product-detail-variants">
+                    <h3>Chọn phân loại sản phẩm</h3>
+
+                    <div class="product-variant-list">
+                        {% for bien_the in bien_the_list %}
+
+                            <label class="product-variant-option {% if bien_the.so_luong_ton <= 0 %}variant-out-of-stock{% endif %}">
+                                <input
+                                    type="radio"
+                                    name="bien_the"
+                                    value="{{ bien_the.ma_bien_the }}"
+                                    data-price="{{ bien_the.gia_ban }}"
+                                    data-stock="{{ bien_the.so_luong_ton }}"
+                                    {% if bien_the == bien_the_mac_dinh %}checked{% endif %}
+                                >
+
+                                <span class="product-variant-option-text">
+                                    <strong>
+                                        {{ bien_the.mau_sac|default:"Mặc định" }}
+                                    </strong>
+
+                                    {% if bien_the.kich_thuoc %}
+                                        <span>{{ bien_the.kich_thuoc }}</span>
+                                    {% endif %}
+
+                                    <small>Mã: {{ bien_the.ma_bien_the }}</small>
+
+                                    {% if bien_the.so_luong_ton > 0 %}
+                                        <span class="variant-stock-available">Còn hàng</span>
+                                    {% else %}
+                                        <span class="variant-stock-unavailable">Hết hàng</span>
+                                    {% endif %}
+                                </span>
+                            </label>
+
+                        {% empty %}
+                            <p>Sản phẩm chưa có biến thể.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- FORM THÊM VÀO GIỎ HÀNG -->
+                <form
+                    id="addToCartForm"
+                    method="POST"
+                    action="{% url 'GIOHANG:them_vao_gio' %}"
+                >
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="ma_bien_the"
+                        id="cartVariantId"
+                        value="{% if bien_the_mac_dinh %}{{ bien_the_mac_dinh.ma_bien_the }}{% endif %}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="so_luong"
+                        id="cartQuantity"
+                        value="1"
+                    >
+
+                    <!-- SỐ LƯỢNG -->
+                    <div class="product-detail-quantity">
+                        <label for="productQuantity">Số lượng</label>
+
+                        <div class="quantity-control">
+                            <button
+                                type="button"
+                                data-quantity-change="-1"
+                                aria-label="Giảm số lượng"
+                            >−</button>
+
+                            <input
+                                type="number"
+                                id="productQuantity"
+                                value="1"
+                                min="1"
+                                max="{% if bien_the_mac_dinh and bien_the_mac_dinh.so_luong_ton > 0 %}{{ bien_the_mac_dinh.so_luong_ton }}{% else %}1{% endif %}"
+                            >
+
+                            <button
+                                type="button"
+                                data-quantity-change="1"
+                                aria-label="Tăng số lượng"
+                            >+</button>
+                        </div>
+                    </div>
+
+                    <!-- NÚT MUA HÀNG -->
+                    <div class="product-detail-actions">
+                        <button
+                            type="submit"
+                            class="product-detail-cart-button"
+                            {% if not bien_the_mac_dinh or bien_the_mac_dinh.so_luong_ton <= 0 %}disabled{% endif %}
+                        >
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            Thêm vào giỏ hàng
+                        </button>
+
+                        <button
+                            type="button"
+                            class="product-detail-buy-button"
+                            disabled
+                            title="Chức năng mua ngay chưa được kết nối"
+                        >
+                            Mua ngay
+                        </button>
+                    </div>
+                </form>
+
+                <!-- CHIA SẺ SẢN PHẨM -->
+                <div class="product-detail-share">
+                    <span class="product-detail-share-label">Chia sẻ:</span>
+
+                    <a
+                        class="product-share-link"
+                        href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Chia sẻ qua Facebook"
+                        title="Facebook"
+                    >
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+
+                    <a
+                        class="product-share-link"
+                        href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ san_pham.ten_san_pham|urlencode }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Chia sẻ qua X"
+                        title="X"
+                    >
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+
+                    <button
+                        type="button"
+                        class="product-share-link"
+                        id="copyProductLink"
+                        aria-label="Sao chép liên kết sản phẩm"
+                        title="Sao chép liên kết"
+                    >
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+
+                    <span id="shareCopyStatus" aria-live="polite"></span>
+                </div>
+
+                <p class="product-detail-note">
+                    Chọn phân loại và số lượng phù hợp trước khi thêm sản phẩm vào giỏ hàng.
+                </p>
+
+                <!-- THÔNG TIN HỖ TRỢ -->
+                <div class="product-detail-benefits">
+
+                    <div class="product-benefit-item">
+                        <span class="product-benefit-icon">
+                            <i class="fa-solid fa-box"></i>
+                        </span>
+
+                        <div>
+                            <strong>Thông tin sản phẩm rõ ràng</strong>
+                            <p>Hiển thị mã và phân loại sản phẩm.</p>
+                        </div>
+                    </div>
+
+                    <div class="product-benefit-item">
+                        <span class="product-benefit-icon">
+                            <i class="fa-solid fa-warehouse"></i>
+                        </span>
+
+                        <div>
+                            <strong>Kiểm tra tồn kho</strong>
+                            <p>Tồn kho cập nhật theo phân loại được chọn.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- THÔNG TIN CHI TIẾT PHÍA DƯỚI -->
+        <section class="product-detail-extra">
+
+            <!-- CÁC TAB -->
+            <div class="product-detail-tabs" role="tablist">
+
+                <button
+                    type="button"
+                    class="product-detail-tab active"
+                    data-tab="description"
+                    aria-selected="true"
+                >
+                    Mô tả
+                </button>
+
+                <button
+                    type="button"
+                    class="product-detail-tab"
+                    data-tab="information"
+                    aria-selected="false"
+                >
+                    Thông tin sản phẩm
+                </button>
+
+                <button
+                    type="button"
+                    class="product-detail-tab"
+                    data-tab="variants"
+                    aria-selected="false"
+                >
+                    Phân loại
+                </button>
+
+                <button
+                    type="button"
+                    class="product-detail-tab"
+                    data-tab="reviews"
+                    aria-selected="false"
+                >
+                    Đánh giá
+                </button>
+
+            </div>
+
+            <!-- TAB MÔ TẢ -->
+            <div class="product-detail-tab-panel active" id="tab-description">
+                <h2>Mô tả sản phẩm</h2>
+
+                {% if san_pham.mo_ta %}
+                    <p>{{ san_pham.mo_ta|linebreaksbr }}</p>
+                {% else %}
+                    <p>Thông tin mô tả đang được cập nhật.</p>
+                {% endif %}
+            </div>
+
+            <!-- TAB THÔNG TIN -->
+            <div class="product-detail-tab-panel" id="tab-information" hidden>
+                <h2>Thông tin sản phẩm</h2>
+
+                <div class="product-detail-specs">
+
+                    <div>
+                        <span>Mã sản phẩm</span>
+                        <strong>{{ san_pham.ma_san_pham }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Tên sản phẩm</span>
+                        <strong>{{ san_pham.ten_san_pham }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Thương hiệu</span>
+                        <strong>{{ san_pham.thuong_hieu.ten_thuong_hieu }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Danh mục</span>
+                        <strong>{{ san_pham.danh_muc.ten_danh_muc }}</strong>
+                    </div>
+
+                    <div>
+                        <span>Trạng thái</span>
+                        <strong>{{ san_pham.trang_thai_ban }}</strong>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB PHÂN LOẠI -->
+            <div class="product-detail-tab-panel" id="tab-variants" hidden>
+                <h2>Các phân loại sản phẩm</h2>
+
+                <div class="product-detail-table-wrap">
+                    <table class="product-detail-variant-table">
+
+                        <thead>
+                            <tr>
+                                <th>Mã biến thể</th>
+                                <th>Màu sắc</th>
+                                <th>Kích thước</th>
+                                <th>Giá bán</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for bien_the in bien_the_list %}
+                                <tr>
+                                    <td>{{ bien_the.ma_bien_the }}</td>
+                                    <td>{{ bien_the.mau_sac|default:"—" }}</td>
+                                    <td>{{ bien_the.kich_thuoc|default:"—" }}</td>
+                                    <td>{{ bien_the.gia_ban|floatformat:0 }} đ</td>
+
+                                    <td>
+                                        {% if bien_the.so_luong_ton > 0 %}
+                                            {{ bien_the.so_luong_ton }} — Còn hàng
+                                        {% else %}
+                                            0 — Hết hàng
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5">Chưa có phân loại sản phẩm.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB ĐÁNH GIÁ -->
+            <div class="product-detail-tab-panel" id="tab-reviews" hidden>
+                <div class="reviews-section">
+
+                    <!-- TIÊU ĐỀ -->
+                    <div class="reviews-heading">
+                        <div>
+                            <span class="reviews-eyebrow">GÓC CHIA SẺ</span>
+                            <h2>Khách hàng nói gì?</h2>
+                            <p>Những cảm nhận chân thực giúp bạn chọn sản phẩm phù hợp hơn.</p>
+                        </div>
+
+                        <div class="reviews-total">
+                            <span class="reviews-total-number">{{ tong_luot_danh_gia }}</span>
+                            <span>đánh giá</span>
+                        </div>
+                    </div>
+
+                    <!-- TỔNG QUAN ĐÁNH GIÁ -->
+                    <div class="reviews-overview">
+
+                        <div class="reviews-score">
+                            <strong>{{ diem_trung_binh|floatformat:1 }}<span>/5</span></strong>
+
+                            <div class="reviews-stars">
+                                {% for sao in "12345" %}
+                                    {% if forloop.counter <= diem_trung_binh %}
+                                        <span>★</span>
+                                    {% else %}
+                                        <span>☆</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <p>{{ tong_luot_danh_gia }} đánh giá</p>
+                        </div>
+
+                        <div class="reviews-divider"></div>
+
+                        <div class="reviews-breakdown">
+                            <h3>Tổng quan xếp hạng</h3>
+
+                            {% for item in thong_ke_so_sao_list %}
+                                <div class="reviews-rating-row">
+                                    <span>{{ item.sao }} sao</span>
+
+                                    <div class="reviews-rating-track">
+                                        <div
+                                            class="reviews-rating-fill"
+                                            data-width="{{ item.ty_le }}"
+                                        ></div>
+                                    </div>
+
+                                    <span>{{ item.so_luong }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+
+                    <!-- DANH SÁCH ĐÁNH GIÁ -->
+                    <div class="reviews-list-heading">
+                        <h3>Nhận xét từ khách hàng</h3>
+                        <span>Mới nhất</span>
+                    </div>
+
+                    {% if danh_sach_danh_gia %}
+                        <div class="reviews-list">
+
+                            {% for danh_gia in danh_sach_danh_gia %}
+                                <article class="review-item">
+
+                                    <div class="review-item-header">
+                                        <strong>
+                                            {{ danh_gia.nguoi_danh_gia.get_full_name|default:danh_gia.nguoi_danh_gia.username }}
+                                        </strong>
+
+                                        <span>
+                                            {{ danh_gia.ngay_danh_gia|date:"d/m/Y" }}
+                                        </span>
+                                    </div>
+
+                                    <div class="review-item-stars">
+                                        {% for sao in "12345" %}
+                                            {% if forloop.counter <= danh_gia.so_sao %}
+                                                ★
+                                            {% else %}
+                                                ☆
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+
+                                    <p>{{ danh_gia.noi_dung|linebreaksbr }}</p>
+
+                                </article>
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="reviews-empty">
+                            <div class="reviews-empty-icon">
+                                <img
+                                    src="{% static 'images/anh_danh_gia.png' %}"
+                                    alt="Minh họa chưa có đánh giá"
+                                    class="reviews-empty-image"
+                                >
+                            </div>
+
+                            <h3>Chưa có đánh giá nào</h3>
+                            <p>Sản phẩm này vẫn đang chờ những cảm nhận đầu tiên.</p>
+
+                            <span class="reviews-empty-label">
+                                <span></span>
+                                Đang chờ đánh giá đầu tiên
+                            </span>
+                        </div>
+
+                    {% endif %}
+
+                    <!-- FORM VIẾT ĐÁNH GIÁ -->
+                    <div class="review-form-container">
+
+                        <div class="review-form-heading">
+                            <span class="reviews-eyebrow">CHIA SẺ TRẢI NGHIỆM</span>
+                            <h3>Viết đánh giá của bạn</h3>
+                            <p>Ý kiến của bạn sẽ giúp khách hàng khác lựa chọn sản phẩm phù hợp hơn.</p>
+                        </div>
+
+                        <form class="review-form" method="POST">
+                            {% csrf_token %}
+
+                            <div class="review-form-group">
+                                <label>Đánh giá của bạn</label>
+
+                                <div class="review-star-options">
+                                    {% for radio in form_danh_gia.so_sao %}
+                                        <label>
+                                            {{ radio.tag }}
+                                            <span>{{ radio.choice_label }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+
+                                {{ form_danh_gia.so_sao.errors }}
+                            </div>
+
+                            <div class="review-form-group">
+                                <label>Nhận xét sản phẩm</label>
+                                {{ form_danh_gia.noi_dung }}
+                                {{ form_danh_gia.noi_dung.errors }}
+                            </div>
+
+                            <button type="submit" class="review-submit-button">
+                                Gửi đánh giá
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <div class="reviews-footer">
+                        <span class="reviews-footer-icon">✦</span>
+
+                        <p>
+                            <strong>Mỗi trải nghiệm đều đáng quý.</strong>
+                            NOSCO luôn mong muốn mang đến những sản phẩm văn phòng phẩm
+                            phù hợp với nhu cầu của bạn.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SẢN PHẨM GỢI Ý -->
+        <section class="related-products">
+
+            <div class="related-products-heading">
+                <div>
+                    <p class="related-products-eyebrow">NOSCO RECOMMENDS</p>
+                    <h2>Có thể bạn cũng thích</h2>
+                    <p>Khám phá thêm những sản phẩm phù hợp với bạn.</p>
+                </div>
+            </div>
+
+            <div class="related-products-grid">
+
+                {% for item in danh_sach_goi_y %}
+                    <article class="related-product-card">
+
+                        <a
+                            href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                            class="related-product-image"
+                        >
+                            {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
+                                <img
+                                    src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                                    alt="{{ item.san_pham.ten_san_pham }}"
+                                    loading="lazy"
+                                >
+                            {% else %}
+                                <div class="related-product-no-image">
+                                    Chưa có hình ảnh
+                                </div>
+                            {% endif %}
+                        </a>
+
+                        <div class="related-product-info">
+
+                            <p class="related-product-brand">
+                                {{ item.san_pham.thuong_hieu.ten_thuong_hieu|default:"NOSCO" }}
+                            </p>
+
+                            <h3>
+                                <a href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}">
+                                    {{ item.san_pham.ten_san_pham }}
+                                </a>
+                            </h3>
+
+                            <div class="related-product-price">
+                                {% if item.gia_thap_nhat != None %}
+                                    {{ item.gia_thap_nhat|floatformat:0 }} đ
+                                {% else %}
+                                    Chưa có giá
+                                {% endif %}
+                            </div>
+
+                            <a
+                                href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                                class="related-product-view"
+                            >
+                                Xem chi tiết <span>→</span>
+                            </a>
+
+                        </div>
+                    </article>
+
+                {% empty %}
+                    <p class="related-products-empty">
+                        Hiện chưa có sản phẩm liên quan để gợi ý.
+                    </p>
+                {% endfor %}
+
+            </div>
+        </section>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* =====================================
+       1. KHAI BÁO CÁC PHẦN TỬ
+    ===================================== */
+
+    const mainImage = document.getElementById("mainProductImage");
+
+    const thumbnails = Array.from(
+        document.querySelectorAll(".product-detail-thumbnail")
+    );
+
+    const variantInputs = document.querySelectorAll(
+        'input[name="bien_the"]'
+    );
+
+    const priceElement = document.getElementById("selectedVariantPrice");
+    const stockElement = document.getElementById("selectedVariantStock");
+
+    const quantityInput = document.getElementById("productQuantity");
+    const cartVariantInput = document.getElementById("cartVariantId");
+    const cartQuantityInput = document.getElementById("cartQuantity");
+    const cartButton = document.querySelector(".product-detail-cart-button");
+
+
+    /* =====================================
+       2. HIỂN THỊ ẢNH SẢN PHẨM
+    ===================================== */
+
+    function activateThumbnail(button) {
+        if (!mainImage || !button) return;
+
+        mainImage.src = button.dataset.image;
+        mainImage.alt = button.dataset.alt || "Ảnh sản phẩm";
+
+        thumbnails.forEach(function (item) {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+    }
+
+    thumbnails.forEach(function (button) {
+        button.addEventListener("click", function () {
+            activateThumbnail(button);
+        });
+    });
+
+
+    /* =====================================
+       3. CẬP NHẬT BIẾN THỂ
+    ===================================== */
+
+    function updateVariant(changeImage) {
+
+        const selectedVariant = document.querySelector(
+            'input[name="bien_the"]:checked'
+        );
+
+        if (!selectedVariant) return;
+
+        const price = Number(selectedVariant.dataset.price);
+        const stock = Number(selectedVariant.dataset.stock);
+
+        // Cập nhật mã biến thể gửi sang giỏ hàng.
+        if (cartVariantInput) {
+            cartVariantInput.value = selectedVariant.value;
+        }
+
+        // Cập nhật trạng thái nút thêm vào giỏ.
+        if (cartButton) {
+            cartButton.disabled = stock <= 0;
+
+            cartButton.title = stock > 0
+                ? "Thêm sản phẩm vào giỏ hàng"
+                : "Biến thể này đã hết hàng";
+
+            cartButton.style.setProperty(
+                "cursor",
+                stock > 0 ? "pointer" : "not-allowed",
+                "important"
+            );
+        }
+
+        // Cập nhật giá.
+        if (priceElement && Number.isFinite(price)) {
+            priceElement.textContent =
+                price.toLocaleString("vi-VN") + " đ";
+        }
+
+        // Cập nhật tồn kho.
+        if (stockElement) {
+
+            stockElement.classList.remove(
+                "in-stock",
+                "out-of-stock"
+            );
+
+            if (stock > 0) {
+                stockElement.textContent = "Còn hàng (" + stock + ")";
+                stockElement.classList.add("in-stock");
+            } else {
+                stockElement.textContent = "Tạm hết hàng";
+                stockElement.classList.add("out-of-stock");
+            }
+        }
+
+        // Cập nhật giới hạn số lượng.
+        if (quantityInput) {
+
+            const maxStock = stock > 0 ? stock : 1;
+
+            quantityInput.max = maxStock;
+
+            const current = Number(quantityInput.value) || 1;
+
+            const newQuantity = Math.max(
+                1,
+                Math.min(current, maxStock)
+            );
+
+            quantityInput.value = newQuantity;
+
+            if (cartQuantityInput) {
+                cartQuantityInput.value = newQuantity;
+            }
+        }
+
+        // Nếu biến thể có ảnh riêng, hiển thị ảnh tương ứng.
+        if (changeImage && mainImage) {
+
+            const matchingThumbnail = thumbnails.find(function (button) {
+                return button.dataset.variant === selectedVariant.value;
+            });
+
+            if (matchingThumbnail) {
+                activateThumbnail(matchingThumbnail);
+            }
+        }
+    }
+
+    variantInputs.forEach(function (input) {
+        input.addEventListener("change", function () {
+            updateVariant(true);
+        });
+    });
+
+    updateVariant(false);
+
+
+    /* =====================================
+       4. TĂNG GIẢM SỐ LƯỢNG
+    ===================================== */
+
+    document.querySelectorAll("[data-quantity-change]").forEach(
+        function (button) {
+
+            button.addEventListener("click", function () {
+
+                if (!quantityInput) return;
+
+                const change = Number(button.dataset.quantityChange);
+                const current = Number(quantityInput.value) || 1;
+                const min = Number(quantityInput.min) || 1;
+                const max = Number(quantityInput.max) || 1;
+
+                const newQuantity = Math.max(
+                    min,
+                    Math.min(current + change, max)
+                );
+
+                quantityInput.value = newQuantity;
+
+                if (cartQuantityInput) {
+                    cartQuantityInput.value = newQuantity;
+                }
+            });
+        }
+    );
+
+
+    /* =====================================
+       5. ĐỒNG BỘ SỐ LƯỢNG KHI NHẬP
+    ===================================== */
+
+    if (quantityInput) {
+
+        quantityInput.addEventListener("input", function () {
+
+            if (cartQuantityInput) {
+                cartQuantityInput.value = quantityInput.value;
+            }
+        });
+
+        quantityInput.addEventListener("change", function () {
+
+            const maxStock = Number(quantityInput.max) || 1;
+
+            let value = parseInt(quantityInput.value, 10) || 1;
+
+            if (value < 1) value = 1;
+            if (value > maxStock) value = maxStock;
+
+            quantityInput.value = value;
+
+            if (cartQuantityInput) {
+                cartQuantityInput.value = value;
+            }
+        });
+    }
+
+
+    /* =====================================
+       6. THANH THỐNG KÊ ĐÁNH GIÁ
+    ===================================== */
+
+    document.querySelectorAll(".reviews-rating-fill").forEach(
+        function (bar) {
+
+            const width = Number(bar.dataset.width) || 0;
+
+            bar.style.width = Math.max(
+                0,
+                Math.min(width, 100)
+            ) + "%";
+        }
+    );
+
+
+    /* =====================================
+       7. CHUYỂN TAB THÔNG TIN
+    ===================================== */
+
+    const tabs = document.querySelectorAll(".product-detail-tab");
+
+    const panels = document.querySelectorAll(
+        ".product-detail-tab-panel"
+    );
+
+    tabs.forEach(function (tab) {
+
+        tab.addEventListener("click", function () {
+
+            const targetPanel = document.getElementById(
+                "tab-" + tab.dataset.tab
+            );
+
+            tabs.forEach(function (item) {
+
+                item.classList.remove("active");
+
+                item.setAttribute(
+                    "aria-selected",
+                    "false"
+                );
+            });
+
+            panels.forEach(function (panel) {
+
+                panel.classList.remove("active");
+
+                panel.hidden = true;
+            });
+
+            tab.classList.add("active");
+
+            tab.setAttribute(
+                "aria-selected",
+                "true"
+            );
+
+            if (targetPanel) {
+
+                targetPanel.hidden = false;
+
+                targetPanel.classList.add("active");
+            }
+        });
+    });
+
+
+    /* =====================================
+       8. SAO CHÉP LIÊN KẾT SẢN PHẨM
+    ===================================== */
+
+    const copyButton = document.getElementById("copyProductLink");
+    const copyStatus = document.getElementById("shareCopyStatus");
+
+    if (copyButton) {
+
+        copyButton.addEventListener("click", async function () {
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    window.location.href
+                );
+
+                if (copyStatus) {
+                    copyStatus.textContent = "Đã sao chép liên kết!";
+                }
+
+            } catch (error) {
+
+                if (copyStatus) {
+                    copyStatus.textContent =
+                        "Không thể sao chép liên kết trên trình duyệt này.";
+                }
+            }
+        });
+    }
+
+
+    /* =====================================
+       9. NÚT CHUYỂN ẢNH TRƯỚC / SAU
+    ===================================== */
+
+    const gallery = document.querySelector(
+        ".product-detail-main-image"
+    );
+
+    if (gallery && mainImage && thumbnails.length > 1) {
+
+        const prevButton = gallery.querySelector(
+            ".product-gallery-prev"
+        );
+
+        const nextButton = gallery.querySelector(
+            ".product-gallery-next"
+        );
+
+        let currentIndex = thumbnails.findIndex(function (button) {
+
+            return button.dataset.image &&
+                new URL(button.dataset.image, document.baseURI).href ===
+                new URL(mainImage.src, document.baseURI).href;
+        });
+
+        if (currentIndex < 0) currentIndex = 0;
+
+        function showImage(index) {
+
+            currentIndex =
+                (index + thumbnails.length) % thumbnails.length;
+
+            activateThumbnail(thumbnails[currentIndex]);
+        }
+
+        if (prevButton) {
+            prevButton.addEventListener("click", function () {
+                showImage(currentIndex - 1);
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener("click", function () {
+                showImage(currentIndex + 1);
+            });
+        }
+
+        // Đồng bộ chỉ số khi người dùng nhấn ảnh thu nhỏ.
+        thumbnails.forEach(function (button, index) {
+
+            button.addEventListener("click", function () {
+                currentIndex = index;
+            });
+        });
+    }
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Tài khoản của tôi{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}">
+<style>
+  .account-page { max-width:1200px; margin:30px auto; padding:0 20px; color:#333; font-family:'Be Vietnam Pro',Arial,sans-serif; }
+  .account-layout { display:grid; grid-template-columns:250px minmax(0,1fr); gap:25px; align-items:start; }
+  .account-sidebar,.account-content { background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:22px; }
+  .account-sidebar { padding:20px 14px; }
+  .account-profile { text-align:center; padding:8px 0 20px; margin-bottom:12px; border-bottom:1px solid #e5e7eb; }
+  .account-avatar { width:64px; height:64px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#edf6ff; color:#1769aa; font-size:26px; }
+  .account-profile h2 { margin:0; font-size:15px; }
+  .account-profile p { margin:6px 0 0; color:#888; font-size:12px; }
+  .account-menu { display:flex; flex-direction:column; gap:4px; }
+  .account-menu-item { display:flex; align-items:center; gap:10px; padding:12px 9px; border-radius:6px; color:#555; font-size:13px; text-decoration:none; }
+  .account-menu-item i { width:19px; text-align:center; }
+  .account-menu-item:hover,.account-menu-item.active { color:#1769aa; background:#f0f7ff; font-weight:700; }
+  .account-menu-item.account-logout { margin-top:10px; padding-top:16px; border-top:1px solid #eee; border-radius:0; color:#c0392b; }
+  .account-content h1 { margin:0 0 22px; font-size:24px; }
+  .account-info-row { padding:15px 0; border-bottom:1px solid #edf0f2; }
+  .account-info-row:last-child { border:0; }
+  .account-info-label { display:block; margin-bottom:6px; color:#777; font-size:12px; }
+  @media(max-width:800px) { .account-layout { grid-template-columns:1fr; } .account-menu { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } }
+</style>
+{% endblock %}
+{% block content %}
+<main class="account-page">
+  <div class="account-layout">
+    <aside class="account-sidebar">
+      <div class="account-profile">
+        <div class="account-avatar"><i class="fa-regular fa-user"></i></div>
+        <h2>{{ ten_hien_thi }}</h2>
+        <p>Tài khoản khách hàng</p>
+      </div>
+      <nav class="account-menu">
+        <a href="{% url 'thong_tin_tai_khoan' %}" class="account-menu-item active"><i class="fa-regular fa-id-card"></i><span>Thông tin cá nhân</span></a>
+        <a href="{% url 'DONHANG:danh_sach' %}" class="account-menu-item"><i class="fa-solid fa-box"></i><span>Đơn hàng của tôi</span></a>
+        <a href="#" class="account-menu-item"><i class="fa-solid fa-location-dot"></i><span>Sổ địa chỉ</span></a>
+        <a href="#" class="account-menu-item"><i class="fa-regular fa-heart"></i><span>Sản phẩm yêu thích</span></a>
+        <a href="#" class="account-menu-item"><i class="fa-solid fa-ticket"></i><span>Voucher của tôi</span></a>
+        <a href="#" class="account-menu-item"><i class="fa-solid fa-star"></i><span>Điểm tích lũy</span></a>
+        <a href="#" class="account-menu-item"><i class="fa-regular fa-bell"></i><span>Thông báo</span></a>
+        <a href="#" class="account-menu-item"><i class="fa-solid fa-headset"></i><span>Hỗ trợ khách hàng</span></a>
+        <a href="#" class="account-menu-item account-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng xuất</span></a>
+      </nav>
+    </aside>
+    <section class="account-content">
+      <h1>Thông tin chung</h1>
+      <div class="account-info-row"><span class="account-info-label">Họ và tên</span><strong>{{ ten_hien_thi }}</strong></div>
+      <div class="account-info-row"><span class="account-info-label">Mã khách hàng</span>{{ ma_khach_hang|default:"Chưa liên kết tài khoản khách hàng" }}</div>
+      <div class="account-info-row"><span class="account-info-label">Email</span>{{ email_tai_khoan|default:"Chưa cập nhật" }}</div>
+      <p class="order-subtitle">Để xem trạng thái và chi tiết mua hàng, chọn <a href="{% url 'DONHANG:danh_sach' %}">Đơn hàng của tôi</a> ở menu bên trái.</p>
+    </section>
+  </div>
+</main>
+{% endblock %}

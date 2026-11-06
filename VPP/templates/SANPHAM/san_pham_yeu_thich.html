@@ -1,0 +1,135 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sản phẩm yêu thích | NOSCO{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/wishlist.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="wishlist-page">
+
+    <!-- Tiêu đề -->
+    <div class="wishlist-heading">
+        <div>
+            <p class="wishlist-eyebrow">YOUR FAVORITES</p>
+            <h1>Sản phẩm yêu thích</h1>
+            <p class="wishlist-description">
+                Những sản phẩm bạn yêu thích và muốn lưu lại.
+            </p>
+        </div>
+
+       <div class="wishlist-count">
+    <i class="fa-regular fa-heart"></i>
+    <span>{{ so_luong_yeu_thich }} sản phẩm</span>
+</div>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="wishlist-grid">
+
+    {% for item in danh_sach_san_pham %}
+
+        <article class="wishlist-card">
+
+            <div class="wishlist-image">
+
+                {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
+                    <img
+                        src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                        alt="{{ item.san_pham.ten_san_pham }}"
+                    >
+                {% else %}
+                    <div class="product-no-image">
+                        Chưa có hình ảnh
+                    </div>
+                {% endif %}
+
+                <form
+    method="POST"
+    action="{% url 'sanpham:toggle_favorite' %}"
+    class="wishlist-favorite-form">
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="ma_san_pham"
+        value="{{ item.san_pham.ma_san_pham }}"
+    >
+
+    <input
+        type="hidden"
+        name="next"
+        value="{{ request.get_full_path }}"
+    >
+
+    <button
+        type="submit"
+        class="favorite-btn"
+        title="Bỏ yêu thích"
+        aria-label="Bỏ yêu thích"
+    >
+        ♥
+    </button>
+</form>
+
+            </div>
+
+            <div class="wishlist-info">
+
+                <p class="wishlist-brand">
+                    {{ item.san_pham.thuong_hieu.ten_thuong_hieu|default:"NOSCO" }}
+                </p>
+
+                <h3>{{ item.san_pham.ten_san_pham }}</h3>
+
+                <p class="wishlist-price">
+                    {{ item.gia_hien_thi }}đ
+                </p>
+
+                {% if item.con_hang %}
+                    <span class="text-success">Còn hàng</span>
+                {% else %}
+                    <span class="text-danger">Hết hàng</span>
+                {% endif %}
+
+                <a href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                   class="wishlist-detail">
+                    Xem sản phẩm
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </article>
+
+    {% empty %}
+
+    <div class="wishlist-empty-message">
+        <i class="fa-regular fa-heart"></i>
+
+        <h3>Danh sách yêu thích đang trống!</h3>
+
+        <p>
+            Hãy khám phá NOSCO và lưu lại những sản phẩm
+            bạn yêu thích nhé.
+        </p>
+
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}"
+           class="wishlist-explore-btn">
+            Khám phá sản phẩm
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+{% endfor %}
+
+</div>
+
+
+</section>
+
+{% endblock %}

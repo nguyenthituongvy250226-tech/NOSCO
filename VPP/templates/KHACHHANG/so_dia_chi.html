@@ -1,0 +1,130 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Sổ địa chỉ giao hàng
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+
+    <h2>SỔ ĐỊA CHỈ GIAO HÀNG</h2>
+
+    <p>
+        Quản lý các địa chỉ giao hàng đã lưu.
+    </p>
+
+    <a href="{% url 'KHACHHANG:them_dia_chi' %}"
+       class="btn">
+        + Thêm địa chỉ
+    </a>
+
+</div>
+
+
+<div class="card">
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Người nhận</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Mặc định</th>
+                <th>Thao tác</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for dia_chi in danh_sach %}
+
+                <tr>
+
+                    <td>
+                        {{ dia_chi.TenNguoiNhan }}
+                    </td>
+
+                    <td>
+                        {{ dia_chi.SoDienThoai }}
+                    </td>
+
+                    <td>
+                        {{ dia_chi.DiaChi }}
+                    </td>
+
+                    <td>
+
+                        {% if dia_chi.MacDinh %}
+                            <strong>Địa chỉ mặc định</strong>
+                        {% else %}
+                            Không
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <a class="btn"
+                           href="{% url 'KHACHHANG:sua_dia_chi' dia_chi.MaDiaChi %}">
+                            Sửa
+                        </a>
+
+                        {% if not dia_chi.MacDinh %}
+
+                            <form method="POST"
+                                  action="{% url 'KHACHHANG:dat_dia_chi_mac_dinh' dia_chi.MaDiaChi %}"
+                                  style="display:inline;">
+
+                                {% csrf_token %}
+
+                                <button class="btn btn-success"
+                                        type="submit">
+                                    Đặt mặc định
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+
+                        <form method="POST"
+                              action="{% url 'KHACHHANG:xoa_dia_chi' dia_chi.MaDiaChi %}"
+                              style="display:inline;"
+                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa địa chỉ này?');">
+
+                            {% csrf_token %}
+
+                            <button class="btn btn-danger"
+                                    type="submit">
+                                Xóa
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="5">
+                        Bạn chưa lưu địa chỉ giao hàng nào.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
