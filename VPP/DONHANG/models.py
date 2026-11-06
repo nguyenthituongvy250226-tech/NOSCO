@@ -149,6 +149,17 @@ class YeuCauTraHang(models.Model):
         ("tai_khoan_thanh_toan", "Hoàn tiền về tài khoản thanh toán"),
         ("vi_nosco", "Hoàn tiền vào ví NOSCO"),
     ]
+    NGAN_HANG_CHOICES = [
+        ("VCB", "Vietcombank"),
+        ("BIDV", "BIDV"),
+        ("CTG", "VietinBank"),
+        ("TCB", "Techcombank"),
+        ("MB", "MB Bank"),
+        ("ACB", "ACB"),
+        ("VPB", "VPBank"),
+        ("TPB", "TPBank"),
+        ("OTHER", "Ngân hàng khác"),
+    ]
     TRANG_THAI_TRA_CHOICES = [
         ("cho_xu_ly", "Chờ xử lý"),
         ("da_duyet", "Đã duyệt"),
@@ -185,6 +196,13 @@ class YeuCauTraHang(models.Model):
         choices=PHUONG_THUC_HOAN_TIEN_CHOICES,
         default="tai_khoan_thanh_toan",
     )
+    ngan_hang_hoan_tien = models.CharField(
+        max_length=20,
+        choices=NGAN_HANG_CHOICES,
+        blank=True,
+    )
+    ten_chu_tai_khoan = models.CharField(max_length=100, blank=True)
+    so_tai_khoan = models.CharField(max_length=24, blank=True)
     trang_thai_tra = models.CharField(
         max_length=50,
         choices=TRANG_THAI_TRA_CHOICES,

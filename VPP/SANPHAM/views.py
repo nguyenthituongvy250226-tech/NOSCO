@@ -1,13 +1,14 @@
+
 from decimal import Decimal, InvalidOperation
-
-from django.shortcuts import render, get_object_or_404,redirect
-from django.db.models import Min, Q
-
-from .models import SanPham, DanhMucSanPham, ThuongHieu, BaiViet,SanPhamQuaTang
+from KHUYENMAI.models import ChiTietKhuyenMai
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Min, Q, Avg, Count
-from .models import DanhGiaSanPham
-from .forms import DanhGiaSanPhamForm
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+
 from .models import (
     SanPham,
     DanhMucSanPham,
@@ -16,15 +17,151 @@ from .models import (
     SanPhamQuaTang,
     DanhGiaSanPham,
     SanPhamYeuThich,
+    BienTheSanPham,
 )
+
+from .forms import DanhGiaSanPhamForm
+
+from KHUYENMAI.models import ChiTietKhuyenMai
+
 from KHACHHANG.views import khach_hang_required
-from DONHANG.models import DonHang, ChiTietDonHang
-from .models import BienTheSanPham, DanhGiaSanPham, SanPhamYeuThich
-from KHACHHANG.views import SESSION_NGUOI_DUNG
 from KHACHHANG.models import HoSoKhachHang
 
+from DONHANG.models import ChiTietDonHang
+
+
+# =========================================================
+# 1. HÀM ĐỊNH DẠNG GIÁ
+# =========================================================
+
+def dinh_dang_gia(gia):
+    if gia is None:
+        return None
+
+    return f"{gia:,.0f}".replace(",", ".")
+
+
+# =========================================================
+# 2. LẤY DANH SÁCH KHUYẾN MÃI ĐANG CÓ HIỆU LỰC
+# =========================================================
+
+def lay_khuyen_mai_theo_san_pham(danh_sach_ma_sp):
+    """
+    Lấy khuyến mãi đang áp dụng cho các sản phẩm.
+
+    Điều kiện:
+    - Chi tiết khuyến mãi đang bật.
+    - Chương trình đã bắt đầu.
+    - Chương trình chưa kết thúc.
+
+    Nếu một sản phẩm có nhiều khuyến mãi,
+    ưu tiên giá khuyến mãi thấp nhất.
+    """
+
+    if not danh_sach_ma_sp:
+        return {}
+
+    thoi_diem_hien_tai = timezone.now()
+
+    cac_chi_tiet_km = ChiTietKhuyenMai.objects.filter(
+        MaSanPham__in=[str(ma) for ma in danh_sach_ma_sp],
+        TrangThai=True,
+        MaKhuyenMai__NgayBatDau__lte=thoi_diem_hien_tai,
+        MaKhuyenMai__NgayKetThuc__gte=thoi_diem_hien_tai,
+    ).values(
+        "MaSanPham",
+        "GiaKhuyenMai",
+        "PhanTramGiam",
+    )
+
+    khuyen_mai_theo_sp = {}
+
+    for km in cac_chi_tiet_km:
+        ma_sp = str(km["MaSanPham"])
+
+        km_cu = khuyen_mai_theo_sp.get(ma_sp)
+
+        if (
+            km_cu is None
+            or km["GiaKhuyenMai"] < km_cu["gia_khuyen_mai"]
+        ):
+            khuyen_mai_theo_sp[ma_sp] = {
+                "gia_khuyen_mai": km["GiaKhuyenMai"],
+                "phan_tram_giam": km["PhanTramGiam"],
+            }
+
+    return khuyen_mai_theo_sp
+
+
+# =========================================================
+# 3. TẠO THÔNG TIN GIÁ VÀ KHUYẾN MÃI CHO SẢN PHẨM
+# =========================================================
+
+def tao_thong_tin_gia(san_pham, gia_goc, khuyen_mai_theo_sp):
+    """
+    Chuẩn bị dữ liệu giá để truyền sang template.
+
+    Nếu có khuyến mãi hợp lệ:
+    - Hiển thị giá gốc.
+    - Hiển thị giá khuyến mãi.
+    - Hiển thị phần trăm giảm.
+
+    Nếu không có:
+    - Chỉ hiển thị giá bán bình thường.
+    """
+
+    thong_tin_km = khuyen_mai_theo_sp.get(
+        str(san_pham.ma_san_pham)
+    )
+
+    gia_khuyen_mai = None
+    phan_tram_giam = None
+    co_khuyen_mai = False
+
+    if thong_tin_km and gia_goc is not None:
+        gia_de_xuat = thong_tin_km["gia_khuyen_mai"]
+
+        # Chỉ áp dụng nếu giá khuyến mãi thấp hơn giá gốc
+        if gia_de_xuat < gia_goc:
+            gia_khuyen_mai = gia_de_xuat
+            phan_tram_giam = thong_tin_km["phan_tram_giam"]
+            co_khuyen_mai = True
+
+    gia_hien_thi = (
+        gia_khuyen_mai
+        if co_khuyen_mai
+        else gia_goc
+    )
+
+    return {
+        "san_pham": san_pham,
+        "gia_thap_nhat": gia_goc,
+
+        "co_khuyen_mai": co_khuyen_mai,
+        "phan_tram_giam": phan_tram_giam,
+        "gia_khuyen_mai": gia_khuyen_mai,
+
+        "gia_goc_hien_thi": (
+            dinh_dang_gia(gia_goc)
+            if co_khuyen_mai else None
+        ),
+
+        "gia_khuyen_mai_hien_thi": (
+            dinh_dang_gia(gia_khuyen_mai)
+            if co_khuyen_mai else None
+        ),
+
+        "gia_hien_thi": dinh_dang_gia(gia_hien_thi),
+    }
+
+
+# =========================================================
+# 4. DANH SÁCH SẢN PHẨM
+# =========================================================
+
 def danh_sach_san_pham(request):
-    # 1. Nhận các điều kiện tìm kiếm và lọc từ URL
+
+    # 1. Nhận điều kiện tìm kiếm và lọc từ URL
     tu_khoa = request.GET.get("q", "").strip()
     ma_danh_muc = request.GET.get("danh_muc", "").strip()
     nhom = request.GET.get("nhom", "").strip()
@@ -33,9 +170,22 @@ def danh_sach_san_pham(request):
     gia_den_text = request.GET.get("gia_den", "").strip()
     sap_xep = request.GET.get("sap_xep", "ten_a_z")
 
-    # 2. Chỉ lấy sản phẩm đang bán, tính giá thấp nhất
-    danh_sach_yeu_thich = request.session.get("yeu_thich", [])
+    # 2. Lấy danh sách sản phẩm yêu thích
+    ma_khach_hang = request.session.get("ma_khach_hang")
 
+    if ma_khach_hang:
+        danh_sach_yeu_thich = list(
+            SanPhamYeuThich.objects.filter(
+                ma_khach_hang=ma_khach_hang
+            ).values_list(
+                "san_pham__ma_san_pham",
+                flat=True
+            )
+        )
+    else:
+        danh_sach_yeu_thich = []
+
+    # 3. Lấy sản phẩm đang bán và tính giá thấp nhất
     san_pham_queryset = (
         SanPham.objects
         .filter(trang_thai_ban="Đang bán")
@@ -44,27 +194,23 @@ def danh_sach_san_pham(request):
         .annotate(gia_thap_nhat=Min("bien_the__gia_ban"))
     )
 
-    # Lấy thương hiệu được chọn từ URL
+    # 4. Lọc theo thương hiệu
     thuong_hieu_id = request.GET.get("thuong_hieu")
 
-    # Nếu khách hàng chọn thương hiệu, chỉ lấy sản phẩm của thương hiệu đó
     if thuong_hieu_id and thuong_hieu_id.isdigit():
-        san_pham_queryset = san_pham_queryset.filter(thuong_hieu_id=int(thuong_hieu_id))
+        san_pham_queryset = san_pham_queryset.filter(
+            thuong_hieu_id=int(thuong_hieu_id)
+        )
 
-    # 3. Tìm theo tên sản phẩm hoặc mô tả
-    # 3. Tìm theo tên, mô tả, thương hiệu và danh mục
+    # 5. Tìm kiếm theo tên, thương hiệu và danh mục
     if tu_khoa:
-        tu_khoa = tu_khoa.strip()
-
         san_pham_queryset = san_pham_queryset.filter(
             Q(ten_san_pham__icontains=tu_khoa)
             | Q(thuong_hieu__ten_thuong_hieu__icontains=tu_khoa)
             | Q(danh_muc__ten_danh_muc__icontains=tu_khoa)
         ).distinct()
 
-    # 4. Lọc theo danh mục và thương hiệu
-    # 4. Lọc theo nhóm, danh mục và thương hiệu
-
+    # 6. Lọc theo nhóm và danh mục
     cac_nhom_danh_muc = {
         "hoc_tap": ["DM001", "DM002"],
         "lam_viec": ["DM003", "DM004"],
@@ -75,6 +221,7 @@ def danh_sach_san_pham(request):
         san_pham_queryset = san_pham_queryset.filter(
             danh_muc_id__in=cac_nhom_danh_muc[nhom]
         )
+
     elif ma_danh_muc:
         san_pham_queryset = san_pham_queryset.filter(
             danh_muc_id=ma_danh_muc
@@ -85,23 +232,26 @@ def danh_sach_san_pham(request):
             thuong_hieu_id=ma_thuong_hieu
         )
 
-    # 5. Kiểm tra giá nhập vào có hợp lệ không
+    # 7. Kiểm tra giá nhập vào
     def doc_gia(gia_text):
         if not gia_text:
             return None
 
         try:
             gia = Decimal(gia_text)
+
             if gia < 0:
                 return None
+
             return gia
+
         except (InvalidOperation, ValueError):
             return None
 
     gia_tu = doc_gia(gia_tu_text)
     gia_den = doc_gia(gia_den_text)
 
-    # 6. Lọc theo giá thấp nhất của sản phẩm
+    # 8. Lọc theo giá thấp nhất
     if gia_tu is not None:
         san_pham_queryset = san_pham_queryset.filter(
             gia_thap_nhat__gte=gia_tu
@@ -112,29 +262,45 @@ def danh_sach_san_pham(request):
             gia_thap_nhat__lte=gia_den
         )
 
-    # 7. Sắp xếp kết quả
+    # 9. Sắp xếp sản phẩm
     if sap_xep == "gia_tang":
         san_pham_queryset = san_pham_queryset.order_by(
-            "gia_thap_nhat", "ten_san_pham"
+            "gia_thap_nhat",
+            "ten_san_pham"
         )
+
     elif sap_xep == "gia_giam":
         san_pham_queryset = san_pham_queryset.order_by(
-            "-gia_thap_nhat", "ten_san_pham"
+            "-gia_thap_nhat",
+            "ten_san_pham"
         )
+
     elif sap_xep == "moi_nhat":
         san_pham_queryset = san_pham_queryset.order_by(
-            "-ngay_tao", "ten_san_pham"
+            "-ngay_tao",
+            "ten_san_pham"
         )
+
     else:
         sap_xep = "ten_a_z"
+
         san_pham_queryset = san_pham_queryset.order_by(
             "ten_san_pham"
         )
 
-    # 8. Chuẩn bị ảnh đại diện và giá cho từng sản phẩm
+    # 10. Lấy danh sách sản phẩm sau khi lọc
+    cac_san_pham = list(san_pham_queryset)
+
+    # Lấy thông tin khuyến mãi của các sản phẩm
+    khuyen_mai_theo_sp = lay_khuyen_mai_theo_san_pham(
+        [sp.ma_san_pham for sp in cac_san_pham]
+    )
+
+    # 11. Chuẩn bị ảnh và giá cho từng sản phẩm
     danh_sach_san_pham = []
 
-    for san_pham in san_pham_queryset:
+    for san_pham in cac_san_pham:
+
         cac_bien_the = list(san_pham.bien_the.all())
 
         cac_anh = [
@@ -149,16 +315,21 @@ def danh_sach_san_pham(request):
             cac_anh[0] if cac_anh else None,
         )
 
-        danh_sach_san_pham.append({
-            "san_pham": san_pham,
-            "anh_dai_dien": anh_dai_dien,
-            "gia_thap_nhat": san_pham.gia_thap_nhat,
-            "gia_hien_thi": dinh_dang_gia(san_pham.gia_thap_nhat),
-        })
-        # 9. Khởi tạo danh sách sản phẩm gợi ý
+        thong_tin_gia = tao_thong_tin_gia(
+            san_pham,
+            san_pham.gia_thap_nhat,
+            khuyen_mai_theo_sp
+        )
+
+        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+
+        danh_sach_san_pham.append(thong_tin_gia)
+
+    # 12. Khởi tạo danh sách sản phẩm gợi ý
     san_pham_goi_y = []
 
     if not danh_sach_san_pham:
+
         goi_y_queryset = (
             SanPham.objects
             .filter(trang_thai_ban="Đang bán")
@@ -168,7 +339,14 @@ def danh_sach_san_pham(request):
             .order_by("-ngay_tao", "ten_san_pham")[:4]
         )
 
-        for san_pham in goi_y_queryset:
+        cac_san_pham_goi_y = list(goi_y_queryset)
+
+        khuyen_mai_goi_y = lay_khuyen_mai_theo_san_pham(
+            [sp.ma_san_pham for sp in cac_san_pham_goi_y]
+        )
+
+        for san_pham in cac_san_pham_goi_y:
+
             cac_anh = [
                 anh
                 for bien_the in san_pham.bien_the.all()
@@ -181,15 +359,17 @@ def danh_sach_san_pham(request):
                 cac_anh[0] if cac_anh else None,
             )
 
-            san_pham_goi_y.append({
-                "san_pham": san_pham,
-                "anh_dai_dien": anh_dai_dien,
-                "gia_thap_nhat": san_pham.gia_thap_nhat,
-                "gia_hien_thi": dinh_dang_gia(san_pham.gia_thap_nhat),
+            thong_tin_gia = tao_thong_tin_gia(
+                san_pham,
+                san_pham.gia_thap_nhat,
+                khuyen_mai_goi_y
+            )
 
-            })
+            thong_tin_gia["anh_dai_dien"] = anh_dai_dien
 
-    # 9. Gửi dữ liệu cho giao diện
+            san_pham_goi_y.append(thong_tin_gia)
+
+    # 13. Trả dữ liệu về giao diện
     return render(
         request,
         "SANPHAM/giao_dien_thu.html",
@@ -209,15 +389,13 @@ def danh_sach_san_pham(request):
     )
 
 
-
-def dinh_dang_gia(gia):
-    if gia is None:
-        return None
-    return f"{gia:,.0f}".replace(",", ".")
-
+# =========================================================
+# 5. TRANG CHỦ
+# =========================================================
 
 def home(request):
-    # 1. Lấy các sản phẩm đang bán và thông tin liên quan
+
+    # 1. Lấy sản phẩm đang bán
     san_pham_queryset = (
         SanPham.objects
         .filter(trang_thai_ban="Đang bán")
@@ -227,10 +405,18 @@ def home(request):
         .order_by("-ngay_tao", "ten_san_pham")
     )
 
-    # 2. Chuyển thông tin sản phẩm thành dữ liệu dùng cho giao diện
+    # 2. Chuẩn bị dữ liệu sản phẩm
     danh_sach_the = []
 
-    for san_pham in san_pham_queryset:
+    cac_san_pham = list(san_pham_queryset)
+
+    # Lấy thông tin khuyến mãi của các sản phẩm
+    khuyen_mai_theo_sp = lay_khuyen_mai_theo_san_pham(
+        [sp.ma_san_pham for sp in cac_san_pham]
+    )
+
+    for san_pham in cac_san_pham:
+
         cac_bien_the = list(san_pham.bien_the.all())
 
         cac_anh = [
@@ -245,19 +431,23 @@ def home(request):
             cac_anh[0] if cac_anh else None
         )
 
-        danh_sach_the.append({
-            "san_pham": san_pham,
-            "anh_dai_dien": anh_dai_dien,
-            "gia_thap_nhat": san_pham.gia_thap_nhat,
-            "gia_hien_thi": dinh_dang_gia(san_pham.gia_thap_nhat),
-            "con_hang": any(
-                bien_the.so_luong_ton > 0
-                for bien_the in cac_bien_the
-            ),
-        })
+        # Chuẩn bị giá và thông tin khuyến mãi
+        thong_tin_gia = tao_thong_tin_gia(
+            san_pham,
+            san_pham.gia_thap_nhat,
+            khuyen_mai_theo_sp
+        )
+
+        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+
+        thong_tin_gia["con_hang"] = any(
+            bien_the.so_luong_ton > 0
+            for bien_the in cac_bien_the
+        )
+
+        danh_sach_the.append(thong_tin_gia)
 
     # 3. Lấy sản phẩm trong bộ sưu tập quà tặng
-    # Đặt ngoài vòng lặp để biến luôn được khởi tạo
     danh_sach_theo_ma = {
         str(the["san_pham"].ma_san_pham): the
         for the in danh_sach_the
@@ -273,15 +463,18 @@ def home(request):
     )
 
     for muc in cac_san_pham_qua_tang:
-        the = danh_sach_theo_ma.get(str(muc.san_pham_id))
+
+        the = danh_sach_theo_ma.get(
+            str(muc.san_pham_id)
+        )
 
         if the:
             san_pham_qua_tang.append(the)
 
-    # 4. Nhóm sản phẩm nổi bật: 4 sản phẩm mới nhất
+    # 4. Nhóm sản phẩm nổi bật
     san_pham_noi_bat = danh_sach_the[:4]
 
-    # 5. Lấy tối đa 4 danh mục có sản phẩm đang bán
+    # 5. Lấy danh mục có sản phẩm đang bán
     danh_muc_noi_bat = (
         DanhMucSanPham.objects
         .filter(san_pham__trang_thai_ban="Đang bán")
@@ -299,9 +492,12 @@ def home(request):
     lich_su_xem = request.session.get(
         "lich_su_xem_san_pham", []
     )
-    lich_su_xem = [str(ma) for ma in lich_su_xem]
 
-    # 7. Lấy mã sản phẩm nổi bật để tránh trùng
+    lich_su_xem = [
+        str(ma) for ma in lich_su_xem
+    ]
+
+    # 7. Lấy mã sản phẩm nổi bật
     ma_san_pham_noi_bat = {
         str(the["san_pham"].ma_san_pham)
         for the in san_pham_noi_bat
@@ -309,9 +505,11 @@ def home(request):
 
     # 8. Ưu tiên sản phẩm cùng danh mục với sản phẩm vừa xem
     cac_san_pham_goi_y = danh_sach_the.copy()
+
     ly_do_goi_y = "Khám phá sản phẩm dành cho bạn"
 
     if lich_su_xem:
+
         san_pham_vua_xem = next(
             (
                 the for the in danh_sach_the
@@ -322,6 +520,7 @@ def home(request):
         )
 
         if san_pham_vua_xem:
+
             ma_danh_muc = (
                 san_pham_vua_xem["san_pham"].danh_muc_id
             )
@@ -335,7 +534,10 @@ def home(request):
 
             if san_pham_cung_danh_muc:
                 cac_san_pham_goi_y = san_pham_cung_danh_muc
-                ly_do_goi_y = "Vì bạn quan tâm đến danh mục này"
+
+                ly_do_goi_y = (
+                    "Vì bạn quan tâm đến danh mục này"
+                )
 
     # 9. Loại sản phẩm đã xem và sản phẩm nổi bật
     cac_san_pham_goi_y = [
@@ -349,8 +551,9 @@ def home(request):
     # 10. Chọn tối đa 4 sản phẩm gợi ý
     goi_y_hom_nay = cac_san_pham_goi_y[:4]
 
-    # Nếu không đủ sản phẩm cùng danh mục, lấy sản phẩm khác bổ sung
+    # Nếu không đủ, lấy sản phẩm khác bổ sung
     if len(goi_y_hom_nay) < 4:
+
         ma_da_chon = {
             str(the["san_pham"].ma_san_pham)
             for the in goi_y_hom_nay
@@ -374,7 +577,7 @@ def home(request):
     if not lich_su_xem:
         ly_do_goi_y = "Khám phá sản phẩm dành cho bạn"
 
-    # 12. Các sản phẩm dùng để xây dựng nhóm gợi ý chủ đề
+    # 12. Các sản phẩm dùng để xây dựng nhóm gợi ý
     san_pham_chu_de = [
         the for the in danh_sach_the
         if str(the["san_pham"].ma_san_pham)
@@ -392,19 +595,22 @@ def home(request):
     # 14. Nhóm Học tập hiệu quả
     hoc_tap = [
         the for the in san_pham_chu_de
-        if the["san_pham"].danh_muc_id in ["DM001", "DM002", "DM004"]
+        if the["san_pham"].danh_muc_id
+        in ["DM001", "DM002", "DM004"]
     ][:3]
 
     # 15. Nhóm Góc làm việc
     goc_lam_viec = [
         the for the in san_pham_chu_de
-        if the["san_pham"].danh_muc_id in ["DM001", "DM003", "DM004"]
+        if the["san_pham"].danh_muc_id
+        in ["DM001", "DM003", "DM004"]
     ][:6]
 
     # 16. Nhóm Sáng tạo mỗi ngày
     sang_tao = [
         the for the in san_pham_chu_de
-        if the["san_pham"].danh_muc_id in ["DM002", "DM003", "DM004"]
+        if the["san_pham"].danh_muc_id
+        in ["DM002", "DM003", "DM004"]
     ][:5]
 
     # Thêm các nhóm chủ đề
@@ -423,7 +629,7 @@ def home(request):
         },
     ])
 
-    # 17. Gộp các nhóm thành danh sách hiển thị trên giao diện
+    # 17. Gộp các nhóm thành danh sách hiển thị
     danh_sach_goi_y = []
 
     for nhom in cac_nhom_goi_y:
@@ -434,16 +640,18 @@ def home(request):
             })
 
     # 18. Lấy danh sách sản phẩm yêu thích
-    # 18. Lấy danh sách sản phẩm yêu thích từ database
     ma_khach_hang = request.session.get("ma_khach_hang")
 
     danh_sach_yeu_thich = list(
         SanPhamYeuThich.objects.filter(
             ma_khach_hang=ma_khach_hang
-        ).values_list("san_pham_id", flat=True)
+        ).values_list(
+            "san_pham_id",
+            flat=True
+        )
     ) if ma_khach_hang else []
 
-    # 19. Trả dữ liệu về giao diện trang chủ
+    # 19. Trả dữ liệu về giao diện
     return render(request, "home.html", {
         "san_pham_noi_bat": san_pham_noi_bat,
         "goi_y_hom_nay": danh_sach_goi_y,
@@ -455,13 +663,22 @@ def home(request):
     })
 
 
+# =========================================================
+# 6. BASE
+# =========================================================
 
 def base(request):
     return render(request, "base.html")
 
 
+# =========================================================
+# 7. CHI TIẾT SẢN PHẨM
+# =========================================================
+
+
 def chi_tiet_san_pham(request, ma_san_pham):
-    # Lấy sản phẩm đang bán theo mã sản phẩm.
+
+    # Lấy sản phẩm đang bán
     san_pham = get_object_or_404(
         SanPham.objects
         .filter(trang_thai_ban="Đang bán")
@@ -469,26 +686,23 @@ def chi_tiet_san_pham(request, ma_san_pham):
         .prefetch_related("bien_the__hinh_anh"),
         ma_san_pham=ma_san_pham,
     )
-    # Lưu sản phẩm khách vừa xem vào session
-    lich_su_xem = request.session.get("lich_su_xem_san_pham", [])
 
+    # Lưu sản phẩm vừa xem vào session
+    lich_su_xem = request.session.get("lich_su_xem_san_pham", [])
     ma_san_pham = str(san_pham.ma_san_pham)
 
-    # Đưa sản phẩm vừa xem lên đầu danh sách
     lich_su_xem = [
         ma for ma in lich_su_xem
         if str(ma) != ma_san_pham
     ]
 
     lich_su_xem.insert(0, ma_san_pham)
-
-    # Chỉ lưu tối đa 10 sản phẩm gần nhất
     request.session["lich_su_xem_san_pham"] = lich_su_xem[:10]
 
-    # Lấy danh sách biến thể của sản phẩm.
+    # Lấy danh sách biến thể
     bien_the_list = list(san_pham.bien_the.all())
 
-    # Gom tất cả hình ảnh của các biến thể.
+    # Gom hình ảnh của các biến thể
     danh_sach_anh = []
 
     for bien_the in bien_the_list:
@@ -498,14 +712,13 @@ def chi_tiet_san_pham(request, ma_san_pham):
         )
 
         for hinh_anh in cac_anh:
-            # Chỉ đưa vào danh sách ảnh đã có file ảnh thực tế.
             if hinh_anh.duong_dan_anh:
                 danh_sach_anh.append({
                     "bien_the": bien_the,
                     "hinh_anh": hinh_anh,
                 })
 
-    # Ưu tiên ảnh được đánh dấu là ảnh đại diện.
+    # Ưu tiên ảnh đại diện
     anh_dai_dien = next(
         (
             item["hinh_anh"]
@@ -515,11 +728,10 @@ def chi_tiet_san_pham(request, ma_san_pham):
         None,
     )
 
-    # Nếu chưa đánh dấu ảnh đại diện, lấy ảnh đầu tiên.
     if anh_dai_dien is None and danh_sach_anh:
         anh_dai_dien = danh_sach_anh[0]["hinh_anh"]
 
-    # Xác định biến thể mặc định tương ứng với ảnh đại diện.
+    # Xác định biến thể mặc định
     bien_the_mac_dinh = next(
         (
             item["bien_the"]
@@ -529,15 +741,50 @@ def chi_tiet_san_pham(request, ma_san_pham):
         None,
     )
 
-    # Nếu chưa xác định được, lấy biến thể đầu tiên.
     if bien_the_mac_dinh is None and bien_the_list:
         bien_the_mac_dinh = bien_the_list[0]
 
-    # Tính giá thấp nhất trong các biến thể.
-    cac_gia = [bien_the.gia_ban for bien_the in bien_the_list]
+    # Tính giá thấp nhất của các biến thể
+    cac_gia = [
+        bt.gia_ban
+        for bt in bien_the_list
+        if bt.gia_ban is not None
+    ]
+
     gia_thap_nhat = min(cac_gia) if cac_gia else None
 
-    # Lấy sản phẩm cùng danh mục, loại sản phẩm đang xem.
+    # Lấy thông tin khuyến mãi từ database default
+    ngay_hien_tai = timezone.localdate()
+
+    chi_tiet_km = (
+        ChiTietKhuyenMai.objects.using("default")
+        .filter(
+            MaSanPham=str(san_pham.ma_san_pham),
+            TrangThai=True,
+            MaKhuyenMai__NgayBatDau__lte=ngay_hien_tai,
+            MaKhuyenMai__NgayKetThuc__gte=ngay_hien_tai,
+        )
+        .order_by("-MaKhuyenMai__NgayBatDau")
+        .first()
+    )
+
+    # Kiểm tra khuyến mãi có giá trị hợp lệ
+    co_khuyen_mai = (
+        chi_tiet_km is not None
+        and chi_tiet_km.GiaKhuyenMai is not None
+    )
+
+    phan_tram_giam = (
+        chi_tiet_km.PhanTramGiam
+        if co_khuyen_mai else None
+    )
+
+    gia_khuyen_mai_co_dinh = (
+        chi_tiet_km.GiaKhuyenMai
+        if co_khuyen_mai else None
+    )
+
+    # Lấy sản phẩm cùng danh mục
     san_pham_cung_danh_muc = list(
         SanPham.objects
         .filter(
@@ -552,7 +799,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
 
     san_pham_goi_y = san_pham_cung_danh_muc
 
-    # Nếu chưa đủ 4 sản phẩm, bổ sung từ danh mục khác.
+    # Nếu chưa đủ 4 sản phẩm, bổ sung từ danh mục khác
     if len(san_pham_goi_y) < 4:
         ma_da_co = [
             sp.ma_san_pham for sp in san_pham_goi_y
@@ -570,7 +817,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
 
         san_pham_goi_y.extend(san_pham_bo_sung)
 
-    # Chuẩn bị ảnh đại diện và giá thấp nhất.
+    # Chuẩn bị ảnh và giá cho sản phẩm gợi ý
     danh_sach_goi_y = []
 
     for sp in san_pham_goi_y:
@@ -588,7 +835,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
             cac_anh[0] if cac_anh else None,
         )
 
-        cac_gia = [
+        cac_gia_goi_y = [
             bt.gia_ban
             for bt in cac_bien_the
             if bt.gia_ban is not None
@@ -597,7 +844,10 @@ def chi_tiet_san_pham(request, ma_san_pham):
         danh_sach_goi_y.append({
             "san_pham": sp,
             "anh_dai_dien": anh_sp,
-            "gia_thap_nhat": min(cac_gia) if cac_gia else None,
+            "gia_thap_nhat": (
+                min(cac_gia_goi_y)
+                if cac_gia_goi_y else None
+            ),
         })
 
     # Lấy mã khách hàng đang đăng nhập
@@ -606,24 +856,21 @@ def chi_tiet_san_pham(request, ma_san_pham):
     # Xử lý khi khách gửi đánh giá
     if request.method == "POST":
 
-        # Kiểm tra khách hàng đã đăng nhập chưa
         if not ma_khach_hang:
             messages.warning(
                 request,
                 "Vui lòng đăng nhập tài khoản khách hàng để đánh giá sản phẩm."
             )
-            return redirect(
-                "KHACHHANG:dang_nhap"
-            )
+            return redirect("KHACHHANG:dang_nhap")
 
-        # Lấy mã các biến thể thuộc sản phẩm đang xem
+        # Lấy mã biến thể thuộc sản phẩm
         ma_cac_bien_the = list(
             BienTheSanPham.objects.using("sanpham")
             .filter(san_pham=san_pham)
             .values_list("ma_bien_the", flat=True)
         )
 
-        # Kiểm tra khách hàng đã mua và nhận sản phẩm chưa
+        # Kiểm tra khách đã mua và nhận sản phẩm chưa
         da_mua = ChiTietDonHang.objects.using("default").filter(
             ma_don_hang__ma_khach_hang=ma_khach_hang,
             ma_don_hang__trang_thai_don="da_giao",
@@ -641,7 +888,6 @@ def chi_tiet_san_pham(request, ma_san_pham):
                 ma_san_pham=ma_san_pham
             )
 
-        # Kiểm tra nội dung đánh giá
         form = DanhGiaSanPhamForm(request.POST)
 
         if form.is_valid():
@@ -654,6 +900,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
                 request,
                 "Đánh giá của bạn đã được gửi thành công!"
             )
+
             return redirect(
                 "sanpham:chi_tiet_san_pham",
                 ma_san_pham=ma_san_pham
@@ -662,7 +909,7 @@ def chi_tiet_san_pham(request, ma_san_pham):
     else:
         form = DanhGiaSanPhamForm()
 
-    # Lấy danh sách đánh giá công khai của sản phẩm
+    # Lấy đánh giá công khai
     danh_sach_danh_gia = san_pham.danh_gia.all()
 
     # Tính tổng lượt đánh giá và điểm trung bình
@@ -716,6 +963,8 @@ def chi_tiet_san_pham(request, ma_san_pham):
             dg.ma_khach_hang,
             "Khách hàng NOSCO"
         )
+
+    # Trả dữ liệu sang template
     return render(
         request,
         "SANPHAM/chi_tiet_san_pham.html",
@@ -726,6 +975,9 @@ def chi_tiet_san_pham(request, ma_san_pham):
             "anh_dai_dien": anh_dai_dien,
             "bien_the_mac_dinh": bien_the_mac_dinh,
             "gia_thap_nhat": gia_thap_nhat,
+            "co_khuyen_mai": co_khuyen_mai,
+            "phan_tram_giam": phan_tram_giam,
+            "gia_khuyen_mai_co_dinh": gia_khuyen_mai_co_dinh,
             "danh_sach_goi_y": danh_sach_goi_y,
             "danh_sach_danh_gia": danh_sach_danh_gia,
             "tong_luot_danh_gia": tong_luot_danh_gia,
@@ -736,13 +988,33 @@ def chi_tiet_san_pham(request, ma_san_pham):
         },
     )
 
-def danh_sach_thuong_hieu(request):
-    thuong_hieus = ThuongHieu.objects.all().order_by("ten_thuong_hieu")
 
-    return render(request, "SANPHAM/danh_sach_thuong_hieu.html", {
-        "thuong_hieus": thuong_hieus,
-    })
+
+# =========================================================
+# 8. DANH SÁCH THƯƠNG HIỆU
+# =========================================================
+
+def danh_sach_thuong_hieu(request):
+
+    thuong_hieus = ThuongHieu.objects.all().order_by(
+        "ten_thuong_hieu"
+    )
+
+    return render(
+        request,
+        "SANPHAM/danh_sach_thuong_hieu.html",
+        {
+            "thuong_hieus": thuong_hieus,
+        }
+    )
+
+
+# =========================================================
+# 9. DANH SÁCH BÀI VIẾT
+# =========================================================
+
 def danh_sach_bai_viet(request):
+
     bai_viets = BaiViet.objects.filter(
         trang_thai="Đã đăng"
     ).order_by("-ngay_dang")
@@ -756,24 +1028,35 @@ def danh_sach_bai_viet(request):
     )
 
 
+# =========================================================
+# 10. GIỚI THIỆU
+# =========================================================
 
 def ve_chung_toi(request):
     return render(request, "ve_chung_toi.html")
 
-from django.db.models import Prefetch
-from .models import SanPham, BienTheSanPham, HinhAnhSanPham
 
+# =========================================================
+# 11. SẢN PHẨM YÊU THÍCH
+# =========================================================
 
 @khach_hang_required
 def san_pham_yeu_thich(request):
-    # Lấy mã khách hàng đang đăng nhập
+
+    # Lấy mã khách hàng
     ma_khach_hang = request.session.get("ma_khach_hang")
 
-    # Lấy danh sách mã sản phẩm yêu thích từ database
-    danh_sach_yeu_thich = SanPhamYeuThich.objects.filter(
-        ma_khach_hang=ma_khach_hang
-    ).values_list("san_pham_id", flat=True)
+    # Lấy danh sách mã sản phẩm yêu thích
+    danh_sach_yeu_thich = list(
+        SanPhamYeuThich.objects.filter(
+            ma_khach_hang=ma_khach_hang
+        ).values_list(
+            "san_pham_id",
+            flat=True
+        )
+    )
 
+    # Lấy sản phẩm yêu thích đang bán
     san_pham_queryset = (
         SanPham.objects
         .filter(
@@ -784,11 +1067,20 @@ def san_pham_yeu_thich(request):
         .prefetch_related("bien_the__hinh_anh")
     )
 
+    cac_san_pham = list(san_pham_queryset)
+
+    # Lấy khuyến mãi đang áp dụng
+    khuyen_mai_theo_sp = lay_khuyen_mai_theo_san_pham(
+        [sp.ma_san_pham for sp in cac_san_pham]
+    )
+
     danh_sach_san_pham = []
 
-    for san_pham in san_pham_queryset:
+    for san_pham in cac_san_pham:
+
         cac_bien_the = list(san_pham.bien_the.all())
 
+        # Lấy ảnh đại diện
         cac_anh = [
             anh
             for bien_the in cac_bien_the
@@ -801,6 +1093,7 @@ def san_pham_yeu_thich(request):
             cac_anh[0] if cac_anh else None,
         )
 
+        # Tính giá thấp nhất
         cac_gia = [
             bien_the.gia_ban
             for bien_the in cac_bien_the
@@ -809,29 +1102,37 @@ def san_pham_yeu_thich(request):
 
         gia_thap_nhat = min(cac_gia) if cac_gia else None
 
-        danh_sach_san_pham.append({
-            "san_pham": san_pham,
-            "anh_dai_dien": anh_dai_dien,
-            "gia_hien_thi": dinh_dang_gia(gia_thap_nhat),
-            "con_hang": any(
-                bien_the.so_luong_ton > 0
-                for bien_the in cac_bien_the
-            ),
-        })
+        # Chuẩn bị thông tin giá và khuyến mãi
+        thong_tin_gia = tao_thong_tin_gia(
+            san_pham,
+            gia_thap_nhat,
+            khuyen_mai_theo_sp
+        )
 
-    return render(request, "SANPHAM/san_pham_yeu_thich.html", {
-        "danh_sach_san_pham": danh_sach_san_pham,
-        "so_luong_yeu_thich": len(danh_sach_san_pham),
-    })
-from django.shortcuts import redirect
-from django.views.decorators.http import require_POST
-from django.utils.http import url_has_allowed_host_and_scheme
+        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
 
-from django.http import JsonResponse
+        danh_sach_san_pham.append(thong_tin_gia)
+
+    return render(
+        request,
+        "SANPHAM/san_pham_yeu_thich.html",
+        {
+            "danh_sach_san_pham": danh_sach_san_pham,
+            "so_luong_yeu_thich": len(danh_sach_san_pham),
+        }
+    )
+
+
+# =========================================================
+# 12. BẬT / TẮT SẢN PHẨM YÊU THÍCH
+# =========================================================
+
 @khach_hang_required
 @require_POST
 def toggle_favorite(request):
+
     ma_san_pham = request.POST.get("ma_san_pham")
+
     ma_khach_hang = request.session.get("ma_khach_hang")
 
     san_pham = get_object_or_404(
@@ -846,16 +1147,21 @@ def toggle_favorite(request):
     )
 
     if yeu_thich.exists():
+
         yeu_thich.delete()
         da_yeu_thich = False
+
     else:
+
         SanPhamYeuThich.objects.create(
             ma_khach_hang=ma_khach_hang,
             san_pham=san_pham
         )
+
         da_yeu_thich = True
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+
         return JsonResponse({
             "success": True,
             "da_yeu_thich": da_yeu_thich,
@@ -871,3 +1177,31 @@ def toggle_favorite(request):
         next_url = "/"
 
     return redirect(next_url)
+
+
+# =========================================================
+# 13. TRANG HỖ TRỢ
+# =========================================================
+
+def trang_ho_tro(request, slug):
+
+    cac_trang = {
+        "huong-dan-dat-hang": "Hướng dẫn đặt hàng",
+        "chinh-sach-giao-hang": "Chính sách giao hàng",
+        "phuong-thuc-thanh-toan": "Phương thức thanh toán",
+        "chinh-sach-bao-mat": "Chính sách bảo mật",
+    }
+
+    tieu_de = cac_trang.get(slug)
+
+    if tieu_de is None:
+        from django.http import Http404
+        raise Http404
+
+    return render(
+        request,
+        "SANPHAM/trang_ho_tro.html",
+        {
+            "tieu_de": tieu_de,
+        }
+    )

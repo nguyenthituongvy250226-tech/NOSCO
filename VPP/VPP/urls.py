@@ -33,13 +33,10 @@ urlpatterns = [
     path("home", views.home, name="home"),
 
     path("bai-viet/", views.danh_sach_bai_viet, name="danh_sach_bai_viet"),
+    path("ho-tro/<slug:slug>/", views.trang_ho_tro, name="trang_ho_tro"),
     path("ve-chung-toi/", views.ve_chung_toi, name="ve_chung_toi"),
 
-path(
-    "tai-khoan/",
-    thong_tin_tai_khoan,
-    name="thong_tin_tai_khoan"
-),
+    path("tai-khoan/", thong_tin_tai_khoan, name="thong_tin_tai_khoan"),
 path("khach-hang/", include("KHACHHANG.urls")),
     path("don-hang/", include("DONHANG.urls_donhang")),
 

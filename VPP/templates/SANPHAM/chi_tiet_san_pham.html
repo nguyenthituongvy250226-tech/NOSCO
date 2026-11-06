@@ -94,17 +94,48 @@
                 </div>
 
                 <!-- GIÁ BÁN -->
-                <div class="product-detail-price-box">
-                    <span class="product-detail-price-label">Giá bán</span>
+<div class="product-detail-price-box">
+    <span class="product-detail-price-label">Giá bán</span>
 
-                    <div class="product-detail-price" id="selectedVariantPrice">
-                        {% if gia_thap_nhat != None %}
-                            {{ gia_thap_nhat|floatformat:0 }} đ
-                        {% else %}
-                            Chưa có giá
-                        {% endif %}
-                    </div>
-                </div>
+    <div class="product-detail-price" id="selectedVariantPrice">
+
+        {% if co_khuyen_mai %}
+            <span class="promotion-badge" id="detailPromotionBadge">
+                {% if phan_tram_giam %}
+                    -{{ phan_tram_giam|floatformat:0 }}%
+                {% else %}
+                    Khuyến mãi
+                {% endif %}
+            </span>
+
+            <del id="detailOriginalPrice">
+                {% if bien_the_mac_dinh and bien_the_mac_dinh.gia_ban != None %}
+                    {{ bien_the_mac_dinh.gia_ban|floatformat:0 }} đ
+                {% elif gia_thap_nhat != None %}
+                    {{ gia_thap_nhat|floatformat:0 }} đ
+                {% else %}
+                    Đang cập nhật
+                {% endif %}
+            </del>
+
+            <strong id="detailPromotionPrice">
+                {{ gia_khuyen_mai_co_dinh|floatformat:0 }} đ
+            </strong>
+
+        {% else %}
+            <span id="detailNormalPrice">
+                {% if bien_the_mac_dinh and bien_the_mac_dinh.gia_ban != None %}
+                    {{ bien_the_mac_dinh.gia_ban|floatformat:0 }} đ
+                {% elif gia_thap_nhat != None %}
+                    {{ gia_thap_nhat|floatformat:0 }} đ
+                {% else %}
+                    Đang cập nhật
+                {% endif %}
+            </span>
+        {% endif %}
+
+    </div>
+</div>
 
                 <!-- TỒN KHO -->
                 <div class="product-detail-stock">
@@ -139,9 +170,12 @@
         type="radio"
         name="bien_the"
         value="{{ bien_the.ma_bien_the }}"
-        data-price="{{ bien_the.gia_ban }}"
+        data-price="{{ bien_the.gia_ban|default_if_none:'' }}"
         data-stock="{{ bien_the.so_luong_ton }}"
-        {% if bien_the == bien_the_mac_dinh %}checked{% endif %}
+        data-has-promotion="{{ co_khuyen_mai|yesno:'true,false' }}"
+data-promotion-price="{{ gia_khuyen_mai_co_dinh|default_if_none:'' }}"
+data-promotion-percent="{{ phan_tram_giam|default_if_none:'' }}"
+        {% if bien_the == bien_the_mac_dinh or not bien_the_mac_dinh and forloop.first %}checked{% endif %}
     >
 
 
@@ -633,9 +667,53 @@ document.addEventListener("DOMContentLoaded", function () {
         const price = Number(selectedVariant.dataset.price);
         const stock = Number(selectedVariant.dataset.stock);
 
-        if (priceElement && Number.isFinite(price)) {
-            priceElement.textContent = price.toLocaleString("vi-VN") + " đ";
+ // Cập nhật giá bán hoặc giá khuyến mãi.
+if (priceElement) {
+    const rawPrice = selectedVariant.dataset.price;
+    const price = rawPrice.trim() !== ""
+        ? Number(rawPrice)
+        : NaN;
+
+    const hasPromotion =
+        selectedVariant.dataset.hasPromotion === "true";
+
+    const rawPromotionPrice =
+        selectedVariant.dataset.promotionPrice;
+
+    const promotionPrice = rawPromotionPrice.trim() !== ""
+        ? Number(rawPromotionPrice)
+        : NaN;
+
+    const formatPrice = function (value) {
+        return Math.round(value).toLocaleString("vi-VN") + " đ";
+    };
+
+    const normalPriceElement =
+        document.getElementById("detailNormalPrice");
+
+    const originalPriceElement =
+        document.getElementById("detailOriginalPrice");
+
+    const discountedPriceElement =
+        document.getElementById("detailPromotionPrice");
+
+    if (hasPromotion && Number.isFinite(promotionPrice)) {
+        if (originalPriceElement && Number.isFinite(price)) {
+            originalPriceElement.textContent = formatPrice(price);
         }
+
+        if (discountedPriceElement) {
+            discountedPriceElement.textContent =
+                formatPrice(promotionPrice);
+        }
+    } else {
+        // Không có khuyến mãi: giữ giá Django đã hiển thị
+        // nếu JavaScript không đọc được giá biến thể.
+        if (normalPriceElement && Number.isFinite(price)) {
+            normalPriceElement.textContent = formatPrice(price);
+        }
+    }
+}
 
         if (stockElement) {
             stockElement.classList.remove("in-stock", "out-of-stock");
@@ -737,6 +815,7 @@ if (quantityInput) {
         });
     });
 });
+
 </script>
 
 <script>

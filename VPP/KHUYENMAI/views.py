@@ -83,6 +83,8 @@ def danh_sach_khuyen_mai(request):
     })
 
 
+
+
 # TRANG CHI TIẾT KHUYẾN MÃI
 def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
     khuyen_mai = get_object_or_404(
@@ -95,38 +97,27 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
         TrangThai=True
     )
 
+    # Lấy mã sản phẩm trong chương trình khuyến mãi
     ma_san_pham = [
         item.MaSanPham for item in chi_tiet
     ]
 
-    # Lấy sản phẩm từ database SANPHAM
-    danh_sach_sp = SanPham.objects.using("sanpham").filter(
-        ma_san_pham__in=ma_san_pham,
-        trang_thai_ban="Đang bán"
-    ).prefetch_related("bien_the")
+    # Truy vấn sản phẩm từ database SANPHAM
+    danh_sach_sp = (
+        SanPham.objects.using("sanpham")
+        .filter(
+            ma_san_pham__in=ma_san_pham,
+            trang_thai_ban="Đang bán"
+        )
+        .select_related("thuong_hieu")
+        .prefetch_related("bien_the__hinh_anh")
+    )
 
     san_pham_dict = {
         sp.ma_san_pham: sp for sp in danh_sach_sp
     }
 
     danh_sach_hien_thi = []
-    anh_san_pham = {
-        "SP001": "butviet.png",
-        "SP005": "product-pastel-pens.jpg",
-        "SP002": "product-pencils.jpg",
-        "SP0017": "product-pastel-pens1.jpg",
-        "SP0014": "about-products.jpg",
-        "SP004": "dungcuhoctap.png",
-        "SP0016": "about-products.jpg",
-        "SP0029": "tips_chon_but.jpg",
-        "SP006": "product-pastel-pens1.jpg",
-        "SP0012": "dungcuhoctap.png",
-        "SP0010": "product-sticky-notes.jpg",
-        "SP0021": "giayghichu.png",
-        "SP0027": "dungcuhoctap.png",
-        "SP0028": "product-notebook.jpg",
-        "SP0025": "product-notebook1.jpg",
-    }
 
     for item in chi_tiet:
         sp = san_pham_dict.get(item.MaSanPham)
@@ -134,23 +125,68 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
         if not sp:
             continue
 
+        # Lấy giá bán thấp nhất trong các biến thể
         bien_the = list(sp.bien_the.all())
 
-        if not bien_the:
-            continue
+        gia_goc = min(
+            (bt.gia_ban for bt in bien_the),
+            default=None
+        )
+
+        # Tính giá khuyến mãi
+        if item.GiaKhuyenMai is not None:
+            gia_khuyen_mai = item.GiaKhuyenMai
+        elif gia_goc is not None and item.PhanTramGiam is not None:
+            gia_khuyen_mai = gia_goc * (
+                1 - item.PhanTramGiam / 100
+            )
+        else:
+            gia_khuyen_mai = None
+
+        # Lấy ảnh đại diện
+        ds_anh = [
+            anh
+            for bt in bien_the
+            for anh in bt.hinh_anh.all()
+            if anh.duong_dan_anh
+        ]
+
+        anh_dai_dien = next(
+            (anh for anh in ds_anh if anh.anh_dai_dien),
+            ds_anh[0] if ds_anh else None
+        )
+
+        hinh_anh = (
+            anh_dai_dien.duong_dan_anh.url
+            if anh_dai_dien else ""
+        )
 
         danh_sach_hien_thi.append({
             "ma_san_pham": sp.ma_san_pham,
             "ten_san_pham": sp.ten_san_pham,
-            "gia_goc": bien_the[0].gia_ban,
-            "gia_khuyen_mai": item.GiaKhuyenMai,
-            "gia_goc_hien_thi": f"{bien_the[0].gia_ban:,.0f}".replace(",", "."),
-            "gia_khuyen_mai_hien_thi": f"{item.GiaKhuyenMai:,.0f}".replace(",", "."),
+            "thuong_hieu": sp.thuong_hieu.ten_thuong_hieu,
+            "so_luong_da_ban": getattr(
+                sp, "so_luong_da_ban", 0
+            ),
+            "gia_goc_hien_thi": (
+                f"{gia_goc:,.0f}".replace(",", ".")
+                if gia_goc is not None else None
+            ),
+            "gia_khuyen_mai_hien_thi": (
+                f"{gia_khuyen_mai:,.0f}".replace(",", ".")
+                if gia_khuyen_mai is not None else None
+            ),
             "phan_tram_giam": item.PhanTramGiam,
-            "hinh_anh": anh_san_pham.get(sp.ma_san_pham, "about-products.jpg"),
+            "hinh_anh": hinh_anh,
         })
 
-    return render(request, "chi_tiet_khuyen_mai.html", {
-        "khuyen_mai": khuyen_mai,
-        "danh_sach_san_pham": danh_sach_hien_thi,
-    })
+    return render(
+        request,
+        "chi_tiet_khuyen_mai.html",
+        {
+            "khuyen_mai": khuyen_mai,
+            "danh_sach_san_pham": danh_sach_hien_thi,
+        }
+    )
+
+

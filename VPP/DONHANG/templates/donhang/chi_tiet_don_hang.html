@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Chi tiết đơn {{ don_hang.ma_don_hang }}{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=6">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=7">{% endblock %}
 {% block content %}
 <main class="order-page">
   <div class="order-breadcrumb"><a href="{% url 'DONHANG:danh_sach' %}">Đơn hàng của tôi</a> / Chi tiết đơn hàng</div>
   {% if messages %}{% for message in messages %}<p class="order-alert" role="status">{{ message }}</p>{% endfor %}{% endif %}
   <header class="order-heading">
     <div><h1>Chi tiết đơn hàng</h1><p class="order-subtitle">Mã đơn: <strong>{{ don_hang.ma_don_hang }}</strong> · Đặt lúc {{ don_hang.ngay_dat|date:"d/m/Y, H:i" }}</p></div>
-    <span class="order-status-pill {% if don_hang.trang_thai_don == 'da_giao' %}is-delivered{% elif don_hang.trang_thai_don == 'da_huy' %}is-cancelled{% endif %}">● {% if don_hang.trang_thai_don == 'cho_xac_nhan_nhan' %}Chờ giao hàng{% else %}{{ don_hang.get_trang_thai_don_display }}{% endif %}</span>
+    {% if yeu_cau_tra %}<a class="order-status-pill is-returning" href="#return-request-details">● {{ trang_thai_hien_thi }}</a>{% else %}<span class="order-status-pill {% if don_hang.trang_thai_don == 'da_giao' and don_hang.khach_da_xac_nhan_nhan or trang_thai_hien_thi == 'Đã giao' %}is-delivered{% elif don_hang.trang_thai_don == 'da_huy' %}is-cancelled{% endif %}">● {{ trang_thai_hien_thi }}</span>{% endif %}
   </header>
 
   <section class="order-card order-progress-card">
@@ -21,12 +21,12 @@
         {% for buoc in cac_buoc %}<div class="order-step {% if buoc.hoan_tat %}is-done{% elif buoc.hien_tai %}is-current{% endif %}"><span class="order-step-dot">{% if buoc.hoan_tat %}✓{% else %}{{ forloop.counter }}{% endif %}</span><span>{{ buoc.ten }}</span></div>{% endfor %}
       </div>
       {% if giao_hang and giao_hang.trang_thai == "dang_giao" %}<div class="order-banner"><strong>🚚 Đơn hàng đang được vận chuyển</strong>{{ giao_hang.don_vi_van_chuyen|default:"Đơn vị vận chuyển đang cập nhật" }}{% if giao_hang.ma_van_don %} · Mã vận đơn: <b>{{ giao_hang.ma_van_don }}</b>{% endif %}</div>{% endif %}
-      {% if dang_cho_khach_chon %}
-        <div class="order-banner is-success"><strong>✓ Giao hàng thành công</strong>Bạn có 24 giờ kể từ {{ giao_hang.ngay_giao_thanh_cong|date:"H:i d/m/Y" }} để chọn trả hàng hoặc xác nhận đã nhận. Nếu không chọn trong thời hạn này, đơn sẽ tự hoàn tất.</div>
+      {% if trong_thoi_han_tra_hang %}
+        {% if yeu_cau_tra %}<div class="order-banner {% if yeu_cau_tra.trang_thai_tra == 'tu_choi' %}is-error{% else %}is-return-processing{% endif %}"><strong>{% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}Yêu cầu trả hàng không được duyệt{% elif yeu_cau_tra.trang_thai_tra == "hoan_tat" %}Yêu cầu trả hàng đã hoàn tất{% else %}Yêu cầu trả hàng của bạn đang được xử lý{% endif %}</strong>Trạng thái: {{ yeu_cau_tra.get_trang_thai_tra_display }}.</div>{% else %}<div class="order-banner is-success"><strong>✓ Giao hàng thành công</strong>Bạn có thể yêu cầu trả hàng hoặc xác nhận đã nhận đến {{ han_tra_hang|date:"H:i d/m/Y" }} (trong vòng 24 giờ kể từ lúc giao thành công). Hết thời hạn này, đơn tự chuyển sang Đã giao và không thể yêu cầu trả hàng.</div>{% endif %}
+      {% elif yeu_cau_tra %}
+        <div class="order-banner {% if yeu_cau_tra.trang_thai_tra == 'tu_choi' %}is-error{% else %}is-return-processing{% endif %}"><strong>{% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}Yêu cầu trả hàng không được duyệt{% elif yeu_cau_tra.trang_thai_tra == "hoan_tat" %}Yêu cầu trả hàng đã hoàn tất{% else %}Yêu cầu trả hàng của bạn đang được xử lý{% endif %}</strong>Trạng thái: {{ yeu_cau_tra.get_trang_thai_tra_display }}.</div>
       {% elif don_hang.trang_thai_don == "da_giao" %}
         <div class="order-banner is-success"><strong>✓ Đơn hàng đã được giao thành công</strong>Cảm ơn bạn đã mua sắm tại NOSCO.</div>
-      {% elif giao_hang_thanh_cong %}
-        <div class="order-banner is-success"><strong>✓ Giao hàng thành công</strong>Yêu cầu trả hàng của bạn đang được xử lý.</div>
       {% endif %}
     {% endif %}
   </section>
@@ -45,10 +45,13 @@
       </section>
 
       {% if yeu_cau_tra %}
-        <section class="order-card order-section-card">
+        <section class="order-card order-section-card" id="return-request-details">
           <h2 class="order-card-title">Yêu cầu trả hàng / hoàn tiền</h2>
           {% include "donhang/_tien_do_tra_hang.html" %}
-          <div class="order-actions"><a class="order-btn order-btn-primary" href="{% url 'DONHANG:theo_doi_yeu_cau_tra' don_hang.ma_don_hang %}">Xem chi tiết yêu cầu</a></div>
+          <div class="order-actions">          <a class="order-btn order-btn-primary" href="{% url 'DONHANG:theo_doi_yeu_cau_tra' don_hang.ma_don_hang %}">Xem chi tiết yêu cầu</a>
+          {% if dang_la_nhan_vien and yeu_cau_tra.trang_thai_tra == "cho_xu_ly" %}
+            <a class="order-btn" href="{% url 'DONHANG:nhan_vien_xu_ly_tra_hang' yeu_cau_tra.ma_yeu_cau_tra %}">Xử lý yêu cầu trả hàng</a>
+          {% endif %}</div>
         </section>
       {% endif %}
     </div>
@@ -61,17 +64,17 @@
         <div class="order-summary-row"><span>Giảm giá</span><span>-{{ don_hang.so_tien_giam|floatformat:0 }} đ</span></div>
         <div class="order-summary-row order-summary-total"><span>Tổng thanh toán</span><strong>{{ don_hang.tong_tien|floatformat:0 }} đ</strong></div>
       </section>
-      <section class="order-card order-section-card">
+      <section class="order-card order-section-card" id="order-shipping">
         <h2 class="order-card-title">Thông tin giao hàng</h2>
         <div class="order-info-label">ĐƠN VỊ VẬN CHUYỂN</div><div class="order-info-value">{% if giao_hang %}{{ giao_hang.don_vi_van_chuyen|default:"Chưa phân công" }}{% else %}Chưa phân công{% endif %}</div>
         <div class="order-info-label" style="margin-top:12px">MÃ VẬN ĐƠN</div><div class="order-info-value">{% if giao_hang %}{{ giao_hang.ma_van_don|default:"Chưa có" }}{% else %}Chưa có{% endif %}</div>
         {% if giao_hang and giao_hang.ngay_giao_thanh_cong %}<div class="order-info-label" style="margin-top:12px">GIAO THÀNH CÔNG</div><div class="order-info-value">{{ giao_hang.ngay_giao_thanh_cong|date:"d/m/Y, H:i" }}</div>{% endif %}
-        {% if user.is_staff and don_hang.trang_thai_don == "cho_xac_nhan" %}
+        {% if dang_la_nhan_vien and don_hang.trang_thai_don == "cho_xac_nhan" %}
           <form class="staff-order-form" method="post" action="{% url 'DONHANG:nhan_vien_xu_ly_don' don_hang.ma_don_hang %}">{% csrf_token %}
             <button class="order-btn order-btn-primary" name="hanh_dong" value="xac_nhan">Xác nhận đơn</button>
             <button class="order-btn order-btn-danger" name="hanh_dong" value="het_hang">Hết hàng — hủy đơn</button>
           </form>
-        {% elif user.is_staff and don_hang.trang_thai_don == "cho_lay_hang" or user.is_staff and don_hang.trang_thai_don == "cho_giao_hang" and not giao_hang_thanh_cong %}
+        {% elif dang_la_nhan_vien and don_hang.trang_thai_don == "cho_lay_hang" or dang_la_nhan_vien and don_hang.trang_thai_don == "cho_giao_hang" and not giao_hang_thanh_cong %}
           <form class="staff-order-form" method="post" action="{% url 'DONHANG:nhan_vien_cap_nhat_giao_hang' don_hang.ma_don_hang %}">{% csrf_token %}
             <input name="don_vi_van_chuyen" placeholder="Đơn vị vận chuyển" value="{{ giao_hang.don_vi_van_chuyen }}">
             <input name="ma_van_don" placeholder="Mã vận đơn" value="{{ giao_hang.ma_van_don }}">
@@ -82,35 +85,21 @@
             <input name="ly_do_that_bai" placeholder="Lý do nếu giao thất bại">
             <button class="order-btn order-btn-primary" type="submit">Cập nhật giao hàng</button>
           </form>
-        {% elif user.is_staff and giao_hang_thanh_cong %}
+        {% elif dang_la_nhan_vien and giao_hang_thanh_cong %}
           <p class="order-info-value" style="margin-top:14px">Nhà vận chuyển đã báo giao thành công. Trạng thái đơn tổng vẫn là Chờ giao hàng cho đến khi khách xác nhận hoặc hết 24 giờ.</p>
         {% endif %}
       </section>
-      {% if not user.is_staff %}<section class="order-card order-section-card"><h2 class="order-card-title">Bạn cần hỗ trợ?</h2>
-        {% if don_hang.trang_thai_don == "cho_xac_nhan" %}<div class="order-actions"><a class="order-btn" href="{% url 'DONHANG:sua' don_hang.ma_don_hang %}">Chỉnh sửa đơn</a><form method="post" action="{% url 'DONHANG:huy' don_hang.ma_don_hang %}">{% csrf_token %}<button class="order-btn order-btn-danger" type="submit" onclick="return confirm('Bạn muốn hủy đơn hàng này?')">Hủy đơn</button></form></div>
+      {% if not dang_la_nhan_vien %}<section class="order-card order-section-card"><h2 class="order-card-title">Bạn cần hỗ trợ?</h2>
+        {% if khach_co_the_sua_don or khach_co_the_huy_don or don_hang.trang_thai_don == "cho_lay_hang" %}<div class="order-actions">
+          {% if khach_co_the_sua_don %}<a class="order-btn" href="{% url 'DONHANG:sua' don_hang.ma_don_hang %}">Chỉnh sửa đơn hàng</a>{% endif %}
+          {% if khach_co_the_huy_don %}<form method="post" action="{% url 'DONHANG:huy' don_hang.ma_don_hang %}">{% csrf_token %}<button class="order-btn order-btn-danger" type="submit" onclick="return confirm('Bạn muốn hủy đơn hàng này?')">Hủy đơn hàng</button></form>{% endif %}
+          {% if don_hang.trang_thai_don == "cho_lay_hang" %}<a class="order-btn order-btn-primary" href="#order-shipping">Theo dõi đơn hàng</a>{% endif %}
+        </div>
         {% elif don_hang.trang_thai_don == "cho_xac_nhan_nhan" or don_hang.trang_thai_don == "cho_giao_hang" or don_hang.trang_thai_don == "da_giao" %}
-          {% if don_hang.khach_da_xac_nhan_nhan %}<p class="order-info-value">Bạn đã xác nhận nhận hàng.</p>{% elif giao_hang_thanh_cong and co_the_tra_hang %}<p class="order-info-value">Các lựa chọn trả hàng và xác nhận nhận hàng nằm cuối trang chi tiết.</p>{% elif don_hang.trang_thai_don == "da_giao" %}<p class="order-info-value">Thời hạn lựa chọn trả hàng đã kết thúc.</p>{% else %}<p class="order-info-value">Theo dõi thông tin vận chuyển tại đây.</p>{% endif %}
+          {% if don_hang.khach_da_xac_nhan_nhan %}<p class="order-info-value">Bạn đã xác nhận nhận hàng.</p>{% elif giao_hang_thanh_cong and co_the_tra_hang %}<p class="order-info-value">Giao hàng thành công lúc {{ giao_hang.ngay_giao_thanh_cong|date:"H:i, d/m/Y" }}. Bạn có đến {{ han_tra_hang|date:"H:i, d/m/Y" }} để chọn trả hàng hoặc xác nhận đã nhận.</p><div class="order-actions"><a class="order-btn order-btn-primary" href="{% url 'DONHANG:huong_dan_tra_hang' don_hang.ma_don_hang %}">Trả hàng</a><form method="post" action="{% url 'DONHANG:xac_nhan_da_nhan' don_hang.ma_don_hang %}">{% csrf_token %}<button class="order-btn" type="submit" onclick="return confirm('Xác nhận bạn đã nhận hàng? Thao tác này kết thúc thời hạn yêu cầu trả hàng.')">Đã nhận</button></form></div>{% elif don_hang.trang_thai_don == "da_giao" %}<p class="order-info-value">Thời hạn lựa chọn trả hàng đã kết thúc.</p>{% else %}<p class="order-info-value">Theo dõi thông tin vận chuyển tại đây.</p>{% endif %}
         {% else %}<p class="order-info-value">Theo dõi trạng thái và liên hệ bộ phận hỗ trợ nếu cần.</p>{% endif %}
       </section>{% endif %}
     </aside>
   </div>
-  {% if not user.is_staff and giao_hang_thanh_cong %}
-    <section class="order-card order-section-card order-return-choice">
-      <h2 class="order-card-title">Xác nhận sau khi giao hàng</h2>
-      {% if yeu_cau_tra %}
-        <p class="order-info-value">Yêu cầu trả hàng đã được gửi. Trạng thái: <strong>{{ yeu_cau_tra.get_trang_thai_tra_display }}</strong>.</p>
-      {% elif don_hang.khach_da_xac_nhan_nhan %}
-        <p class="order-info-value">Bạn đã xác nhận đã nhận hàng.</p>
-      {% elif co_the_tra_hang %}
-        <p class="order-info-value">Giao hàng thành công lúc {{ giao_hang.ngay_giao_thanh_cong|date:"H:i, d/m/Y" }}. Bạn có đến {{ han_tra_hang|date:"H:i, d/m/Y" }} để chọn trả hàng hoặc xác nhận đã nhận.</p>
-        <div class="order-actions">
-          <a class="order-btn order-btn-primary" href="{% url 'DONHANG:huong_dan_tra_hang' don_hang.ma_don_hang %}">Trả hàng</a>
-          <form method="post" action="{% url 'DONHANG:xac_nhan_da_nhan' don_hang.ma_don_hang %}">{% csrf_token %}<button class="order-btn" type="submit" onclick="return confirm('Xác nhận bạn đã nhận hàng? Thao tác này kết thúc thời hạn yêu cầu trả hàng.')">Đã nhận</button></form>
-        </div>
-      {% else %}
-        <p class="order-info-value">Thời hạn lựa chọn trả hàng đã kết thúc. Đơn hàng đã hoàn tất.</p>
-      {% endif %}
-    </section>
-  {% endif %}
 </main>
 {% endblock %}

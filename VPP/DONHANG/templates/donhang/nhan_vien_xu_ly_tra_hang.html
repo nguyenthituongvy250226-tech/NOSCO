@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "KHACHHANG/base.html" %}
 {% load static %}
 {% block title %}Xử lý yêu cầu trả hàng{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=6">{% endblock %}
-{% block content %}
+{% block account_extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=6">{% endblock %}
+{% block account_content %}
 <main class="order-form-page">
   <section class="order-card order-form-card">
   <p class="order-breadcrumb"><a href="{% url 'DONHANG:nhan_vien_tra_hang' %}">← Danh sách yêu cầu</a></p>

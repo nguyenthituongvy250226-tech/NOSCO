@@ -3,12 +3,40 @@
 {% block title %}Theo dõi yêu cầu trả hàng{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=6">{% endblock %}
 {% block content %}
-<main class="order-form-page">
-  <section class="order-card order-form-card">
-    <p class="order-breadcrumb"><a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">← Quay lại chi tiết đơn</a></p>
-    <h1>Yêu cầu trả hàng / hoàn tiền</h1>
-    <p class="order-form-help">Đơn {{ don_hang.ma_don_hang }} · Yêu cầu {{ yeu_cau_tra.ma_yeu_cau_tra }}</p>
+<main class="return-confirmation-page">
+  <section class="return-confirmation-card{% if yeu_cau_tra.trang_thai_tra == 'tu_choi' %} is-rejected{% endif %}">
+    <span class="return-confirmation-icon">
+      {% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}<i class="fa-solid fa-xmark" aria-hidden="true"></i>{% else %}<i class="fa-solid fa-check" aria-hidden="true"></i>{% endif %}
+    </span>
+    {% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}
+      <h1>Yêu cầu trả hàng chưa được duyệt</h1>
+      <p class="return-confirmation-subtitle">Bạn có thể xem lý do và trạng thái xử lý chi tiết bên dưới.</p>
+    {% else %}
+      <h1>Yêu cầu đã được gửi thành công</h1>
+      <p class="return-confirmation-subtitle">NOSCO sẽ kiểm tra thông tin và cập nhật tiến trình xử lý yêu cầu của bạn.</p>
+    {% endif %}
+    <div class="return-confirmation-reference">
+      <span>Mã phiếu yêu cầu trả hàng</span>
+      <strong>{{ yeu_cau_tra.ma_yeu_cau_tra }}</strong>
+    </div>
+    <p class="return-confirmation-order">Mã đơn hàng: <strong>{{ don_hang.ma_don_hang }}</strong></p>
+    <p class="return-confirmation-note">Vui lòng lưu lại mã phiếu để tiện theo dõi và liên hệ với NOSCO khi cần hỗ trợ.</p>
+    <div class="return-confirmation-actions">
+      <a class="order-btn order-btn-primary" href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">Theo dõi đơn hàng</a>
+      {% if yeu_cau_tra.trang_thai_tra == "da_duyet" or yeu_cau_tra.trang_thai_tra == "hoan_tat" %}
+        <a class="order-btn" href="{% url 'DONHANG:huong_dan_tra_hang' don_hang.ma_don_hang %}">Hướng dẫn gửi trả</a>
+      {% endif %}
+      <a class="order-btn" href="{% url 'home' %}">Tiếp tục mua sắm</a>
+    </div>
+  </section>
+  <section class="order-card order-section-card return-confirmation-details">
+    <h2 class="order-card-title">Tiến trình xử lý yêu cầu</h2>
     {% include "donhang/_tien_do_tra_hang.html" %}
+    {% if yeu_cau_tra.trang_thai_tra == "cho_xu_ly" %}
+      <div class="return-detail-actions">
+        <form method="post" action="{% url 'DONHANG:huy_yeu_cau_tra_hang' don_hang.ma_don_hang %}">{% csrf_token %}<button class="order-btn order-btn-danger" type="submit" onclick="return confirm('Bạn muốn hủy yêu cầu trả hàng này?')">Hủy yêu cầu</button></form>
+      </div>
+    {% endif %}
   </section>
 </main>
 {% endblock %}

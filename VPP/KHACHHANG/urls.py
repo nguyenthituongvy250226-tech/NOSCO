@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from SANPHAM import views as sanpham_views
 
 app_name = "KHACHHANG"
 
@@ -20,9 +21,15 @@ urlpatterns = [
     path("so-dia-chi/sua/<str:ma_dia_chi>/", views.sua_dia_chi, name="sua_dia_chi"),
     path("so-dia-chi/xoa/<str:ma_dia_chi>/", views.xoa_dia_chi, name="xoa_dia_chi"),
     path("so-dia-chi/mac-dinh/<str:ma_dia_chi>/", views.dat_dia_chi_mac_dinh, name="dat_dia_chi_mac_dinh"),
-
+# Sản phẩm yêu thích
+path(
+    "yeu-thich/",
+    sanpham_views.san_pham_yeu_thich,
+    name="san_pham_yeu_thich"
+),
     # Lịch sử tích điểm
     path("lich-su-tich-diem/", views.lich_su_tich_diem, name="lich_su_tich_diem"),
+    path("voucher/", views.voucher_cua_toi, name="voucher_cua_toi"),
 
     # Thông báo
     path("thong-bao/", views.danh_sach_thong_bao, name="danh_sach_thong_bao"),

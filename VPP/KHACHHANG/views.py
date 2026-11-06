@@ -2,11 +2,14 @@
 from functools import wraps
 
 from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from KHUYENMAI.models import Voucher
 
 from .models import (
     NguoiDung,
@@ -20,6 +23,7 @@ from .models import (
 from .forms import (
     DangKyForm,
     DangNhapForm,
+    AnhDaiDienForm,
     HoSoKhachHangForm,
     SoDiaChiForm,
     YeuCauHoTroForm,
@@ -169,11 +173,13 @@ def dang_ky(request):
 def dang_nhap(request):
     if request.session.get(SESSION_NGUOI_DUNG):
         try:
-            NguoiDung.objects.get(
+            nguoi_dung = NguoiDung.objects.get(
                 MaNguoiDung=request.session[SESSION_NGUOI_DUNG],
                 KichHoat=True,
             )
-            return redirect("KHACHHANG:home")
+            if nguoi_dung.VaiTro == "KHACH_HANG":
+                return redirect("KHACHHANG:ho_so_ca_nhan")
+            return redirect("DONHANG:nhan_vien_don_hang")
         except NguoiDung.DoesNotExist:
             request.session.pop(SESSION_NGUOI_DUNG, None)
 
@@ -237,6 +243,7 @@ def dang_nhap(request):
                 )
                 request.session["vai_tro"] = nguoi_dung.VaiTro
 
+                list(get_messages(request))
                 messages.success(request, "Đăng nhập thành công.")
 
                 next_url = request.GET.get("next")
@@ -248,7 +255,9 @@ def dang_nhap(request):
                 ):
                     return redirect(next_url)
 
-                return redirect("KHACHHANG:home")
+                if nguoi_dung.VaiTro == "KHACH_HANG":
+                    return redirect("KHACHHANG:ho_so_ca_nhan")
+                return redirect("DONHANG:nhan_vien_don_hang")
 
     else:
         form = DangNhapForm()
@@ -286,6 +295,29 @@ def ho_so_ca_nhan(request):
     ho_so = lay_ho_so_khach_hang(nguoi_dung)
 
     if request.method == "POST":
+        if request.POST.get("action") == "upload_avatar":
+            avatar_form = AnhDaiDienForm(request.POST, request.FILES)
+            if avatar_form.is_valid():
+                ho_so.AnhDaiDien = avatar_form.cleaned_data["AnhDaiDien"]
+                ho_so.save(update_fields=["AnhDaiDien"])
+                messages.success(request, "Đã cập nhật ảnh đại diện.")
+                return redirect("KHACHHANG:ho_so_ca_nhan")
+
+            form = HoSoKhachHangForm(
+                instance=ho_so,
+                nguoi_dung=nguoi_dung,
+            )
+            return render(
+                request,
+                "KHACHHANG/ho_so_ca_nhan.html",
+                {
+                    "form": form,
+                    "avatar_form": avatar_form,
+                    "ho_so": ho_so,
+                    "user": nguoi_dung,
+                },
+            )
+
         form = HoSoKhachHangForm(
             request.POST,
             instance=ho_so,
@@ -316,7 +348,9 @@ def ho_so_ca_nhan(request):
         "KHACHHANG/ho_so_ca_nhan.html",
         {
             "form": form,
+            "avatar_form": AnhDaiDienForm(),
             "ho_so": ho_so,
+            "user": nguoi_dung,
         },
     )
 
@@ -339,6 +373,7 @@ def so_dia_chi(request):
         {
             "ho_so": ho_so,
             "danh_sach_dia_chi": danh_sach_dia_chi,
+            "danh_sach": danh_sach_dia_chi,
         },
     )
 
@@ -374,8 +409,8 @@ def them_dia_chi(request):
 
     return render(
         request,
-        "KHACHHANG/them_dia_chi.html",
-        {"form": form},
+        "KHACHHANG/form_dia_chi.html",
+        {"form": form, "tieu_de": "Thêm địa chỉ"},
     )
 
 
@@ -420,10 +455,11 @@ def sua_dia_chi(request, ma_dia_chi):
 
     return render(
         request,
-        "KHACHHANG/sua_dia_chi.html",
+        "KHACHHANG/form_dia_chi.html",
         {
             "form": form,
             "dia_chi": dia_chi,
+            "tieu_de": "Cập nhật địa chỉ",
         },
     )
 
@@ -494,7 +530,24 @@ def lich_su_tich_diem(request):
         {
             "ho_so": ho_so,
             "danh_sach_lich_su": danh_sach_lich_su,
+            "lich_su": danh_sach_lich_su,
         },
+    )
+
+
+@khach_hang_required
+def voucher_cua_toi(request):
+    hien_tai = timezone.now()
+    danh_sach_voucher = Voucher.objects.filter(
+        TrangThai=True,
+        NgayBatDau__lte=hien_tai,
+        NgayKetThuc__gte=hien_tai,
+    ).order_by("NgayKetThuc")
+
+    return render(
+        request,
+        "KHACHHANG/voucher_cua_toi.html",
+        {"danh_sach_voucher": danh_sach_voucher},
     )
 
 
@@ -504,20 +557,49 @@ def lich_su_tich_diem(request):
 
 @nguoi_dung_required
 def danh_sach_thong_bao(request):
-    danh_sach_thong_bao = ThongBao.objects.filter(
+    thong_bao_cua_toi = ThongBao.objects.filter(
         MaNguoiNhan=request.nguoi_dung,
-    ).order_by("-NgayTao")
+    )
+    cac_nhom = [
+        {"ma": "tat-ca", "ten": "Tất cả", "loai": None},
+        {"ma": "don-hang", "ten": "Đơn hàng", "loai": ("DON_HANG",)},
+        {
+            "ma": "khuyen-mai",
+            "ten": "Khuyến mãi / Voucher",
+            "loai": ("KHUYEN_MAI",),
+        },
+        {
+            "ma": "cap-nhat",
+            "ten": "Cập nhật / Tin nhắn",
+            "loai": ("THANH_VIEN", "HO_TRO", "TAI_KHOAN"),
+        },
+    ]
+    nhom_hien_tai = request.GET.get("nhom", "tat-ca")
+    if nhom_hien_tai not in {nhom["ma"] for nhom in cac_nhom}:
+        nhom_hien_tai = "tat-ca"
 
-    so_thong_bao_chua_doc = danh_sach_thong_bao.filter(
-        DaDoc=False,
-    ).count()
+    for nhom in cac_nhom:
+        query = thong_bao_cua_toi
+        if nhom["loai"]:
+            query = query.filter(LoaiThongBao__in=nhom["loai"])
+        nhom["so_luong"] = query.count()
+        nhom["chua_doc"] = query.filter(DaDoc=False).count()
 
+    nhom_loc = next(nhom for nhom in cac_nhom if nhom["ma"] == nhom_hien_tai)
+    danh_sach_thong_bao = thong_bao_cua_toi
+    if nhom_loc["loai"]:
+        danh_sach_thong_bao = danh_sach_thong_bao.filter(
+            LoaiThongBao__in=nhom_loc["loai"]
+        )
+    danh_sach_thong_bao = danh_sach_thong_bao.order_by("-NgayTao")
     return render(
         request,
-        "KHACHHANG/danh_sach_thong_bao.html",
+        "KHACHHANG/thong_bao.html",
         {
             "danh_sach_thong_bao": danh_sach_thong_bao,
-            "so_thong_bao_chua_doc": so_thong_bao_chua_doc,
+            "cac_nhom_thong_bao": cac_nhom,
+            "nhom_thong_bao_hien_tai": nhom_hien_tai,
+            "so_thong_bao_chua_doc": thong_bao_cua_toi.filter(DaDoc=False).count(),
         },
     )
 
@@ -570,7 +652,7 @@ def gui_yeu_cau_ho_tro(request):
 
     return render(
         request,
-        "KHACHHANG/gui_yeu_cau_ho_tro.html",
+        "KHACHHANG/form_yeu_cau_ho_tro.html",
         {"form": form},
     )
 
@@ -592,6 +674,7 @@ def danh_sach_yeu_cau(request):
         "KHACHHANG/danh_sach_yeu_cau.html",
         {
             "danh_sach_yeu_cau": danh_sach_yeu_cau,
+            "danh_sach": danh_sach_yeu_cau,
         },
     )
 

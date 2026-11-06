@@ -214,6 +214,12 @@ class HoSoKhachHang(models.Model):
         db_column="GioiTinh"
     )
 
+    AnhDaiDien = models.ImageField(
+        upload_to="khachhang/anh_dai_dien/",
+        blank=True,
+        db_column="AnhDaiDien",
+    )
+
     DiemTichLuy = models.PositiveIntegerField(
         default=0,
         db_column="DiemTichLuy"

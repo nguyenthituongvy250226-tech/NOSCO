@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "KHACHHANG/base.html" %}
 
 {% block title %}
 Chi tiết khách hàng
 {% endblock %}
 
 
-{% block content %}
+{% block account_content %}
 
 <div class="card">
 
@@ -60,7 +60,7 @@ Chi tiết khách hàng
             <th>Mặc định</th>
         </tr>
 
-        {% for item in dia_chi %}
+        {% for item in danh_sach_dia_chi %}
 
             <tr>
 
@@ -108,7 +108,7 @@ Chi tiết khách hàng
             <th>Ngày tạo</th>
         </tr>
 
-        {% for item in lich_su %}
+        {% for item in danh_sach_lich_su %}
 
             <tr>
 
@@ -150,7 +150,7 @@ Chi tiết khách hàng
             <th>Ngày tạo</th>
         </tr>
 
-        {% for item in yeu_cau %}
+        {% for item in danh_sach_yeu_cau %}
 
             <tr>
 

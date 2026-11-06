@@ -1,12 +1,15 @@
 <section class="return-tracking-card">
+  <div class="return-status-row">
+    <span>Trạng thái xử lý</span>
+    <strong>{{ yeu_cau_tra.get_trang_thai_tra_display }}</strong>
+  </div>
   <div class="return-tracking-meta">
     <div><span>Mã yêu cầu trả hàng</span><strong>{{ yeu_cau_tra.ma_yeu_cau_tra }}</strong></div>
     <div><span>Ngày yêu cầu</span><strong>{{ yeu_cau_tra.ngay_tao|date:"d/m/Y H:i" }}</strong></div>
     <div><span>Lý do trả hàng</span><strong>{{ yeu_cau_tra.ly_do_tra }}</strong></div>
-    <div><span>Trạng thái hiện tại</span><strong>{{ yeu_cau_tra.get_trang_thai_tra_display }}</strong></div>
   </div>
   {% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}
-    <div class="order-banner is-error"><strong>Yêu cầu trả hàng không được duyệt</strong><span>Trạng thái: {{ yeu_cau_tra.get_trang_thai_tra_display }}</span>{% if yeu_cau_tra.ket_qua_xl %}<br><span>Lý do không duyệt: {{ yeu_cau_tra.ket_qua_xl }}</span>{% endif %}</div>
+    <div class="order-banner is-error"><strong>Yêu cầu trả hàng không được duyệt</strong>{% if yeu_cau_tra.ket_qua_xl %}<span>Lý do không duyệt: {{ yeu_cau_tra.ket_qua_xl }}</span>{% endif %}</div>
   {% else %}
     <div class="return-progress" role="list" aria-label="Tiến độ trả hàng">
       <div class="return-progress-line" style="{% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}width:33%{% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}width:66%{% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}width:100%{% endif %}"></div>
@@ -26,6 +29,11 @@
     <strong>Thông tin yêu cầu</strong>
     <div><span>Lý do</span><b>{{ yeu_cau_tra.ly_do_tra }}</b></div>
     <div><span>Phương thức hoàn tiền</span><b>{{ yeu_cau_tra.get_phuong_thuc_hoan_tien_display }}</b></div>
+    {% if yeu_cau_tra.phuong_thuc_hoan_tien == "tai_khoan_thanh_toan" %}
+      <div><span>Ngân hàng</span><b>{{ yeu_cau_tra.get_ngan_hang_hoan_tien_display|default:yeu_cau_tra.ngan_hang_hoan_tien|default:"Chưa cập nhật" }}</b></div>
+      <div><span>Tên chủ tài khoản</span><b>{{ yeu_cau_tra.ten_chu_tai_khoan|default:"Chưa cập nhật" }}</b></div>
+      <div><span>Số tài khoản</span><b>{{ yeu_cau_tra.so_tai_khoan|default:"Chưa cập nhật" }}</b></div>
+    {% endif %}
     {% if yeu_cau_tra.ma_van_don_khach %}<div><span>Mã vận đơn khách gửi</span><b>{{ yeu_cau_tra.ma_van_don_khach }}</b></div>{% endif %}
     {% if yeu_cau_tra.mo_ta_van_de %}<div class="return-request-description"><span>Mô tả vấn đề</span><b>{{ yeu_cau_tra.mo_ta_van_de|linebreaksbr }}</b></div>{% endif %}
   </div>

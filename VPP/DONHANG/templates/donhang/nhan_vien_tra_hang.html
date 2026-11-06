@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "KHACHHANG/base.html" %}
 {% load static %}
 {% block title %}Yêu cầu trả hàng{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
-{% block content %}
+{% block account_extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
+{% block account_content %}
 <main class="staff-order-page">
   {% if messages %}{% for message in messages %}<p class="order-alert" role="status">{{ message }}</p>{% endfor %}{% endif %}
   <h1>Yêu cầu trả hàng / hoàn tiền</h1>

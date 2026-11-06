@@ -179,6 +179,72 @@ a {
     color: var(--primary);
 }
 
+.account-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.account-menu .account-link {
+    padding: 8px 0;
+}
+
+.account-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 30px;
+    border: 0;
+    background: transparent;
+    color: #788796;
+    cursor: pointer;
+}
+
+.account-menu-toggle i {
+    font-size: 10px;
+    transition: transform .2s ease;
+}
+
+.account-menu.is-open .account-menu-toggle i {
+    transform: rotate(180deg);
+}
+
+.account-dropdown {
+    position: absolute;
+    z-index: 1000;
+    top: 100%;
+    right: 0;
+    display: none;
+    width: 190px;
+    padding: 0;
+    border: 1px solid #e6ebf0;
+    border-radius: 0 0 4px 4px;
+    background: #fff;
+    box-shadow: 0 8px 18px rgb(24 59 89 / 14%);
+}
+
+.account-menu.is-open .account-dropdown,
+.account-menu:hover .account-dropdown,
+.account-menu:focus-within .account-dropdown {
+    display: block;
+}
+
+.account-dropdown a {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 9px 12px;
+    color: #333;
+    font-size: 13px;
+    transition: background .2s, color .2s;
+}
+
+.account-dropdown a:hover {
+    background: #f5f7f9;
+    color: var(--primary);
+}
+
 .action-text span,
 .action-text small {
     display: block;
@@ -8201,6 +8267,37 @@ a:active {
     border-radius: 12px;
 }
 
+.review-owner-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.review-owner-actions a,
+.review-owner-actions button,
+.review-cancel-edit {
+    color: #1769aa;
+    font: inherit;
+}
+
+.review-owner-actions form {
+    margin: 0;
+}
+
+.review-owner-actions button {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.review-cancel-edit {
+    display: inline-block;
+    margin-left: 12px;
+}
+
 .review-form-heading h3 {
     margin: 8px 0;
     color: #183b59;
@@ -8276,4 +8373,215 @@ a:active {
 
 .review-form-note {
     margin-top: 12px;
+}
+
+.header-inner .header-actions .account-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.header-inner .header-actions .account-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #788796;
+    cursor: pointer;
+}
+
+.header-inner .header-actions .account-menu-toggle i {
+    font-size: 10px;
+}
+
+.header-inner .header-actions .account-dropdown {
+    position: absolute;
+    z-index: 1100;
+    top: 100%;
+    right: 0;
+    display: none;
+    width: 190px;
+    padding: 0;
+    border: 1px solid #e6ebf0;
+    border-radius: 0 0 4px 4px;
+    background: #fff;
+    box-shadow: 0 8px 18px rgb(24 59 89 / 14%);
+}
+
+.header-inner .header-actions .account-menu:hover > .account-dropdown,
+.header-inner .header-actions .account-menu:focus-within > .account-dropdown,
+.header-inner .header-actions .account-menu.is-open > .account-dropdown {
+    display: block;
+}
+
+.header-inner .header-actions .account-dropdown a {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 9px 12px;
+    color: #333;
+    font-size: 13px;
+    font-weight: 400;
+    text-decoration: none;
+}
+
+.header-inner .header-actions .account-dropdown a:hover {
+    background: #f5f7f9;
+    color: var(--primary);
+}
+
+.header-popover {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.header-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.header-actions .action-item .header-icon-wrap > i {
+    color: var(--navy);
+    font-size: 21px;
+}
+
+.header-count-badge {
+    position: absolute;
+    top: -9px;
+    right: -11px;
+    display: grid;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    place-items: center;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #e53935;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.notification-dropdown {
+    position: absolute;
+    z-index: 1200;
+    top: 100%;
+    right: 0;
+    display: none;
+    width: min(320px, calc(100vw - 24px));
+    overflow: hidden;
+    border: 1px solid #e6ebf0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgb(24 59 89 / 16%);
+}
+
+.notification-popover:hover .notification-dropdown,
+.notification-popover:focus-within .notification-dropdown {
+    display: block;
+}
+
+.notification-dropdown-heading {
+    padding: 12px 14px;
+    border-bottom: 1px solid #edf0f3;
+    color: #263b4d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.notification-dropdown-list {
+    max-height: 330px;
+    overflow-y: auto;
+}
+
+.notification-dropdown .notification-preview {
+    display: grid;
+    gap: 5px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f2f5;
+    color: #405365;
+    text-decoration: none;
+}
+
+.notification-dropdown .notification-preview:hover {
+    background: #f7faff;
+}
+
+.notification-preview.is-unread {
+    border-left: 3px solid #1769aa;
+}
+
+.notification-preview-title {
+    color: #263b4d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.notification-preview-body {
+    color: #697987;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.notification-preview time {
+    color: #8996a2;
+    font-size: 10px;
+}
+
+.notification-dropdown-empty {
+    margin: 0;
+    padding: 16px 14px;
+    color: #697987;
+    font-size: 12px;
+}
+
+.notification-dropdown .notification-dropdown-all {
+    display: block;
+    padding: 12px 15px;
+    color: #1769aa;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.notification-dropdown .notification-dropdown-all:hover {
+    background: #f5f8fc;
+}
+
+@media (max-width: 760px) {
+    .notification-dropdown {
+        right: -70px;
+    }
+}
+.promotion-badge {
+    display: inline-block;
+    background: #ffe5e5;
+    color: #e53935;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.original-price {
+    display: block;
+    color: #999;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.promotion-price {
+    display: block;
+    color: #e53935;
+    font-size: 17px;
+    margin-top: 3px;
 }

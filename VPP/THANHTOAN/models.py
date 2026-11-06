@@ -7,12 +7,14 @@ class ThanhToan(models.Model):
         max_length=10,
         primary_key=True
     )
-# CHỜ MODEL ĐƠN HÀNG CỦA TÂM TỪ APP DON HANG ĐỂ PULL VỀ
-    #MaDonHang = models.ForeignKey(
-       # "DONHANG.DonHang",
-        #on_delete=models.PROTECT,
-        #db_column="MaDonHang"
-    #)
+    DonHang = models.ForeignKey(
+        "DONHANG.DonHang",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="thanh_toans",
+        db_column="MaDonHang",
+    )
 
     PhuongThucThanhToan = models.CharField(
         max_length=50,

@@ -40,8 +40,20 @@ class YeuCauTraHangForm(forms.Form):
         ("Ly do khac", "Lý do khác"),
     )
     PHUONG_THUC_CHOICES = (
-        ("tai_khoan_thanh_toan", "Hoàn tiền về tài khoản thanh toán"),
+        ("tai_khoan_thanh_toan", "Hoàn tiền về tài khoản ngân hàng"),
         ("vi_nosco", "Hoàn tiền vào ví NOSCO"),
+    )
+    NGAN_HANG_CHOICES = (
+        ("", "Chọn ngân hàng"),
+        ("VCB", "Vietcombank"),
+        ("BIDV", "BIDV"),
+        ("CTG", "VietinBank"),
+        ("TCB", "Techcombank"),
+        ("MB", "MB Bank"),
+        ("ACB", "ACB"),
+        ("VPB", "VPBank"),
+        ("TPB", "TPBank"),
+        ("OTHER", "Ngân hàng khác"),
     )
 
     ly_do_tra = forms.ChoiceField(label="Lý do trả hàng", choices=LY_DO_CHOICES)
@@ -59,6 +71,30 @@ class YeuCauTraHangForm(forms.Form):
     phuong_thuc_hoan_tien = forms.ChoiceField(
         label="Phương thức hoàn tiền", choices=PHUONG_THUC_CHOICES,
         widget=forms.RadioSelect,
+        initial="tai_khoan_thanh_toan",
+    )
+    ngan_hang_hoan_tien = forms.ChoiceField(
+        label="Ngân hàng",
+        choices=NGAN_HANG_CHOICES,
+        required=False,
+    )
+    ten_chu_tai_khoan = forms.CharField(
+        label="Tên chủ tài khoản",
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={"autocomplete": "name"}),
+    )
+    so_tai_khoan = forms.RegexField(
+        label="Số tài khoản",
+        regex=r"^[0-9]{6,24}$",
+        max_length=24,
+        required=False,
+        error_messages={"invalid": "Số tài khoản chỉ gồm 6–24 chữ số."},
+        widget=forms.TextInput(attrs={
+            "inputmode": "numeric",
+            "autocomplete": "off",
+            "placeholder": "Nhập số tài khoản ngân hàng",
+        }),
     )
 
     tep_minh_chung = MultipleFileField(
@@ -90,6 +126,19 @@ class YeuCauTraHangForm(forms.Form):
         if not set(ids).issubset(valid_ids):
             raise forms.ValidationError("Sản phẩm được chọn không thuộc đơn hàng này.")
         return ids
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("phuong_thuc_hoan_tien") == "tai_khoan_thanh_toan":
+            required_fields = {
+                "ngan_hang_hoan_tien": "Vui lòng chọn ngân hàng nhận tiền.",
+                "ten_chu_tai_khoan": "Vui lòng nhập tên chủ tài khoản.",
+                "so_tai_khoan": "Vui lòng nhập số tài khoản.",
+            }
+            for field, error in required_fields.items():
+                if not cleaned.get(field):
+                    self.add_error(field, error)
+        return cleaned
 
     def clean_tep_minh_chung(self):
         files = self.cleaned_data["tep_minh_chung"]
