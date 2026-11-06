@@ -11,7 +11,7 @@ from GIOHANG.views import (
 )
 
 from SANPHAM.models import BienTheSanPham
-
+from KHACHHANG.models import HoSoKhachHang, SoDiaChi
 
 # ==========================================
 # CẤU HÌNH PHÍ VẬN CHUYỂN
@@ -97,7 +97,84 @@ def checkout(request):
     gio_hang = None
     danh_sach = []
     che_do_thanh_toan = "gio_hang"
+    # ======================================
+    # LẤY SỔ ĐỊA CHỈ CỦA KHÁCH HÀNG
+    # ======================================
 
+    ma_nguoi_dung = request.session.get("khachhang_ma_nguoi_dung")
+
+    ho_so = None
+    danh_sach_dia_chi = SoDiaChi.objects.none()
+    dia_chi_obj = None
+
+    if ma_nguoi_dung:
+        ho_so = HoSoKhachHang.objects.filter(
+            MaNguoiDung_id=ma_nguoi_dung
+        ).first()
+
+        if ho_so:
+            danh_sach_dia_chi = SoDiaChi.objects.filter(
+                MaKhachHang=ho_so
+            ).order_by("-MacDinh", "TenNguoiNhan")
+
+    # ======================================
+    # XỬ LÝ KHI CHỌN ĐỊA CHỈ TRONG CHECKOUT
+    # ======================================
+
+    if (
+            request.method == "POST"
+            and request.POST.get("hanh_dong") == "chon_dia_chi"
+    ):
+        ma_dia_chi = request.POST.get("ma_dia_chi", "")
+
+        dia_chi_chon = danh_sach_dia_chi.filter(
+            MaDiaChi=ma_dia_chi
+        ).first()
+
+        if dia_chi_chon:
+            request.session["checkout_ma_dia_chi"] = (
+                dia_chi_chon.MaDiaChi
+            )
+            messages.success(request, "Đã cập nhật địa chỉ nhận hàng.")
+        else:
+            messages.error(request, "Địa chỉ không hợp lệ.")
+
+        return redirect("checkout")
+
+    # ======================================
+    # LẤY ĐỊA CHỈ ĐANG ĐƯỢC CHỌN
+    # ======================================
+
+    ma_dia_chi_session = request.session.get(
+        "checkout_ma_dia_chi"
+    )
+
+    if ma_dia_chi_session:
+        dia_chi_obj = danh_sach_dia_chi.filter(
+            MaDiaChi=ma_dia_chi_session
+        ).first()
+
+    # Nếu chưa chọn hoặc địa chỉ cũ không còn tồn tại
+    if not dia_chi_obj:
+        dia_chi_obj = (
+                danh_sach_dia_chi.filter(MacDinh=True).first()
+                or danh_sach_dia_chi.first()
+        )
+
+    if dia_chi_obj:
+        request.session["checkout_ma_dia_chi"] = (
+            dia_chi_obj.MaDiaChi
+        )
+
+        dia_chi = {
+            "ma_dia_chi": dia_chi_obj.MaDiaChi,
+            "ho_ten": dia_chi_obj.TenNguoiNhan,
+            "so_dien_thoai": dia_chi_obj.SoDienThoai,
+            "dia_chi": dia_chi_obj.DiaChi,
+            "mac_dinh": dia_chi_obj.MacDinh,
+        }
+    else:
+        dia_chi = None
     # ======================================
     # 1. XÁC ĐỊNH LUỒNG THANH TOÁN
     # ======================================
@@ -234,19 +311,14 @@ def checkout(request):
     # 3. THÔNG TIN NHẬN HÀNG TẠM THỜI
     # ======================================
 
-    dia_chi = {
-        "ho_ten": "Nguyễn Văn A",
-        "so_dien_thoai": "0900 000 000",
-        "dia_chi": "123 Nguyễn Văn Linh, Hải Châu, Đà Nẵng",
-    }
-
-    # ======================================
+    # ==========================================
     # 4. PHÍ VẬN CHUYỂN
-    # ======================================
+    # ==========================================
 
     mien_phi = (
-        KHU_VUC_MIEN_PHI.casefold()
-        in dia_chi["dia_chi"].casefold()
+            dia_chi is not None
+            and KHU_VUC_MIEN_PHI.casefold()
+            in dia_chi["dia_chi"].casefold()
     )
 
     phi_van_chuyen = (
@@ -256,6 +328,7 @@ def checkout(request):
     )
 
     tong_tien = tam_tinh + phi_van_chuyen
+    # ======================================
 
     # ======================================
 
@@ -329,6 +402,7 @@ def checkout(request):
         "gio_hang": gio_hang,
         "danh_sach": danh_sach,
         "dia_chi": dia_chi,
+        "danh_sach_dia_chi": danh_sach_dia_chi,
 
         "tam_tinh": tam_tinh,
         "phi_van_chuyen": phi_van_chuyen,
@@ -342,4 +416,9 @@ def checkout(request):
         request,
         "CHECKOUT/checkout.html",
         context
+    )
+def xem_trang_thanh_cong(request):
+    return render(
+        request,
+        "CHECKOUT/dat_hang_thanh_cong.html"
     )

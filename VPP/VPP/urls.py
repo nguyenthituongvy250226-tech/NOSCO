@@ -15,7 +15,7 @@ urlpatterns = [
     path('gio-hang/', include('GIOHANG.urls')),
 
     # Checkout
-    path('checkout/', checkout_views.checkout, name='checkout'),
+    path('checkout/', include('CHECKOUT.urls')),
 
     # Giao diện chung
     path("", views.base, name="base"),

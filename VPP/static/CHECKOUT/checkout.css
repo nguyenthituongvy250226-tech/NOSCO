@@ -632,3 +632,399 @@
     color: var(--muted);
     font-size: 11.5px;
 }
+
+/* =========================================
+   NOSCO - CHECKOUT: ĐỊA CHỈ NHẬN HÀNG
+========================================= */
+
+/* Nút thay đổi địa chỉ */
+.checkout-page .card-link {
+    padding: 6px 0;
+    border: none;
+    background: transparent;
+    color: var(--primary);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color .2s;
+}
+
+.checkout-page .card-link:hover {
+    color: var(--primary-dark);
+}
+
+/* Thông tin địa chỉ đang được chọn */
+.checkout-page .address-info {
+    padding: 15px 17px;
+    border: 1px solid #e3e9f0;
+    border-radius: 10px;
+    background: #f7f9fc;
+}
+
+.checkout-page .address-info p {
+    margin: 0 0 7px;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+.checkout-page .address-info p strong {
+    color: var(--navy);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.checkout-page .address-info p:last-of-type {
+    margin-bottom: 0;
+}
+
+/* Nhãn địa chỉ mặc định */
+.checkout-page .default-address-badge {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: #e3f0fc;
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* Chưa có địa chỉ */
+.checkout-page .empty-address {
+    padding: 15px 17px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: var(--muted);
+    font-size: 12.5px;
+}
+
+.checkout-page .empty-address p {
+    margin: 0;
+}
+
+/* Link thêm địa chỉ */
+.checkout-page .add-address {
+    display: inline-block;
+    margin-top: 13px;
+    color: var(--primary);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color .2s;
+}
+
+.checkout-page .add-address:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* =========================================
+   MODAL CHỌN ĐỊA CHỈ
+========================================= */
+
+/* Khóa cuộn trang khi mở modal */
+body.address-modal-open {
+    overflow: hidden;
+}
+
+/* Lớp bao modal */
+.checkout-page .address-modal[hidden] {
+    display: none !important;
+}
+
+.checkout-page .address-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Lớp nền tối */
+.checkout-page .address-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 30, 48, .55);
+    backdrop-filter: blur(2px);
+}
+
+/* Khung nội dung modal */
+.checkout-page .address-modal-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 560px;
+    max-height: 85vh;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, .2);
+    animation: addressModalShow .2s ease;
+}
+
+@keyframes addressModalShow {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Đầu modal */
+.checkout-page .address-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 19px 22px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.checkout-page .address-modal-header h2 {
+    margin: 0;
+    color: var(--navy);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* Nút đóng */
+.checkout-page .address-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 8px;
+    background: #f1f4f8;
+    color: #64748b;
+    font-size: 16px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.checkout-page .address-modal-close:hover {
+    background: #e5eaf0;
+    color: #263849;
+}
+
+/* Phần danh sách địa chỉ */
+.checkout-page .address-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    padding: 18px 22px;
+    overflow-y: auto;
+}
+
+/* Một địa chỉ */
+.checkout-page .address-choice {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    padding: 14px 15px;
+    border: 1px solid #dfe5ec;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+}
+
+.checkout-page .address-choice:hover {
+    border-color: #9fc3e6;
+    background: #f8fbff;
+}
+
+.checkout-page .address-choice:has(input:checked) {
+    border-color: var(--primary);
+    background: #f2f8ff;
+}
+
+.checkout-page .address-choice input {
+    width: 17px;
+    height: 17px;
+    margin: 3px 0 0;
+    accent-color: var(--primary);
+}
+
+/* Nội dung từng địa chỉ */
+.checkout-page .address-choice-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.checkout-page .address-choice-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--navy);
+    font-size: 13.5px;
+    font-weight: 700;
+}
+
+.checkout-page .address-choice-name .default-address-badge {
+    margin-top: 0;
+}
+
+/* Trạng thái chưa có địa chỉ */
+.checkout-page .address-modal-empty {
+    padding: 30px 15px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.checkout-page .address-modal-empty > i {
+    margin-bottom: 12px;
+    color: #9aabba;
+    font-size: 30px;
+}
+
+.checkout-page .address-modal-empty p {
+    margin: 0 0 12px;
+    font-size: 13px;
+}
+
+.checkout-page .address-modal-empty a {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Chân modal */
+.checkout-page .address-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 15px 22px;
+    border-top: 1px solid #edf0f4;
+    background: #fff;
+}
+
+.checkout-page .address-modal-footer > .add-address {
+    margin-top: 0;
+}
+
+.checkout-page .address-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+/* Nút hủy */
+.checkout-page .address-cancel-btn {
+    min-height: 40px;
+    padding: 0 15px;
+    border: 1px solid #dfe5ec;
+    border-radius: 8px;
+    background: #fff;
+    color: #526174;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.checkout-page .address-cancel-btn:hover {
+    background: #f4f6f8;
+}
+
+/* Nút xác nhận địa chỉ */
+.checkout-page .address-confirm-btn {
+    min-height: 40px;
+    padding: 0 17px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.checkout-page .address-confirm-btn:hover {
+    background: var(--primary-dark);
+}
+
+.checkout-page .address-confirm-btn:disabled {
+    background: #aab7c4;
+    cursor: not-allowed;
+}
+
+/* Nút đặt hàng khi bị khóa */
+.checkout-page .place-order-btn:disabled {
+    background: #aab7c4;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.checkout-page .place-order-btn:disabled:hover {
+    background: #aab7c4;
+}
+
+/* =========================================
+   RESPONSIVE MODAL
+========================================= */
+
+@media (max-width: 650px) {
+    .checkout-page .address-modal {
+        padding: 12px;
+    }
+
+    .checkout-page .address-modal-content {
+        max-height: 90vh;
+        border-radius: 12px;
+    }
+
+    .checkout-page .address-modal-header {
+        padding: 16px;
+    }
+
+    .checkout-page .address-modal-header h2 {
+        font-size: 15px;
+    }
+
+    .checkout-page .address-modal-body {
+        padding: 14px 16px;
+    }
+
+    .checkout-page .address-modal-footer {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 14px 16px;
+    }
+
+    .checkout-page .address-modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+    }
+
+    .checkout-page .address-modal-actions button {
+        width: 100%;
+    }
+}
