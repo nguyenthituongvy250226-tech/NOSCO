@@ -1,0 +1,17 @@
+{% extends "KHACHHANG/base.html" %}
+{% load static %}
+{% block title %}Xử lý yêu cầu trả hàng{% endblock %}
+{% block account_extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=6">{% endblock %}
+{% block account_content %}
+<main class="order-form-page">
+  <section class="order-card order-form-card">
+  <p class="order-breadcrumb"><a href="{% url 'DONHANG:nhan_vien_tra_hang' %}">← Danh sách yêu cầu</a></p>
+  <h1>Yêu cầu {{ yeu_cau.ma_yeu_cau_tra }}</h1>
+  <p>Đơn: <a href="{% url 'DONHANG:chi_tiet' yeu_cau.ma_don_hang_id %}">{{ yeu_cau.ma_don_hang_id }}</a></p>
+  {% include "donhang/_tien_do_tra_hang.html" %}
+  <div class="return-guide"><strong>Sau khi chấp nhận</strong><ol><li>Chọn đơn vị vận chuyển. Mã vận đơn được tạo tự động từ mã yêu cầu (đổi tiền tố RT thành MVD).</li><li>Khách đóng gói, dán mã vận đơn và bàn giao hàng.</li><li>Khi nhận hàng trả, đánh dấu hoàn tất để module thanh toán nhận tín hiệu xử lý hoàn tiền.</li></ol></div>
+  {% if form %}<form method="post">{% csrf_token %}{{ form.non_field_errors }}{{ form.as_p }}<div class="order-actions"><a class="order-btn" href="{% url 'DONHANG:nhan_vien_tra_hang' %}">Quay lại</a><button class="order-btn order-btn-primary" type="submit">Lưu cập nhật</button></div></form>
+  {% else %}<p class="order-info-value">Yêu cầu này đã hoàn tất xử lý.</p><div class="order-actions"><a class="order-btn" href="{% url 'DONHANG:nhan_vien_tra_hang' %}">Quay lại danh sách</a></div>{% endif %}
+  </section>
+</main>
+{% endblock %}

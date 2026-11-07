@@ -1,0 +1,107 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Khuyến mãi - NOSCO{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/khuyen_mai.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="khuyen-mai-page">
+
+    <div class="khuyen-mai-header">
+        <span>ĐẶC QUYỀN MUA SẮM TẠI NOSCO</span>
+        <h1>ƯU ĐÃI ĐANG CHỜ BẠN</h1>
+        <p>
+            Khám phá những chương trình khuyến mãi hấp dẫn
+            và lựa chọn ưu đãi phù hợp dành riêng cho bạn.
+        </p>
+    </div>
+
+    <div class="khuyen-mai-grid">
+
+        {% for item in danh_sach_khuyen_mai %}
+
+        <div class="khuyen-mai-card
+            {% if item.khuyen_mai.MaKhuyenMai == 'KM001' %}
+                banner-blue
+            {% elif item.khuyen_mai.MaKhuyenMai == 'KM002' %}
+                banner-orange
+            {% elif item.khuyen_mai.MaKhuyenMai == 'KM003' %}
+                banner-red
+            {% else %}
+                banner-blue
+            {% endif %}">
+
+            <div class="khuyen-mai-content">
+
+                {% if item.trang_thai == 'SapDienRa' %}
+                    <span class="banner-label">SẮP DIỄN RA</span>
+                {% else %}
+                    <span class="banner-label">ƯU ĐÃI ĐANG DIỄN RA</span>
+                {% endif %}
+
+                <h2>{{ item.khuyen_mai.TenKhuyenMai }}</h2>
+
+                <div class="banner-discount">
+                    <span>GIẢM ĐẾN</span>
+                    <strong>{{ item.muc_giam_cao_nhat|floatformat:0 }}%</strong>
+                </div>
+
+                <p class="banner-description">
+                    {{ item.khuyen_mai.MoTa|default:"Ưu đãi hấp dẫn dành cho các sản phẩm văn phòng phẩm tại NOSCO." }}
+                </p>
+
+                <div class="banner-date">
+                    <i class="fa-regular fa-calendar"></i>
+                    {{ item.khuyen_mai.NgayBatDau|date:"d/m/Y" }}
+                    –
+                    {{ item.khuyen_mai.NgayKetThuc|date:"d/m/Y" }}
+                </div>
+
+                <a href="{% url 'khuyenmai:chi_tiet_khuyen_mai' item.khuyen_mai.MaKhuyenMai %}"
+                   class="btn-xem-khuyen-mai">
+                    Khám phá ưu đãi
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+            <div class="khuyen-mai-image">
+
+                {% if item.khuyen_mai.MaKhuyenMai == 'KM001' %}
+                    <img src="{% static 'images/banner_but_viet.jpg' %}"
+                         alt="Các sản phẩm bút viết">
+
+                {% elif item.khuyen_mai.MaKhuyenMai == 'KM002' %}
+                    <img src="{% static 'images/banner_flash_sale.jpg' %}"
+                         alt="Dụng cụ góc học tập">
+
+                {% elif item.khuyen_mai.MaKhuyenMai == 'KM003' %}
+                    <img src="{% static 'images/banner_goc_hoc_tap.jpg' %}"
+                         alt="Đồ dùng học tập">
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="khuyen-mai-empty">
+            <i class="fa-solid fa-gift"></i>
+            <h3>Hiện chưa có chương trình khuyến mãi</h3>
+            <p>Hãy quay lại sau để khám phá những ưu đãi mới nhé!</p>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

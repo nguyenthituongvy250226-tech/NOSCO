@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Hướng dẫn trả hàng{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=return-guide-2">{% endblock %}
+{% block content %}
+<main class="return-guide-page">
+  <header class="return-guide-heading">
+    <span class="return-guide-heading-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+    <div>
+      <h1>Hướng dẫn trả hàng</h1>
+      <p>Vui lòng thực hiện 3 bước dưới đây sau khi yêu cầu trả hàng được duyệt.</p>
+    </div>
+  </header>
+
+  <section class="return-guide-codes" aria-label="Mã đơn hàng và yêu cầu">
+    <div class="return-guide-code-intro">
+      <span class="return-guide-code-icon"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></span>
+      <div><strong>Mã đơn hàng của bạn</strong><p>Vui lòng ghi lại mã này để sử dụng trong quá trình gửi trả.</p></div>
+    </div>
+    <div class="return-guide-code">
+      <span>Mã yêu cầu trả hàng</span>
+      <strong>{{ yeu_cau_tra.ma_yeu_cau_tra|default:"Được cấp sau khi gửi yêu cầu" }}</strong>
+    </div>
+    <div class="return-guide-code">
+      <span>Mã đơn hàng</span>
+      <strong>{{ don_hang.ma_don_hang }}</strong>
+    </div>
+  </section>
+
+  <section class="return-guide-steps" aria-label="Các bước gửi trả hàng">
+    <article class="return-guide-step">
+      <span class="return-guide-step-number">1</span>
+      <span class="return-guide-step-icon"><i class="fa-solid fa-box" aria-hidden="true"></i></span>
+      <h2>Đóng gói sản phẩm</h2>
+      <p>Đóng gói sản phẩm cẩn thận, đảm bảo sản phẩm còn nguyên vẹn và đầy đủ phụ kiện (nếu có).</p>
+    </article>
+    <span class="return-guide-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+    <article class="return-guide-step">
+      <span class="return-guide-step-number">2</span>
+      <span class="return-guide-step-icon"><i class="fa-solid fa-barcode" aria-hidden="true"></i></span>
+      <h2>Dán mã vận đơn</h2>
+      <p>Sau khi yêu cầu được duyệt, in và dán mã vận đơn trả hàng NOSCO cung cấp lên bên ngoài kiện hàng.</p>
+      {% if yeu_cau_tra.trang_thai_tra == "da_duyet" or yeu_cau_tra.trang_thai_tra == "hoan_tat" %}
+        <strong class="return-guide-waybill">{{ yeu_cau_tra.ma_van_don_tra }}</strong>
+      {% endif %}
+    </article>
+    <span class="return-guide-arrow" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+    <article class="return-guide-step">
+      <span class="return-guide-step-number">3</span>
+      <span class="return-guide-step-icon"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i></span>
+      <h2>Đợi đơn vị vận chuyển đến lấy hàng</h2>
+      <p>Đơn vị vận chuyển sẽ đến lấy hàng tại địa chỉ bạn đã cung cấp. Theo dõi trạng thái yêu cầu trên NOSCO.</p>
+    </article>
+  </section>
+
+  <p class="return-guide-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span><strong>Lưu ý:</strong> Vui lòng theo dõi trạng thái đơn hàng trên hệ thống để cập nhật tiến trình xử lý.</span></p>
+  <div class="return-guide-actions">
+    <a class="order-btn" href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">Quay lại đơn hàng</a>
+    {% if yeu_cau_tra %}
+      <a class="order-btn order-btn-primary" href="{% url 'DONHANG:theo_doi_yeu_cau_tra' don_hang.ma_don_hang %}">Theo dõi yêu cầu trả hàng</a>
+    {% else %}
+      <a class="order-btn order-btn-primary" href="{% url 'DONHANG:yeu_cau_tra_hang' don_hang.ma_don_hang %}">Tạo yêu cầu trả hàng</a>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

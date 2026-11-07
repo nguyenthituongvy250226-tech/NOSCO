@@ -1,0 +1,123 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Quản lý khách hàng
+{% endblock %}
+
+
+{% block account_content %}
+
+<div class="card">
+
+    <h2>QUẢN LÝ KHÁCH HÀNG</h2>
+
+    <p>
+        Tra cứu thông tin và theo dõi hồ sơ khách hàng.
+    </p>
+
+    <form method="GET">
+
+        <input
+            type="text"
+            name="q"
+            class="form-control"
+            placeholder="Nhập tên, số điện thoại, email hoặc tên đăng nhập"
+            value="{{ tu_khoa }}"
+        >
+
+        <button type="submit" class="btn">
+            Tìm kiếm
+        </button>
+
+        <a href="{% url 'KHACHHANG:danh_sach_khach_hang' %}"
+           class="btn btn-danger">
+            Làm mới
+        </a>
+
+    </form>
+
+</div>
+
+
+<div class="card">
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Mã hồ sơ</th>
+                <th>Họ và tên</th>
+                <th>Tên đăng nhập</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Điểm tích lũy</th>
+                <th>Hạng thành viên</th>
+                <th>Chi tiết</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for item in danh_sach_khach_hang %}
+
+                <tr>
+
+                    <td>
+                        {{ item.MaHoSo }}
+                    </td>
+
+                    <td>
+                        {{ item.HoVaTen }}
+                    </td>
+
+                    <td>
+                        {{ item.MaNguoiDung.TenDangNhap }}
+                    </td>
+
+                    <td>
+                        {{ item.MaNguoiDung.Email }}
+                    </td>
+
+                    <td>
+                        {{ item.SoDienThoai }}
+                    </td>
+
+                    <td>
+                        {{ item.DiemTichLuy }}
+                    </td>
+
+                    <td>
+                        {{ item.HangThanhVien }}
+                    </td>
+
+                    <td>
+
+                        <a class="btn"
+                           href="{% url 'KHACHHANG:chi_tiet_khach_hang' item.MaHoSo %}">
+                            Xem
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="8">
+                        Không tìm thấy khách hàng.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

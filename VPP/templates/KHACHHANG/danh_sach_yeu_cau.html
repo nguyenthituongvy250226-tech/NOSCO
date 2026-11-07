@@ -1,0 +1,57 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Yêu cầu hỗ trợ
+{% endblock %}
+
+
+{% block account_content %}
+<section class="customer-support-page">
+    <header class="customer-page-heading">
+        <div>
+            <p class="customer-page-eyebrow">NOSCO LUÔN SẴN SÀNG HỖ TRỢ</p>
+            <h2>Hỗ trợ khách hàng</h2>
+            <p>Theo dõi yêu cầu và phản hồi từ đội ngũ chăm sóc khách hàng.</p>
+        </div>
+        <a href="{% url 'KHACHHANG:gui_yeu_cau_ho_tro' %}" class="customer-primary-button">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Gửi yêu cầu mới
+        </a>
+    </header>
+    <section class="customer-account-panel">
+        <div class="customer-section-heading">
+            <div>
+                <h3>Yêu cầu của bạn</h3>
+                <p>Các yêu cầu hỗ trợ bạn đã gửi đến NOSCO.</p>
+            </div>
+        </div>
+        <div class="customer-table-wrap">
+            <table class="customer-table">
+                <thead>
+                    <tr>
+                        <th>Mã yêu cầu</th>
+                        <th>Nội dung cần hỗ trợ</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Phản hồi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in danh_sach_yeu_cau %}
+                        <tr>
+                            <td>{{ item.MaYeuCau }}</td>
+                            <td><strong>{{ item.TieuDe }}</strong><br>{{ item.NoiDung }}</td>
+                            <td>{{ item.NgayTao|date:"d/m/Y H:i" }}</td>
+                            <td><span class="customer-support-status status-{{ item.TrangThai|lower }}">{{ item.get_TrangThai_display }}</span></td>
+                            <td>{{ item.PhanHoi|default:"Đang chờ phản hồi" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="customer-table-empty">Bạn chưa gửi yêu cầu hỗ trợ nào.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}

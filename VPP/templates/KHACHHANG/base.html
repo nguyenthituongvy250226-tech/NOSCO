@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}customer-account-page{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/khachhang.css' %}?v=20261106">
+    {% block account_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="customer-account">
+    <div class="customer-account-layout">
+        <aside class="customer-account-sidebar">
+            <div class="customer-account-profile">
+                <div class="customer-account-avatar" aria-hidden="true">
+                    {% if request.nguoi_dung.ho_so_khach_hang.AnhDaiDien %}
+                        <img src="{{ request.nguoi_dung.ho_so_khach_hang.AnhDaiDien.url }}" alt="">
+                    {% else %}
+                        <i class="fa-regular fa-user"></i>
+                    {% endif %}
+                </div>
+                <h1>{{ request.session.ten_dang_nhap|default:"Tài khoản NOSCO" }}</h1>
+                <p>{% if request.session.vai_tro == "NHAN_VIEN" or request.nguoi_dung.VaiTro == "NHAN_VIEN" or request.user.is_staff %}Tài khoản nhân viên{% else %}Tài khoản khách hàng{% endif %}</p>
+            </div>
+            <nav class="customer-account-nav" aria-label="Tài khoản khách hàng">
+                {% if request.session.vai_tro == "NHAN_VIEN" or request.nguoi_dung.VaiTro == "NHAN_VIEN" or request.user.is_staff %}
+                <a class="{% if request.resolver_match.url_name == 'danh_sach' or request.resolver_match.url_name == 'trang_thai' or request.resolver_match.url_name == 'nhan_vien_don_hang' or request.resolver_match.url_name == 'chi_tiet' %}is-active{% endif %}"
+                   href="{% url 'DONHANG:nhan_vien_don_hang' %}">
+                    <i class="fa-solid fa-box" aria-hidden="true"></i> Quản lý đơn hàng
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'nhan_vien_tra_hang' or request.resolver_match.url_name == 'nhan_vien_xu_ly_tra_hang' %}is-active{% endif %}"
+                   href="{% url 'DONHANG:nhan_vien_tra_hang' %}">
+                    <i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i> Trả hàng / hoàn tiền
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'danh_sach_khach_hang' or request.resolver_match.url_name == 'chi_tiet_khach_hang' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:danh_sach_khach_hang' %}">
+                    <i class="fa-solid fa-users" aria-hidden="true"></i> Danh sách khách hàng
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'quan_ly_yeu_cau_ho_tro' or request.resolver_match.url_name == 'xu_ly_yeu_cau_ho_tro' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:quan_ly_yeu_cau_ho_tro' %}">
+                    <i class="fa-solid fa-headset" aria-hidden="true"></i> Yêu cầu hỗ trợ
+                </a>
+                {% else %}
+                <a class="{% if request.resolver_match.url_name == 'ho_so_ca_nhan' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:ho_so_ca_nhan' %}">
+                    <i class="fa-regular fa-id-card" aria-hidden="true"></i> Thông tin cá nhân
+                </a>
+                <a href="{% url 'DONHANG:danh_sach' %}">
+                    <i class="fa-solid fa-box" aria-hidden="true"></i> Đơn hàng của tôi
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'so_dia_chi' or request.resolver_match.url_name == 'them_dia_chi' or request.resolver_match.url_name == 'sua_dia_chi' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:so_dia_chi' %}">
+                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Sổ địa chỉ
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'san_pham_yeu_thich' %}is-active{% endif %}"
+   href="{% url 'KHACHHANG:san_pham_yeu_thich' %}">
+    <i class="fa-regular fa-heart" aria-hidden="true"></i> Sản phẩm yêu thích
+</a>
+                <a class="{% if request.resolver_match.url_name == 'voucher_cua_toi' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:voucher_cua_toi' %}">
+                    <i class="fa-solid fa-ticket" aria-hidden="true"></i> Voucher của tôi
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'lich_su_tich_diem' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:lich_su_tich_diem' %}">
+                    <i class="fa-solid fa-star" aria-hidden="true"></i> Điểm tích lũy
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'danh_sach_thong_bao' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:danh_sach_thong_bao' %}">
+                    <i class="fa-regular fa-bell" aria-hidden="true"></i> Thông báo
+                </a>
+                <a class="{% if request.resolver_match.url_name == 'danh_sach_yeu_cau' or request.resolver_match.url_name == 'gui_yeu_cau_ho_tro' %}is-active{% endif %}"
+                   href="{% url 'KHACHHANG:danh_sach_yeu_cau' %}">
+                    <i class="fa-solid fa-headset" aria-hidden="true"></i> Hỗ trợ khách hàng
+                </a>
+                {% endif %}
+                <a class="customer-account-logout" href="{% url 'KHACHHANG:dang_xuat' %}">
+                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Đăng xuất
+                </a>
+            </nav>
+        </aside>
+        <section class="customer-account-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="customer-account-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% block account_content %}{% endblock %}
+        </section>
+    </div>
+</div>
+{% endblock %}

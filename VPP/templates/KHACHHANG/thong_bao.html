@@ -1,0 +1,70 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Thông báo
+{% endblock %}
+
+
+{% block account_content %}
+<section class="customer-notifications-page">
+    <header class="customer-page-heading">
+        <div>
+            <p class="customer-page-eyebrow">CẬP NHẬT DÀNH CHO BẠN</p>
+            <h2>Thông báo</h2>
+            <p>Tin mới về đơn hàng, ưu đãi và tài khoản NOSCO của bạn.</p>
+        </div>
+    </header>
+    <nav class="customer-notification-filters" aria-label="Lọc thông báo">
+        {% for nhom in cac_nhom_thong_bao %}
+            <a class="customer-notification-filter{% if nhom.ma == nhom_thong_bao_hien_tai %} is-active{% endif %}"
+               href="{% url 'KHACHHANG:danh_sach_thong_bao' %}?nhom={{ nhom.ma }}"
+               {% if nhom.ma == nhom_thong_bao_hien_tai %}aria-current="page"{% endif %}>
+                <span>{{ nhom.ten }}</span>
+                <span class="customer-notification-filter-count">
+                    {{ nhom.so_luong }}{% if nhom.chua_doc %}<small>{{ nhom.chua_doc }} mới</small>{% endif %}
+                </span>
+            </a>
+        {% endfor %}
+    </nav>
+    <div class="customer-notification-list">
+        {% for item in danh_sach_thong_bao %}
+            <article class="customer-notification{% if not item.DaDoc %} is-unread{% endif %}">
+                <div class="customer-notification-icon" aria-hidden="true">
+                    {% if item.LoaiThongBao == "DON_HANG" %}
+                        <i class="fa-solid fa-box"></i>
+                    {% elif item.LoaiThongBao == "KHUYEN_MAI" %}
+                        <i class="fa-solid fa-ticket"></i>
+                    {% elif item.LoaiThongBao == "HO_TRO" %}
+                        <i class="fa-solid fa-headset"></i>
+                    {% else %}
+                        <i class="fa-regular fa-bell"></i>
+                    {% endif %}
+                </div>
+                <div class="customer-notification-content">
+                    <div class="customer-notification-meta">
+                        <span>{{ item.get_LoaiThongBao_display }}</span>
+                        <time>{{ item.NgayTao|date:"d/m/Y H:i" }}</time>
+                    </div>
+                    <h3>{{ item.TieuDe }}</h3>
+                    <p>{{ item.NoiDung }}</p>
+                    {% if not item.DaDoc %}
+                        <form method="POST" action="{% url 'KHACHHANG:danh_dau_da_doc' item.MaThongBao %}">
+                            {% csrf_token %}
+                            <button type="submit" class="customer-text-button">Đánh dấu đã đọc</button>
+                        </form>
+                    {% endif %}
+                </div>
+                {% if not item.DaDoc %}
+                    <span class="customer-notification-dot" aria-label="Chưa đọc"></span>
+                {% endif %}
+            </article>
+        {% empty %}
+            <div class="customer-account-empty">
+                <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                <h3>Chưa có thông báo trong mục này</h3>
+                <p>Thông báo mới sẽ được hiển thị tại đây.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

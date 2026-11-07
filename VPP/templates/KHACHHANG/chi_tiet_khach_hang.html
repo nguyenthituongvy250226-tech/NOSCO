@@ -1,0 +1,187 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Chi tiết khách hàng
+{% endblock %}
+
+
+{% block account_content %}
+
+<div class="card">
+
+    <h2>THÔNG TIN KHÁCH HÀNG</h2>
+
+    <p>
+        Mã hồ sơ: {{ ho_so.MaHoSo }}
+    </p>
+
+    <p>
+        Họ và tên: {{ ho_so.HoVaTen }}
+    </p>
+
+    <p>
+        Tên đăng nhập:
+        {{ ho_so.MaNguoiDung.TenDangNhap }}
+    </p>
+
+    <p>
+        Email: {{ ho_so.MaNguoiDung.Email }}
+    </p>
+
+    <p>
+        Số điện thoại: {{ ho_so.SoDienThoai }}
+    </p>
+
+    <p>
+        Giới tính: {{ ho_so.GioiTinh }}
+    </p>
+
+    <p>
+        Điểm tích lũy: {{ ho_so.DiemTichLuy }}
+    </p>
+
+    <p>
+        Hạng thành viên: {{ ho_so.HangThanhVien }}
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <h3>SỔ ĐỊA CHỈ GIAO HÀNG</h3>
+
+    <table>
+
+        <tr>
+            <th>Người nhận</th>
+            <th>Số điện thoại</th>
+            <th>Địa chỉ</th>
+            <th>Mặc định</th>
+        </tr>
+
+        {% for item in danh_sach_dia_chi %}
+
+            <tr>
+
+                <td>{{ item.TenNguoiNhan }}</td>
+
+                <td>{{ item.SoDienThoai }}</td>
+
+                <td>{{ item.DiaChi }}</td>
+
+                <td>
+                    {% if item.MacDinh %}
+                        Có
+                    {% else %}
+                        Không
+                    {% endif %}
+                </td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    Khách hàng chưa lưu địa chỉ.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+
+<div class="card">
+
+    <h3>LỊCH SỬ TÍCH ĐIỂM</h3>
+
+    <table>
+
+        <tr>
+            <th>Loại giao dịch</th>
+            <th>Số điểm</th>
+            <th>Số dư</th>
+            <th>Ngày tạo</th>
+        </tr>
+
+        {% for item in danh_sach_lich_su %}
+
+            <tr>
+
+                <td>{{ item.get_LoaiGiaoDich_display }}</td>
+
+                <td>{{ item.SoDiem }}</td>
+
+                <td>{{ item.SoDuDiem }}</td>
+
+                <td>{{ item.NgayTao|date:"d/m/Y H:i" }}</td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    Chưa có lịch sử tích điểm.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+
+<div class="card">
+
+    <h3>YÊU CẦU HỖ TRỢ</h3>
+
+    <table>
+
+        <tr>
+            <th>Mã yêu cầu</th>
+            <th>Tiêu đề</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+        </tr>
+
+        {% for item in danh_sach_yeu_cau %}
+
+            <tr>
+
+                <td>{{ item.MaYeuCau }}</td>
+
+                <td>{{ item.TieuDe }}</td>
+
+                <td>{{ item.get_TrangThai_display }}</td>
+
+                <td>{{ item.NgayTao|date:"d/m/Y H:i" }}</td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="4">
+                    Chưa có yêu cầu hỗ trợ.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+
+<a href="{% url 'KHACHHANG:danh_sach_khach_hang' %}"
+   class="btn">
+    Quay lại danh sách
+</a>
+
+{% endblock %}

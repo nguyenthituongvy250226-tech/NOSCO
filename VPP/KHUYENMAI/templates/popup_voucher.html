@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sử dụng voucher</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+<body>
+
+<div class="container py-4">
+    <button type="button" class="btn btn-outline-primary"
+            data-bs-toggle="modal" data-bs-target="#voucherModal">
+        Sử dụng voucher
+    </button>
+</div>
+
+<!-- Popup voucher -->
+<div class="modal fade" id="voucherModal" tabindex="-1"
+     aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherModalLabel">
+                    Sử dụng voucher
+                </h5>
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="voucherForm">
+                    {% csrf_token %}
+
+                    <label for="maVoucher" class="form-label">
+                        Nhập mã voucher
+                    </label>
+
+                    <div class="input-group">
+                        <input type="text" class="form-control"
+                               id="maVoucher" name="ma_voucher"
+                               placeholder="Nhập mã voucher" required>
+
+                        <button type="submit" class="btn btn-primary">
+                            Áp dụng
+                        </button>
+                    </div>
+                </form>
+
+                <div id="voucherMessage" class="mt-3"
+                     role="status" aria-live="polite"></div>
+
+                <div id="voucherDiscount" class="mt-2 d-none">
+                    Số tiền được giảm:
+                    <strong id="discountAmount"></strong>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById("voucherForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const maVoucher = document.getElementById("maVoucher").value.trim();
+    const thongBao = document.getElementById("voucherMessage");
+    const khuVucGiam = document.getElementById("voucherDiscount");
+
+    thongBao.textContent = "";
+    khuVucGiam.classList.add("d-none");
+
+    const csrfToken = document.querySelector(
+        '[name=csrfmiddlewaretoken]'
+    ).value;
+
+    const formData = new FormData();
+    formData.append("ma_voucher", maVoucher);
+
+    // Dữ liệu tạm để kiểm tra API giao diện.
+    formData.append("tong_tien_hang", "250000");
+    formData.append("hang_thanh_vien", "TatCaThanhVien");
+
+    try {
+        const response = await fetch("/khuyen-mai/ap-dung/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            body: formData
+        });
+
+        const ketQua = await response.json();
+
+        thongBao.textContent = ketQua.thong_bao;
+        thongBao.className = ketQua.hop_le
+            ? "mt-3 text-success"
+            : "mt-3 text-danger";
+
+        if (ketQua.hop_le) {
+            document.getElementById("discountAmount").textContent =
+                Number(ketQua.so_tien_giam).toLocaleString("vi-VN") + "đ";
+
+            khuVucGiam.classList.remove("d-none");
+        }
+
+    } catch (error) {
+        thongBao.textContent = "Không thể kết nối đến hệ thống.";
+        thongBao.className = "mt-3 text-danger";
+    }
+});
+</script>
+</body>
+</html>

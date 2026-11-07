@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Xử lý đơn hàng{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
+{% block content %}
+<main class="staff-order-page">
+  {% if messages %}{% for message in messages %}<p class="order-alert" role="status">{{ message }}</p>{% endfor %}{% endif %}
+  <h1>Tiếp nhận và xử lý đơn hàng</h1>
+  <nav class="staff-order-tabs">
+    <a href="?trang_thai=cho_xac_nhan">Chờ xác nhận</a>
+    <a href="?trang_thai=cho_lay_hang">Chờ lấy hàng</a>
+    <a href="?trang_thai=cho_giao_hang">Chờ giao hàng</a>
+    <a href="?trang_thai=cho_xac_nhan_nhan">Giao thành công · chờ hết hạn trả</a>
+    <a href="?trang_thai=all">Tất cả</a>
+    <a href="{% url 'DONHANG:nhan_vien_tra_hang' %}">Yêu cầu trả hàng</a>
+  </nav>
+  {% for don in don_hang %}
+    <section class="order-card staff-order-card">
+      <h2><a href="{% url 'DONHANG:chi_tiet' don.ma_don_hang %}">{{ don.ma_don_hang }}</a> · {{ don.get_trang_thai_don_display }}</h2>
+      <p>{{ don.ten_nguoi_nhan }} · {{ don.sdt_nguoi_nhan }} · {{ don.dia_chi_nhan_hang }}</p>
+      <ul>{% for ct in don.chi_tiet.all %}<li>{{ ct.ma_bien_the }} × {{ ct.so_luong }} · {{ ct.thanh_tien|floatformat:0 }} đ</li>{% endfor %}</ul>
+      <strong>Tổng: {{ don.tong_tien|floatformat:0 }} đ</strong>
+      {% if don.trang_thai_don == "cho_xac_nhan" %}
+        <form class="staff-order-form" method="post" action="{% url 'DONHANG:nhan_vien_xu_ly_don' don.ma_don_hang %}">
+          {% csrf_token %}<button class="order-btn order-btn-primary" name="hanh_dong" value="xac_nhan">Xác nhận đơn</button>
+          <button class="order-btn order-btn-danger" name="hanh_dong" value="het_hang">Hết hàng — hủy đơn</button>
+        </form>
+      {% endif %}
+      {% if don.trang_thai_don == "cho_lay_hang" or don.trang_thai_don == "cho_giao_hang" %}
+        <form class="staff-order-form" method="post" action="{% url 'DONHANG:nhan_vien_cap_nhat_giao_hang' don.ma_don_hang %}">
+          {% csrf_token %}
+          <input name="don_vi_van_chuyen" placeholder="Đơn vị vận chuyển" value="{{ don.giao_hang.don_vi_van_chuyen }}">
+          <input name="ma_van_don" placeholder="Mã vận đơn" value="{{ don.giao_hang.ma_van_don }}">
+          <select name="trang_thai">
+            {% if don.trang_thai_don == "cho_lay_hang" %}<option value="dang_giao">Bàn giao vận chuyển / Đang giao</option>{% else %}<option value="da_giao">Đã giao</option><option value="dang_giao">Vẫn đang giao</option>{% endif %}
+            <option value="giao_that_bai">Giao thất bại</option>
+          </select>
+          <input name="ly_do_that_bai" placeholder="Lý do nếu giao thất bại">
+          <button class="order-btn order-btn-primary" type="submit">Cập nhật giao hàng</button>
+        </form>
+      {% endif %}
+    </section>
+  {% empty %}<p>Không có đơn hàng trong trạng thái này.</p>{% endfor %}
+</main>
+{% endblock %}

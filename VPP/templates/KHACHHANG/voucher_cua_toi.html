@@ -1,0 +1,49 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}Voucher của tôi | NOSCO{% endblock %}
+
+{% block account_content %}
+<section class="customer-vouchers-page">
+    <header class="customer-page-heading">
+        <div>
+            <p class="customer-page-eyebrow">ƯU ĐÃI MUA SẮM</p>
+            <h2>Voucher của tôi</h2>
+            <p>Mã ưu đãi đang hoạt động và điều kiện áp dụng tại NOSCO.</p>
+        </div>
+        <a href="{% url 'khuyenmai:danh_sach_khuyen_mai' %}" class="customer-secondary-button">Khám phá ưu đãi</a>
+    </header>
+    <div class="customer-vouchers">
+        {% for voucher in danh_sach_voucher %}
+            <article class="customer-voucher">
+                <div class="customer-voucher-value">
+                    <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+                    <strong>
+                        {% if voucher.LoaiGiamGia == "PhanTram" %}
+                            {{ voucher.GiaTriGiam|floatformat:0 }}%
+                        {% else %}
+                            {{ voucher.GiaTriGiam|floatformat:0 }}đ
+                        {% endif %}
+                    </strong>
+                    <span>ƯU ĐÃI</span>
+                </div>
+                <div class="customer-voucher-details">
+                    <span class="customer-voucher-code">{{ voucher.MaVoucher }}</span>
+                    <h3>{{ voucher.TenVoucher }}</h3>
+                    <p>Áp dụng: {{ voucher.get_DoiTuongApDung_display }}</p>
+                    {% if voucher.DieuKienGiam %}
+                        <small>Đơn tối thiểu {{ voucher.DieuKienGiam|floatformat:0 }}đ</small>
+                    {% endif %}
+                    <small>Có hiệu lực đến {{ voucher.NgayKetThuc|date:"d/m/Y H:i" }}</small>
+                </div>
+            </article>
+        {% empty %}
+            <div class="customer-account-empty">
+                <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+                <h3>Chưa có voucher khả dụng</h3>
+                <p>Khám phá chương trình ưu đãi hiện có và nhập mã phù hợp tại bước thanh toán.</p>
+                <a href="{% url 'khuyenmai:danh_sach_khuyen_mai' %}">Xem khuyến mãi</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

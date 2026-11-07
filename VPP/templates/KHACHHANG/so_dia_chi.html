@@ -1,0 +1,62 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Sổ địa chỉ giao hàng
+{% endblock %}
+
+
+{% block account_content %}
+<section class="customer-address-page">
+    <header class="customer-page-heading">
+        <div>
+            <p class="customer-page-eyebrow">GIAO HÀNG THUẬN TIỆN</p>
+            <h2>Sổ địa chỉ</h2>
+            <p>Lưu địa chỉ nhận hàng để đặt mua nhanh chóng hơn.</p>
+        </div>
+        <a href="{% url 'KHACHHANG:them_dia_chi' %}" class="customer-primary-button">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i> Thêm địa chỉ
+        </a>
+    </header>
+    <div class="customer-address-list">
+        {% for dia_chi in danh_sach_dia_chi %}
+            <article class="customer-address-card{% if dia_chi.MacDinh %} is-default{% endif %}">
+                <div class="customer-address-card-heading">
+                    <div class="customer-address-recipient">
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        <div>
+                            <h3>{{ dia_chi.TenNguoiNhan }}</h3>
+                            <p>{{ dia_chi.SoDienThoai }}</p>
+                        </div>
+                    </div>
+                    {% if dia_chi.MacDinh %}
+                        <span class="customer-default-badge">Địa chỉ mặc định</span>
+                    {% endif %}
+                </div>
+                <p class="customer-address-text">{{ dia_chi.DiaChi }}</p>
+                <div class="customer-address-actions">
+                    <a href="{% url 'KHACHHANG:sua_dia_chi' dia_chi.MaDiaChi %}">Chỉnh sửa</a>
+                    {% if not dia_chi.MacDinh %}
+                        <form method="POST" action="{% url 'KHACHHANG:dat_dia_chi_mac_dinh' dia_chi.MaDiaChi %}">
+                            {% csrf_token %}
+                            <button type="submit" class="customer-text-button">Đặt làm mặc định</button>
+                        </form>
+                    {% endif %}
+                    <form method="POST"
+                          action="{% url 'KHACHHANG:xoa_dia_chi' dia_chi.MaDiaChi %}"
+                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa địa chỉ này?');">
+                        {% csrf_token %}
+                        <button type="submit" class="customer-text-button is-danger">Xóa</button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <div class="customer-account-empty">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                <h3>Chưa có địa chỉ giao hàng</h3>
+                <p>Thêm địa chỉ nhận hàng để thuận tiện cho lần mua tiếp theo.</p>
+                <a href="{% url 'KHACHHANG:them_dia_chi' %}">Thêm địa chỉ đầu tiên</a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

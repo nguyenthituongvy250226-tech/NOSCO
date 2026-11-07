@@ -1,0 +1,291 @@
+/* =========================================
+   NOSCO - CHIA SẺ GIỎ HÀNG (v2)
+========================================= */
+
+.share-page {
+    width: 100%;
+    padding: 26px 0 60px;
+    background: #eef2f7;
+    box-shadow: 0 0 0 100vmax #eef2f7;
+    clip-path: inset(0 -100vmax);
+}
+
+.share-page,
+.share-page button,
+.share-page input,
+.share-page h1 {
+    font-family: inherit;
+}
+
+.share-page .share-card {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 22px 48px 40px;
+    border-radius: 18px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 6px 24px rgba(24, 59, 89, .06);
+}
+
+/* ===== Quay lại ===== */
+
+.share-page .share-back {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: fit-content;
+    color: var(--navy);
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+.share-page .share-back:hover {
+    color: var(--primary);
+}
+
+/* ===== Hình minh họa ===== */
+
+.share-page .share-illustration {
+    position: relative;
+    width: 190px;
+    height: 118px;
+    margin: 6px auto 14px;
+}
+
+.share-page .share-screen {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 112px;
+    height: 78px;
+    border: 3px solid #d3e4f8;
+    border-radius: 12px;
+    background: #e9f2fc;
+    color: #1a5fd0;
+    font-size: 30px;
+    transform: translateX(-50%);
+}
+
+.share-page .share-ground {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 150px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e3ebf5;
+    transform: translateX(-50%);
+}
+
+.share-page .share-badge {
+    position: absolute;
+    top: 2px;
+    right: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #1a5fd0;
+    color: #fff;
+    font-size: 12px;
+    box-shadow: 0 3px 8px rgba(26, 95, 208, .3);
+}
+
+.share-page .share-arrow {
+    position: absolute;
+    top: 26px;
+    right: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fdeab0;
+    color: #d99a00;
+    font-size: 12px;
+}
+
+.share-page .spark {
+    position: absolute;
+    color: #f2b932;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.share-page .spark-1 { top: 42px; left: 10px; }
+.share-page .spark-2 { bottom: 30px; right: 6px; font-size: 12px; }
+
+/* ===== Tiêu đề ===== */
+
+.share-page h1 {
+    margin: 0 0 8px;
+    color: var(--navy);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.share-page .share-desc {
+    max-width: 360px;
+    margin: 0 auto 24px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* ===== Ô đường dẫn ===== */
+
+.share-page .share-link-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 7px 7px 16px;
+    border: 1px solid #e6ebf1;
+    border-radius: 9px;
+    background: #f6f8fb;
+}
+
+.share-page .share-link-box > i {
+    color: #5b7fb0;
+    font-size: 13px;
+}
+
+.share-page .share-link-box input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: #33475b;
+    font-size: 12.5px;
+    text-overflow: ellipsis;
+}
+
+.share-page .share-link-box input:focus {
+    outline: none;
+}
+
+.share-page .share-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 7px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.share-page .share-copy-btn:hover {
+    background: var(--primary-dark);
+}
+
+/* ===== Dòng "Hoặc chia sẻ qua" ===== */
+
+.share-page .share-or {
+    position: relative;
+    margin: 22px 0 18px;
+    text-align: center;
+}
+
+.share-page .share-or::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #eef1f5;
+}
+
+.share-page .share-or span {
+    position: relative;
+    padding: 0 14px;
+    background: #fff;
+    color: #9aa6b2;
+    font-size: 10.5px;
+}
+
+/* ===== Nền tảng ===== */
+
+.share-page .share-channels {
+    display: flex;
+    justify-content: center;
+    gap: 38px;
+}
+
+.share-page .channel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.share-page .channel-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 15px;
+    transition: transform .2s;
+}
+
+.share-page .channel:hover .channel-icon {
+    transform: translateY(-3px);
+}
+
+.share-page .channel-icon.zalo      { background: #e8f1ff; color: #0068ff; font-size: 11px; font-weight: 800; }
+.share-page .channel-icon.facebook  { background: #e9f0ff; color: #1877f2; }
+.share-page .channel-icon.messenger { background: #f0eaff; color: #7a4cf0; }
+.share-page .channel-icon.other     { background: #f0f2f5; color: #6b7886; }
+
+.share-page .channel-name {
+    color: var(--text);
+    font-size: 11.5px;
+    font-weight: 400;
+}
+
+/* ===== Thông báo nhỏ ===== */
+
+.share-page .share-toast {
+    margin: 20px auto 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: #e8f6ee;
+    color: #23804a;
+    font-size: 12px;
+}
+
+/* ===== Điện thoại ===== */
+
+@media (max-width: 650px) {
+    .share-page .share-card {
+        padding: 18px 16px 28px;
+    }
+    .share-page .share-channels {
+        gap: 18px;
+    }
+    .share-page .share-link-box {
+        flex-wrap: wrap;
+    }
+    .share-page .share-copy-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

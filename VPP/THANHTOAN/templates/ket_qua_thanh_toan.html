@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả thanh toán - NOSCO</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            background: #f5f6f8;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            padding: 45px 40px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+            text-align: center;
+        }
+
+        .status-icon {
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        .success .status-icon {
+            color: #16834a;
+            background: #e7f6ed;
+            border: 2px solid #b9e6ca;
+        }
+
+        .failure .status-icon {
+            color: #d62828;
+            background: #fff0f0;
+            border: 2px solid #f2c5c5;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #174a78;
+            font-size: 24px;
+        }
+
+        .message {
+            margin-bottom: 30px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .result-info {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f3f6f9;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e5eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span {
+            color: #777;
+        }
+
+        .info-row strong {
+            color: #174a78;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .status-success {
+            color: #16834a !important;
+        }
+
+        .status-failure {
+            color: #d62828 !important;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #1677c8;
+            border-radius: 6px;
+            background: #1677c8;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.25s;
+        }
+
+        .btn:hover {
+            background: #125fa0;
+            border-color: #125fa0;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #1677c8;
+        }
+
+        .btn-outline:hover {
+            background: #f1f8ff;
+            color: #125fa0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 35px 22px;
+            }
+
+            h2 {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container {% if thanh_cong %}success{% else %}failure{% endif %}">
+
+        <div class="status-icon">
+            {% if thanh_cong %}
+                ✓
+            {% else %}
+                ✕
+            {% endif %}
+        </div>
+
+        {% if thanh_cong %}
+            <h2>THANH TOÁN THÀNH CÔNG</h2>
+            <p class="message">
+                Giao dịch của bạn đã được ghi nhận.
+                Cảm ơn bạn đã mua sắm tại NOSCO!
+            </p>
+        {% else %}
+            <h2>THANH TOÁN THẤT BẠI</h2>
+            <p class="message">
+                {{ thong_bao }}
+                Vui lòng kiểm tra lại giao dịch hoặc thử thanh toán lại.
+            </p>
+        {% endif %}
+
+        <div class="result-info">
+
+            <div class="info-row">
+                <span>Phương thức</span>
+                <strong>VNPay</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Trạng thái</span>
+                {% if thanh_cong %}
+                    <strong class="status-success">Thành công</strong>
+                {% else %}
+                    <strong class="status-failure">Thất bại</strong>
+                {% endif %}
+            </div>
+
+            <div class="info-row">
+                <span>Mã giao dịch</span>
+                <strong>{{ ma_giao_dich|default:"Chưa có thông tin" }}</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Mã giao dịch VNPay</span>
+                <strong>{{ ma_giao_dich_vnpay|default:"Chưa có thông tin" }}</strong>
+            </div>
+
+            <div class="info-row">
+                <span>Số tiền</span>
+                <strong>
+                    {% if so_tien %}
+                        {{ so_tien|floatformat:0 }} VNĐ
+                    {% else %}
+                        Chưa có thông tin
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="actions">
+
+            <a href="{% url 'home' %}" class="btn">
+                Tiếp tục mua sắm
+            </a>
+
+            {% if thanh_cong %}
+                <a href="{% url 'DONHANG:danh_sach' %}" class="btn btn-outline">
+                    Xem đơn hàng của tôi
+                </a>
+            {% else %}
+                <a href="{% url 'DONHANG:danh_sach' %}" class="btn btn-outline">
+                    Quay lại đơn hàng
+                </a>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>

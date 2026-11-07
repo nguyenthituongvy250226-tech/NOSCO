@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Hướng dẫn trả hàng | NOSCO{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <h1>Hướng dẫn trả hàng</h1>
+    <p>Bài viết hướng dẫn trả hàng đang được cập nhật.</p>
+    <p>Sau khi gửi yêu cầu trả hàng, bạn có thể xem hướng dẫn chi tiết tại trang yêu cầu của đơn hàng.</p>
+    <a href="{% url 'KHACHHANG:dang_nhap' %}">Đăng nhập để xem đơn hàng</a>
+</main>
+{% endblock %}

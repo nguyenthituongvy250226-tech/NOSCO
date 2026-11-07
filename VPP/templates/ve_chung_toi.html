@@ -1,0 +1,172 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Về chúng tôi | NOSCO{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="about-hero">
+    <div class="about-hero-content">
+        <span class="about-eyebrow">WELCOME TO NOSCO</span>
+        <h1>Đồng hành cùng bạn<br>trên hành trình sáng tạo</h1>
+        <p>
+            NOSCO mang đến những sản phẩm văn phòng phẩm
+            thiết thực, chất lượng, góp phần tạo nên cảm hứng
+            trong học tập và công việc mỗi ngày.
+        </p>
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}"
+           class="about-button">
+            Khám phá sản phẩm
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="about-hero-image">
+        <img src="{% static 'images/about-hero.jpg' %}"
+             alt="Không gian văn phòng phẩm NOSCO">
+    </div>
+</section>
+
+<!-- STORY -->
+<section class="about-story">
+    <div class="about-section-label">OUR STORY</div>
+    <h2>Câu chuyện về NOSCO</h2>
+
+    <div class="about-story-content">
+        <div class="about-story-image">
+            <img src="{% static 'images/about-story.jpg' %}"
+                 alt="Các sản phẩm văn phòng phẩm">
+        </div>
+
+        <div class="about-story-text">
+            <h3>Những điều nhỏ bé tạo nên giá trị lớn</h3>
+            <p>
+                NOSCO là cửa hàng văn phòng phẩm hướng đến việc
+                cung cấp những sản phẩm phục vụ nhu cầu học tập,
+                làm việc và sáng tạo.
+            </p>
+            <p>
+                Chúng tôi mong muốn giúp khách hàng dễ dàng tìm
+                kiếm những vật dụng phù hợp, từ những chiếc bút,
+                quyển vở đến các sản phẩm hỗ trợ công việc và
+                cuộc sống hằng ngày.
+            </p>
+            <p>
+                Với NOSCO, mỗi sản phẩm không chỉ là một món đồ
+                dùng mà còn là người bạn đồng hành trong những
+                ý tưởng và hành trình mới.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- MISSION VISION VALUES -->
+<section class="about-values">
+    <div class="about-section-label">WHAT WE BELIEVE</div>
+    <h2>Điều NOSCO hướng đến</h2>
+    <p class="about-section-desc">
+        Những giá trị định hình cách chúng tôi phục vụ khách hàng.
+    </p>
+
+    <div class="about-value-grid">
+        <article class="about-value-card">
+            <div class="about-icon">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <h3>Sứ mệnh</h3>
+            <p>
+                Mang đến sản phẩm văn phòng phẩm chất lượng,
+                thiết thực và dễ tiếp cận cho mọi nhu cầu.
+            </p>
+        </article>
+
+        <article class="about-value-card">
+            <div class="about-icon">
+                <i class="fa-solid fa-eye"></i>
+            </div>
+            <h3>Tầm nhìn</h3>
+            <p>
+                Trở thành địa chỉ mua sắm văn phòng phẩm đáng tin cậy,
+                đồng hành cùng khách hàng trong học tập và công việc.
+            </p>
+        </article>
+
+        <article class="about-value-card">
+            <div class="about-icon">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <h3>Giá trị cốt lõi</h3>
+            <p>
+                Chất lượng, tận tâm, tiện lợi và luôn đặt trải nghiệm
+                khách hàng làm trọng tâm.
+            </p>
+        </article>
+    </div>
+</section>
+
+<!-- WHY NOSCO -->
+<section class="about-why">
+    <div class="about-why-image">
+        <img src="{% static 'images/about-products.jpg' %}"
+             alt="Văn phòng phẩm NOSCO">
+    </div>
+
+    <div class="about-why-content">
+        <div class="about-section-label">WHY NOSCO?</div>
+        <h2>Vì sao nên chọn NOSCO?</h2>
+
+        <div class="about-reason">
+            <i class="fa-solid fa-check-circle"></i>
+            <div>
+                <h3>Sản phẩm đa dạng</h3>
+                <p>Đáp ứng nhiều nhu cầu học tập, làm việc và sáng tạo.</p>
+            </div>
+        </div>
+
+        <div class="about-reason">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+                <h3>Chất lượng đảm bảo</h3>
+                <p>Chú trọng nguồn gốc và chất lượng sản phẩm.</p>
+            </div>
+        </div>
+
+        <div class="about-reason">
+            <i class="fa-solid fa-truck-fast"></i>
+            <div>
+                <h3>Mua sắm thuận tiện</h3>
+                <p>Dễ dàng tìm kiếm và lựa chọn sản phẩm trực tuyến.</p>
+            </div>
+        </div>
+
+        <div class="about-reason">
+            <i class="fa-solid fa-headset"></i>
+            <div>
+                <h3>Hỗ trợ tận tâm</h3>
+                <p>Luôn sẵn sàng hỗ trợ khách hàng khi cần thiết.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="about-cta">
+    <span>YOUR EVERYDAY INSPIRATION</span>
+    <h2>Cùng NOSCO tạo nên những điều tuyệt vời!</h2>
+    <p>
+        Khám phá bộ sưu tập văn phòng phẩm dành cho bạn.
+    </p>
+    <a href="{% url 'sanpham:danh_sach_san_pham' %}"
+       class="about-button">
+        Mua sắm ngay
+        <i class="fa-solid fa-arrow-right"></i>
+    </a>
+</section>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Xử lý yêu cầu hỗ trợ
+{% endblock %}
+
+
+{% block account_content %}
+
+<div class="card">
+
+    <h2>XỬ LÝ YÊU CẦU HỖ TRỢ</h2>
+
+    <p>
+        Mã yêu cầu: {{ yeu_cau.MaYeuCau }}
+    </p>
+
+    <p>
+        Khách hàng:
+        {{ yeu_cau.MaKhachHang.HoVaTen }}
+    </p>
+
+    <p>
+        Tiêu đề:
+        {{ yeu_cau.TieuDe }}
+    </p>
+
+    <p>
+        Nội dung:
+        {{ yeu_cau.NoiDung }}
+    </p>
+
+    <p>
+        Ngày gửi:
+        {{ yeu_cau.NgayTao|date:"d/m/Y H:i" }}
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <h3>PHẢN HỒI KHÁCH HÀNG</h3>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit" class="btn">
+            Lưu kết quả xử lý
+        </button>
+
+        <a href="{% url 'KHACHHANG:quan_ly_yeu_cau_ho_tro' %}"
+           class="btn btn-danger">
+            Quay lại
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

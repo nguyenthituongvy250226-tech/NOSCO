@@ -1,0 +1,480 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=notification-dropdown-3">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NOSCO - Văn phòng phẩm chính hãng{% endblock %}</title>
+    <!-- Nhúng Font Awesome để hiển thị các icon trên bản thiết kế -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=notification-dropdown-3">
+    {% block extra_css %}{% endblock %}
+
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <!-- Top Utility Bar -->
+    <div class="top-notice">
+        Văn phòng phẩm chính hãng - Giao nhanh toàn quốc
+    </div>
+
+    <!-- Main Header -->
+    <header class="site-header">
+        <div class="header-inner">
+            <a class="logo" href="{% url 'home' %}" aria-label="NOSCO - Trang chủ">
+    <img
+        src="{% static 'images/logo.jpg' %}"
+        alt="NOSCO - Văn phòng phẩm cho mọi nhu cầu"
+        class="logo-image"
+        width="220"
+        style="display: block; width: 220px; max-width: 100%; height: auto;"
+    >
+</a>
+
+            <form class="search-form" action="/san-pham/" method="get">
+                <div class="search-wrapper">
+                    <input
+                        type="search"
+                        name="q"
+                        placeholder="Tìm kiếm bút, sổ tay, dụng cụ văn phòng..."
+                        aria-label="Tìm kiếm sản phẩm"
+                    >
+                    <button type="submit" class="search-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="header-actions">
+                <div class="account-menu" id="accountMenu">
+                    {% if request.session.vai_tro == "NHAN_VIEN" or request.user.VaiTro == "NHAN_VIEN" %}
+                    <a class="action-item account-link" href="{% url 'DONHANG:nhan_vien_don_hang' %}">
+                        <i class="fa-solid fa-user-gear" aria-hidden="true"></i>
+                        <div class="action-text">
+                            <span>{{ request.session.ten_dang_nhap|default:"Nhân viên" }}</span>
+                            <small>Khu vực nhân viên</small>
+                        </div>
+                    </a>
+                    <button class="account-menu-toggle" id="accountMenuToggle" type="button"
+                            aria-label="Mở menu tài khoản nhân viên" aria-expanded="false" aria-controls="accountDropdown">
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="account-dropdown staff-account-dropdown" id="accountDropdown">
+                        <a href="{% url 'DONHANG:nhan_vien_don_hang' %}">Quản lý đơn hàng</a>
+                        <a href="{% url 'DONHANG:nhan_vien_tra_hang' %}">Trả hàng / hoàn tiền</a>
+                        <a href="{% url 'KHACHHANG:danh_sach_khach_hang' %}">Quản lý khách hàng</a>
+                        <a href="{% url 'KHACHHANG:quan_ly_yeu_cau_ho_tro' %}">Quản lý hỗ trợ</a>
+                        <a href="{% url 'KHACHHANG:dang_xuat' %}">Đăng xuất</a>
+                    </div>
+                    {% else %}
+                    <a class="action-item account-link"
+                       href="{% if request.session.khachhang_ma_nguoi_dung %}{% url 'KHACHHANG:ho_so_ca_nhan' %}{% else %}{% url 'KHACHHANG:dang_nhap' %}{% endif %}">
+                        <i class="fa-regular fa-user"></i>
+                        <div class="action-text">
+                            <span>{% if request.session.khachhang_ma_nguoi_dung %}{{ request.session.ten_dang_nhap }}{% else %}Tài khoản{% endif %}</span>
+                            <small>{% if request.session.khachhang_ma_nguoi_dung %}Hồ sơ cá nhân{% else %}Đăng nhập{% endif %}</small>
+                        </div>
+                    </a>
+                    <button class="account-menu-toggle" id="accountMenuToggle" type="button"
+                            aria-label="Mở menu tài khoản" aria-expanded="false" aria-controls="accountDropdown">
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="account-dropdown" id="accountDropdown">
+                        {% if request.session.khachhang_ma_nguoi_dung %}
+                            <a href="{% url 'KHACHHANG:ho_so_ca_nhan' %}">Tài Khoản Của Tôi</a>
+                            <a href="{% url 'DONHANG:danh_sach' %}">Đơn Mua</a>
+                            <a href="{% url 'KHACHHANG:dang_xuat' %}">Đăng Xuất</a>
+                        {% else %}
+                            <a href="{% url 'KHACHHANG:dang_nhap' %}">Đăng nhập</a>
+                            <a href="{% url 'KHACHHANG:dang_ky' %}">Tạo tài khoản</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% if request.session.vai_tro != "NHAN_VIEN" and request.user.VaiTro != "NHAN_VIEN" %}
+                <a class="action-item" href="{% url 'sanpham:san_pham_yeu_thich' %}">
+                    <i class="fa-regular fa-heart"></i>
+                    <div class="action-text"><span>Yêu thích</span></div>
+                </a>
+                <a class="action-item cart-trigger" href="/gio-hang/">
+                    <span class="header-icon-wrap">
+                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+                        {% if header_so_san_pham_trong_gio %}
+                            <span class="header-count-badge header-cart-count-badge" aria-label="{{ header_so_san_pham_trong_gio }} sản phẩm trong giỏ">
+                                {% if header_so_san_pham_trong_gio > 99 %}99+{% else %}{{ header_so_san_pham_trong_gio }}{% endif %}
+                            </span>
+                        {% endif %}
+                    </span>
+                    <div class="action-text"><span>Giỏ hàng</span></div>
+                </a>
+                {% endif %}
+                <div class="header-popover notification-popover">
+                    <a class="action-item" href="{% url 'KHACHHANG:danh_sach_thong_bao' %}" aria-haspopup="true">
+                        <span class="header-icon-wrap">
+                            <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                            {% if header_so_thong_bao_chua_doc %}
+                                <span class="header-count-badge" aria-label="{{ header_so_thong_bao_chua_doc }} thông báo chưa đọc">
+                                    {% if header_so_thong_bao_chua_doc > 99 %}99+{% else %}{{ header_so_thong_bao_chua_doc }}{% endif %}
+                                </span>
+                            {% endif %}
+                        </span>
+                        <div class="action-text"><span>Thông báo</span></div>
+                    </a>
+                    <div class="notification-dropdown" role="region" aria-label="Thông báo mới nhất">
+                        <div class="notification-dropdown-heading">Thông báo mới nhất</div>
+                        {% if header_thong_bao_moi %}
+                            <div class="notification-dropdown-list">
+                                {% for thong_bao in header_thong_bao_moi %}
+                                    <a class="notification-preview{% if not thong_bao.DaDoc %} is-unread{% endif %}"
+                                       href="{% url 'KHACHHANG:danh_sach_thong_bao' %}">
+                                        <span class="notification-preview-title">{{ thong_bao.TieuDe }}</span>
+                                        <span class="notification-preview-body">{{ thong_bao.NoiDung|truncatechars:90 }}</span>
+                                        <time datetime="{{ thong_bao.NgayTao|date:'c' }}">{{ thong_bao.NgayTao|date:"d/m/Y H:i" }}</time>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="notification-dropdown-empty">
+                                {% if request.session.khachhang_ma_nguoi_dung %}Bạn chưa có thông báo.{% else %}Đăng nhập để xem thông báo.{% endif %}
+                            </p>
+                        <a class="notification-dropdown-all" href="{% url 'KHACHHANG:danh_sach_thong_bao' %}">Xem tất cả thông báo</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="main-nav">
+        <div class="nav-inner">
+<div class="category-menu">
+    <button
+        type="button"
+        class="category-menu-toggle"
+        id="categoryMenuToggle"
+        aria-expanded="false"
+        aria-controls="categoryDropdown"
+    >
+        <span>☰ &nbsp; Danh mục sản phẩm</span>
+        <span class="category-arrow">⌄</span>
+    </button>
+
+    <div class="category-dropdown" id="categoryDropdown">
+        <a href="{% url 'sanpham:danh_sach_san_pham' %}">
+            Tất cả sản phẩm
+        </a>
+
+        {% for danh_muc in danh_muc_menu %}
+            <a href="{% url 'sanpham:danh_sach_san_pham' %}?danh_muc={{ danh_muc.ma_danh_muc|urlencode }}">
+                {{ danh_muc.ten_danh_muc }}
+            </a>
+        {% empty %}
+            <span class="category-empty">
+                Chưa có danh mục sản phẩm
+            </span>
+        {% endfor %}
+    </div>
+</div>
+
+            <div class="nav-links">
+                <a href="{% url 'sanpham:danh_sach_san_pham' %}">Sản phẩm</a>
+                <a href="{% url 've_chung_toi' %}">Về chúng tôi</a>
+                <a href="{% url 'danh_sach_bai_viet' %}">Bài viết</a>
+                <a href="{% url 'sanpham:danh_sach_thuong_hieu' %}">
+                    Thương hiệu
+                </a>
+                <a href="/khuyen-mai/"><i class="fa-solid fa-gift"></i> Khuyến mãi</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="page-container">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+</main>
+
+    <!-- Brand Trust Badges -->
+    <section class="trust-badges">
+        <div class="badges-inner">
+            <div class="badge-item">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div><h4>Sản phẩm chính hãng</h4><p>Nguồn gốc rõ ràng, chất lượng đảm bảo</p></div>
+            </div>
+            <div class="badge-item">
+                <i class="fa-solid fa-truck-fast"></i>
+                <div><h4>Giao hàng nhanh</h4><p>Giao tận nơi trên toàn quốc</p></div>
+            </div>
+            <div class="badge-item">
+                <i class="fa-solid fa-credit-card"></i>
+                <div><h4>Thanh toán an toàn</h4><p>Bảo mật thông tin, đa dạng phương thức</p></div>
+            </div>
+            <div class="badge-item">
+                <i class="fa-solid fa-headset"></i>
+                <div><h4>Hỗ trợ tận tâm</h4><p>Luôn sẵn sàng đồng hành cùng bạn</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Professional Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col brand-col">
+                <a class="logo" href="/" aria-label="NOSCO - Trang chủ">
+    <img
+        src="{% static 'images/logo.jpg' %}"
+        alt="NOSCO - Văn phòng phẩm cho mọi nhu cầu"
+        class="logo-image"
+        width="220"
+        style="display: block; width: 150px; max-width: 100%; height: auto;"
+    >
+</a>
+                <p class="brand-desc">Văn phòng phẩm chính hãng cho học tập, công việc và mọi ý tưởng của bạn.</p>
+                <p class="contact-info"><strong>Email:</strong> hotro@nosco.vn</p>
+                <p class="contact-info"><strong>Hỗ trợ:</strong> 8:00 - 17:30, Thứ 2 - Thứ 7</p>
+            </div>
+            <div class="footer-col">
+                <h3>Mua sắm cùng NOSCO</h3>
+                <ul>
+                    <li><a href="{% url 'sanpham:danh_sach_san_pham' %}?q=bút">Bút viết</a></li>
+                    <li><a href="{% url 'sanpham:danh_sach_san_pham' %}?q=sổ">Vở &amp; sổ</a></li>
+                    <li><a href="{% url 'sanpham:danh_sach_san_pham' %}?q=giấy">Giấy</a></li>
+                    <li><a href="{% url 'sanpham:danh_sach_san_pham' %}?q=dụng cụ học tập">Dụng cụ học tập</a></li>
+                    <li><a href="{% url 'khuyenmai:danh_sach_khuyen_mai' %}">Khuyến mãi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Hỗ trợ khách hàng</h3>
+                <ul>
+                    <li><a href="{% url 'trang_ho_tro' 'huong-dan-dat-hang' %}">Hướng dẫn đặt hàng</a></li>
+                    <li><a href="{% url 'trang_ho_tro' 'chinh-sach-giao-hang' %}">Chính sách giao hàng</a></li>
+                    <li><a href="{% url 'DONHANG:huong_dan_tra_hang_chung' %}">Hướng dẫn trả hàng</a></li>
+                    <li><a href="{% url 'trang_ho_tro' 'phuong-thuc-thanh-toan' %}">Phương thức thanh toán</a></li>
+                    <li><a href="{% url 'trang_ho_tro' 'chinh-sach-bao-mat' %}">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="footer-col newsletter-col">
+                <h3>Đừng bỏ lỡ ưu đãi mới</h3>
+                <p>Nhận khuyến mãi và những sản phẩm mới nhất từ NOSCO qua email.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Email của bạn" required>
+                    <button
+                            type="submit"
+                            style="width: 100px; min-width: 100px; white-space: nowrap; flex-shrink: 0;"
+                    >
+                        Đăng ký
+                    </button>
+                </form>
+                <div class="payment-methods">
+                    <span>Thanh toán linh hoạt:</span>
+                    <div class="method-tags">
+                        <span class="tag">Thẻ ngân hàng</span>
+                        <span class="tag">Chuyển khoản</span>
+                        <span class="tag">Tiền mặt</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="bottom-inner">
+                <p>© 2026 Nosco. Văn phòng phẩm cho mọi nhu cầu.</p>
+                <p>An tâm mua sắm • Cảm hứng mỗi ngày</p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const menu = document.querySelector(".category-menu");
+    const toggle = document.getElementById("categoryMenuToggle");
+
+    if (menu && toggle) {
+        toggle.addEventListener("click", function () {
+            const isOpen = menu.classList.toggle("is-open");
+            toggle.setAttribute("aria-expanded", String(isOpen));
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!menu.contains(event.target)) {
+                menu.classList.remove("is-open");
+                toggle.setAttribute("aria-expanded", "false");
+            }
+        });
+    }
+
+    const accountMenu = document.getElementById("accountMenu");
+    const accountToggle = document.getElementById("accountMenuToggle");
+
+    if (accountMenu && accountToggle) {
+        accountToggle.addEventListener("click", function () {
+            const isOpen = accountMenu.classList.toggle("is-open");
+            accountToggle.setAttribute("aria-expanded", String(isOpen));
+        });
+
+        document.addEventListener("click", function (event) {
+            if (!accountMenu.contains(event.target)) {
+                accountMenu.classList.remove("is-open");
+                accountToggle.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                accountMenu.classList.remove("is-open");
+                accountToggle.setAttribute("aria-expanded", "false");
+            }
+        });
+    }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script src="{% static 'js/hero-slideshow.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("submit", async function(event) {
+    const form = event.target;
+
+    // Chỉ xử lý form yêu thích
+    if (!form.matches('form[action*="yeu-thich/toggle/"]')) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const button = form.querySelector(".favorite-btn");
+
+    if (!button || button.disabled) return;
+
+    button.disabled = true;
+
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            body: new FormData(form),
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error("Không thể cập nhật yêu thích.");
+        }
+
+        // Cập nhật tất cả nút tim của sản phẩm trên trang hiện tại
+        document.querySelectorAll(
+            'form[action*="yeu-thich/toggle/"]'
+        ).forEach(function(otherForm) {
+            const input = otherForm.querySelector(
+                'input[name="ma_san_pham"]'
+            );
+
+            const otherButton = otherForm.querySelector(".favorite-btn");
+
+            if (
+                input &&
+                otherButton &&
+                input.value === String(data.ma_san_pham)
+            ) {
+                otherButton.classList.toggle(
+                    "is-favorite",
+                    data.da_yeu_thich
+                );
+
+                otherButton.textContent =
+                    data.da_yeu_thich ? "♥" : "♡";
+
+                otherButton.title =
+                    data.da_yeu_thich
+                    ? "Bỏ yêu thích"
+                    : "Thêm vào yêu thích";
+
+                otherButton.setAttribute(
+                    "aria-label",
+                    otherButton.title
+                );
+
+                otherButton.disabled = false;
+            }
+        });
+
+        // Nếu bỏ yêu thích ngay tại trang wishlist thì xóa thẻ sản phẩm
+        if (
+            !data.da_yeu_thich &&
+            form.classList.contains("wishlist-favorite-form")
+        ) {
+            const card = form.closest(".wishlist-card");
+
+            if (card) {
+                card.remove();
+            }
+
+            const wishlistCards = document.querySelectorAll(
+                ".wishlist-card"
+            );
+
+            const countElement = document.querySelector(
+                ".wishlist-count span"
+            );
+
+            if (countElement) {
+                countElement.textContent =
+                    wishlistCards.length + " sản phẩm";
+            }
+
+            // Hiển thị thông báo khi wishlist trống
+            if (wishlistCards.length === 0) {
+                const grid = document.querySelector(".wishlist-grid");
+
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="wishlist-empty-message">
+                            <i class="fa-regular fa-heart"></i>
+                            <h3>Danh sách yêu thích đang trống!</h3>
+                            <p>Hãy khám phá NOSCO và lưu lại những sản phẩm bạn yêu thích nhé.</p>
+                            <a href="{% url 'sanpham:danh_sach_san_pham' %}" class="wishlist-explore-btn">
+                                Khám phá sản phẩm
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+    } catch (error) {
+        alert("Có lỗi xảy ra. Vui lòng thử lại!");
+    } finally {
+        button.disabled = false;
+    }
+});
+</script>
+</body>
+</html>

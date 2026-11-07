@@ -1,0 +1,28 @@
+{% extends "KHACHHANG/base.html" %}
+
+{% block title %}
+Gửi yêu cầu hỗ trợ
+{% endblock %}
+
+
+{% block account_content %}
+<section class="customer-form-page">
+    <header class="customer-page-heading">
+        <div>
+            <p class="customer-page-eyebrow">CHĂM SÓC KHÁCH HÀNG</p>
+            <h2>Gửi yêu cầu hỗ trợ</h2>
+            <p>Mô tả vấn đề để đội ngũ NOSCO có thể hỗ trợ bạn tốt hơn.</p>
+        </div>
+    </header>
+    <div class="customer-account-panel customer-form-panel">
+        <form method="POST" class="customer-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="customer-form-actions">
+                <button type="submit" class="customer-primary-button">Gửi yêu cầu</button>
+                <a href="{% url 'KHACHHANG:danh_sach_yeu_cau' %}" class="customer-secondary-button">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

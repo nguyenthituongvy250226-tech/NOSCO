@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bài viết | NOSCO{% endblock %}
+
+{% block content %}
+
+<section class="blog-page">
+
+    <div class="blog-heading">
+        <span class="blog-label">NOSCO TIPS</span>
+        <h1>Góc kiến thức văn phòng phẩm</h1>
+        <p>
+            Những mẹo hay và kiến thức hữu ích giúp bạn học tập,
+            làm việc và sáng tạo hiệu quả hơn mỗi ngày.
+        </p>
+    </div>
+
+    <div class="blog-list">
+
+        {% for bai_viet in bai_viets %}
+
+        <article class="blog-article" id="bv-{{ bai_viet.ma_bai_viet }}">
+
+            <!-- Tiêu đề và ngày đăng -->
+            <div class="blog-article-header">
+                <h2>{{ bai_viet.tieu_de }}</h2>
+
+                <span class="blog-date">
+                    {{ bai_viet.ngay_dang|date:"d/m/Y" }}
+                </span>
+            </div>
+
+            <!-- Ảnh minh họa -->
+            <div class="blog-article-image">
+                <img src="{{ bai_viet.hinh_anh.url }}"
+                     alt="{{ bai_viet.tieu_de }}">
+            </div>
+
+            <!-- Nội dung bài viết -->
+            <div class="blog-article-text">
+                {{ bai_viet.noi_dung|safe }}
+            </div>
+
+        </article>
+
+        {% empty %}
+
+        <div class="blog-empty">
+            <i class="fa-regular fa-newspaper"></i>
+            <h2>Chưa có bài viết</h2>
+            <p>Hiện tại NOSCO chưa có bài viết nào được đăng.</p>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}
