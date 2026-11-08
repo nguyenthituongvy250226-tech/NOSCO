@@ -1,410 +1,646 @@
+
+
 {% extends "base.html" %}
 {% load static %}
 
+
 {% block title %}Tất cả sản phẩm | NOSCO{% endblock %}
+
 
 {% block content %}
 
+
 <section class="recommend-section">
 
-    {% if not request.GET.q or danh_sach_san_pham %}
-        <div class="nosco-banner">
-            <img
-                src="{% static 'images/bannersp.png' %}"
-                alt="NOSCO - Văn phòng phẩm cho mọi hành trình"
-            >
-        </div>
-    {% endif %}
-
-    <div class="recommend-inner">
-
-        <div class="recommend-heading">
-            <div>
-                <p class="recommend-eyebrow">✦ KHÁM PHÁ NOSCO</p>
-
-                <h2>Tất cả sản phẩm</h2>
-
-                <p class="recommend-description">
-                    Tìm những món đồ phù hợp cho học tập,
-                    làm việc và sáng tạo mỗi ngày.
-                </p>
-            </div>
-        </div>
-
-        <div class="product-layout">
-
-            <!-- CỘT BÊN TRÁI: BỘ LỌC -->
-            <aside class="product-sidebar">
-                <form method="get" action="" class="product-filter-form">
-
-                    <h3>Bộ lọc sản phẩm</h3>
-
-                    <div class="filter-field">
-                        <label for="danh_muc">Danh mục</label>
-
-                        <select id="danh_muc" name="danh_muc">
-                            <option value="">Tất cả danh mục</option>
-
-                            {% for danh_muc in danh_muc_list %}
-                                {% if danh_muc_dang_chon == danh_muc.ma_danh_muc %}
-                                    <option value="{{ danh_muc.ma_danh_muc }}" selected>
-                                        {{ danh_muc.ten_danh_muc }}
-                                    </option>
-                                {% else %}
-                                    <option value="{{ danh_muc.ma_danh_muc }}">
-                                        {{ danh_muc.ten_danh_muc }}
-                                    </option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="filter-field">
-                        <label for="thuong_hieu">Thương hiệu</label>
-
-                        <select id="thuong_hieu" name="thuong_hieu">
-                            <option value="">Tất cả thương hiệu</option>
-
-                            {% for thuong_hieu in thuong_hieu_list %}
-                                {% if thuong_hieu_dang_chon == thuong_hieu.ma_thuong_hieu %}
-                                    <option value="{{ thuong_hieu.ma_thuong_hieu }}" selected>
-                                        {{ thuong_hieu.ten_thuong_hieu }}
-                                    </option>
-                                {% else %}
-                                    <option value="{{ thuong_hieu.ma_thuong_hieu }}">
-                                        {{ thuong_hieu.ten_thuong_hieu }}
-                                    </option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="filter-field">
-                        <label for="gia_tu">Giá từ (đ)</label>
-                        <input
-                            type="number"
-                            id="gia_tu"
-                            name="gia_tu"
-                            min="0"
-                            step="any"
-                            value="{{ gia_tu }}"
-                            placeholder="Giá thấp nhất"
-                        >
-                    </div>
-
-                    <div class="filter-field">
-                        <label for="gia_den">Giá đến (đ)</label>
-                        <input
-                            type="number"
-                            id="gia_den"
-                            name="gia_den"
-                            min="0"
-                            step="any"
-                            value="{{ gia_den }}"
-                            placeholder="Giá cao nhất"
-                        >
-                    </div>
-
-                    <div class="filter-field">
-                        <label for="sap_xep">Sắp xếp theo</label>
-
-                        <select id="sap_xep" name="sap_xep">
 
-                            {% if sap_xep == "ten_a_z" %}
-                                <option value="ten_a_z" selected>Tên A–Z</option>
-                            {% else %}
-                                <option value="ten_a_z">Tên A–Z</option>
-                            {% endif %}
+   {% if not request.GET.q or danh_sach_san_pham %}
+       <div class="nosco-banner">
+           <img
+               src="{% static 'images/bannersp.png' %}"
+               alt="NOSCO - Văn phòng phẩm cho mọi hành trình"
+           >
+       </div>
+   {% endif %}
+
 
-                            {% if sap_xep == "gia_tang" %}
-                                <option value="gia_tang" selected>Giá tăng dần</option>
-                            {% else %}
-                                <option value="gia_tang">Giá tăng dần</option>
-                            {% endif %}
+   <div class="recommend-inner">
 
-                            {% if sap_xep == "gia_giam" %}
-                                <option value="gia_giam" selected>Giá giảm dần</option>
-                            {% else %}
-                                <option value="gia_giam">Giá giảm dần</option>
-                            {% endif %}
 
-                            {% if sap_xep == "moi_nhat" %}
-                                <option value="moi_nhat" selected>Mới nhất</option>
-                            {% else %}
-                                <option value="moi_nhat">Mới nhất</option>
-                            {% endif %}
+       <div class="recommend-heading">
+           <div>
+               <p class="recommend-eyebrow">✦ KHÁM PHÁ NOSCO</p>
+               <h2>Tất cả sản phẩm</h2>
+               <p class="recommend-description">
+                   Tìm những món đồ phù hợp cho học tập,
+                   làm việc và sáng tạo mỗi ngày.
+               </p>
+           </div>
+       </div>
 
-                        </select>
-                    </div>
 
-                    <button type="submit" class="btn btn-primary">
-                        Áp dụng bộ lọc
-                    </button>
+       <div class="product-layout">
 
-                    <a
-                        href="{% url 'sanpham:danh_sach_san_pham' %}"
-                        class="btn btn-secondary"
-                    >
-                        Xóa bộ lọc
-                    </a>
 
-                </form>
-            </aside>
+           <!-- CỘT BÊN TRÁI: BỘ LỌC -->
+           <aside class="product-sidebar">
+               <form method="get" action="" class="product-filter-form">
 
-            <!-- CỘT BÊN PHẢI: DANH SÁCH SẢN PHẨM -->
-            <div class="product-results">
 
-                {% if danh_sach_san_pham %}
+                   <h3>Bộ lọc sản phẩm</h3>
 
-                    <div class="recommend-grid">
 
-                        {% for item in danh_sach_san_pham %}
+                   <div class="filter-field">
+                       <label for="danh_muc">Danh mục</label>
 
-                            <article class="recommend-card">
 
-                                <a
-                                    class="product-detail-link"
-                                    href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
-                                >
+                       <select id="danh_muc" name="danh_muc">
+                           <option value="">Tất cả danh mục</option>
 
-                                    <div class="product-image">
 
-                                        {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
-                                            <img
-                                                src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
-                                                alt="{{ item.san_pham.ten_san_pham }}"
-                                                loading="lazy"
-                                            >
-                                        {% else %}
-                                            <img
-                                                src="{% static 'images/product-notebook.jpg' %}"
-                                                alt="Ảnh sản phẩm đang cập nhật"
-                                                loading="lazy"
-                                            >
-                                        {% endif %}
+                           {% for danh_muc in danh_muc_list %}
+                               {% if danh_muc_dang_chon == danh_muc.ma_danh_muc %}
+                                   <option value="{{ danh_muc.ma_danh_muc }}" selected>
+                                       {{ danh_muc.ten_danh_muc }}
+                                   </option>
+                               {% else %}
+                                   <option value="{{ danh_muc.ma_danh_muc }}">
+                                       {{ danh_muc.ten_danh_muc }}
+                                   </option>
+                               {% endif %}
+                           {% endfor %}
+                       </select>
+                   </div>
 
-                                    </div>
 
-                                    <div class="recommend-product-info">
+                   <div class="filter-field">
+                       <label for="thuong_hieu">Thương hiệu</label>
 
-                                        <p class="product-brand">
-                                            {{ item.san_pham.thuong_hieu.ten_thuong_hieu }}
-                                        </p>
 
-                                        <h3>{{ item.san_pham.ten_san_pham }}</h3>
+                       <select id="thuong_hieu" name="thuong_hieu">
+                           <option value="">Tất cả thương hiệu</option>
 
-                                        <div class="product-price">
 
-                                            {% if item.co_khuyen_mai %}
+                           {% for thuong_hieu in thuong_hieu_list %}
+                               {% if thuong_hieu_dang_chon == thuong_hieu.ma_thuong_hieu %}
+                                   <option value="{{ thuong_hieu.ma_thuong_hieu }}" selected>
+                                       {{ thuong_hieu.ten_thuong_hieu }}
+                                   </option>
+                               {% else %}
+                                   <option value="{{ thuong_hieu.ma_thuong_hieu }}">
+                                       {{ thuong_hieu.ten_thuong_hieu }}
+                                   </option>
+                               {% endif %}
+                           {% endfor %}
+                       </select>
+                   </div>
 
-                                                <span class="promotion-badge">
-                                                    -{{ item.phan_tram_giam|floatformat:0 }}%
-                                                </span>
 
-                                                <del class="original-price">
-                                                    {{ item.gia_goc_hien_thi }}đ
-                                                </del>
+                   <div class="filter-field">
+                       <label for="gia_tu">Giá từ (đ)</label>
+                       <input
+                           type="number"
+                           id="gia_tu"
+                           name="gia_tu"
+                           min="0"
+                           step="any"
+                           value="{{ gia_tu }}"
+                           placeholder="Giá thấp nhất"
+                       >
+                   </div>
 
-                                                <strong class="promotion-price">
-                                                    {{ item.gia_khuyen_mai_hien_thi }}đ
-                                                </strong>
 
-                                            {% elif item.gia_thap_nhat != None %}
+                   <div class="filter-field">
+                       <label for="gia_den">Giá đến (đ)</label>
+                       <input
+                           type="number"
+                           id="gia_den"
+                           name="gia_den"
+                           min="0"
+                           step="any"
+                           value="{{ gia_den }}"
+                           placeholder="Giá cao nhất"
+                       >
+                   </div>
 
-                                                <strong>
-                                                    {{ item.gia_hien_thi }}đ
-                                                </strong>
 
-                                            {% else %}
+                   <div class="filter-field">
+                       <label for="sap_xep">Sắp xếp theo</label>
 
-                                                <strong>Chưa có giá</strong>
 
-                                            {% endif %}
+                       <select id="sap_xep" name="sap_xep">
 
-                                        </div>
 
-                                    </div>
+                           {% if sap_xep == "ten_a_z" %}
+                               <option value="ten_a_z" selected>Tên A–Z</option>
+                           {% else %}
+                               <option value="ten_a_z">Tên A–Z</option>
+                           {% endif %}
 
-                                </a>
 
-                                <div class="product-card-extra">
+                           {% if sap_xep == "gia_tang" %}
+                               <option value="gia_tang" selected>Giá tăng dần</option>
+                           {% else %}
+                               <option value="gia_tang">Giá tăng dần</option>
+                           {% endif %}
 
-                                    <p class="product-sold">
-                                        Đã bán: {{ item.san_pham.so_luong_da_ban|default:"0" }}
-                                    </p>
 
-                                    <div class="product-rating">
+                           {% if sap_xep == "gia_giam" %}
+                               <option value="gia_giam" selected>Giá giảm dần</option>
+                           {% else %}
+                               <option value="gia_giam">Giá giảm dần</option>
+                           {% endif %}
 
-                                        <span class="rating-star">★</span>
-                                        <span>Chưa có đánh giá</span>
 
-                                        <form
-                                            method="POST"
-                                            action="{% url 'sanpham:toggle_favorite' %}"
-                                        >
-                                            {% csrf_token %}
+                           {% if sap_xep == "moi_nhat" %}
+                               <option value="moi_nhat" selected>Mới nhất</option>
+                           {% else %}
+                               <option value="moi_nhat">Mới nhất</option>
+                           {% endif %}
 
-                                            <input
-                                                type="hidden"
-                                                name="ma_san_pham"
-                                                value="{{ item.san_pham.ma_san_pham }}"
-                                            >
 
-                                            <input
-                                                type="hidden"
-                                                name="next"
-                                                value="{{ request.get_full_path }}"
-                                            >
+                       </select>
+                   </div>
 
-                                            <button
-                                                type="submit"
-                                                class="favorite-btn {% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}is-favorite{% endif %}"
-                                                title="{% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
-                                                aria-label="{% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
-                                            >
-                                                {% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}
-                                                    ♥
-                                                {% else %}
-                                                    ♡
-                                                {% endif %}
-                                            </button>
 
-                                        </form>
+                   <button type="submit" class="btn btn-primary">
+                       Áp dụng bộ lọc
+                   </button>
 
-                                    </div>
 
-                                    <div class="product-buy-actions d-flex gap-2 mt-3">
+                   <a
+                       href="{% url 'sanpham:danh_sach_san_pham' %}"
+                       class="btn btn-secondary"
+                   >
+                       Xóa bộ lọc
+                   </a>
 
-                                        <button
-                                            type="button"
-                                            class="btn btn-outline-primary product-add-cart flex-fill"
-                                            disabled
-                                            title="Chưa kết nối module giỏ hàng"
-                                        >
-                                            <i class="fa-solid fa-cart-shopping me-1"></i>
-                                            <span>Thêm vào giỏ</span>
-                                        </button>
 
-                                        <button
-                                            type="button"
-                                            class="btn btn-primary product-buy-now flex-fill"
-                                            disabled
-                                            title="Chưa kết nối module đặt hàng"
-                                        >
-                                            <span>Mua ngay</span>
-                                            <i class="fa-solid fa-arrow-right ms-1"></i>
-                                        </button>
+               </form>
+           </aside>
 
-                                    </div>
 
-                                </div>
+           <!-- CỘT BÊN PHẢI: DANH SÁCH SẢN PHẨM -->
+           <div class="product-results">
 
-                            </article>
 
-                        {% endfor %}
+               {% if danh_sach_san_pham %}
 
-                    </div>
 
-                {% else %}
+                   <div class="recommend-grid">
 
-                    <div class="empty-search">
 
-                        <div class="empty-search-icon">
-                            <i class="bi bi-search"></i>
-                        </div>
+                       {% for item in danh_sach_san_pham %}
 
-                        <img
-                            src="{% static 'images/khong_tim_thay.png' %}"
-                            alt="Các nhân vật văn phòng phẩm đang tìm kiếm"
-                            class="empty-search-image"
-                        >
 
-                        <h3>Không tìm thấy sản phẩm phù hợp</h3>
+                           <article class="recommend-card">
 
-                        <p>
-                            Rất tiếc, NOSCO chưa tìm thấy sản phẩm phù hợp với từ khóa
-                            <strong>"{{ request.GET.q }}"</strong>.
-                        </p>
 
-                        <p class="empty-search-hint">
-                            Bạn có thể thử từ khóa khác hoặc tham khảo các sản phẩm bên dưới nhé!
-                        </p>
+                               <a
+                                   class="product-detail-link"
+                                   href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                               >
 
-                    </div>
 
-                    {% if san_pham_goi_y %}
+                                   <div class="product-image">
 
-                        <div class="recommend-heading">
-                            <h3>Gợi ý dành cho bạn</h3>
-                        </div>
 
-                        <div class="recommend-grid">
+                                       {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
+                                           <img
+                                               src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                                               alt="{{ item.san_pham.ten_san_pham }}"
+                                               loading="lazy"
+                                           >
+                                       {% else %}
+                                           <img
+                                               src="{% static 'images/product-notebook.jpg' %}"
+                                               alt="Ảnh sản phẩm đang cập nhật"
+                                               loading="lazy"
+                                           >
+                                       {% endif %}
 
-                            {% for item in san_pham_goi_y %}
 
-                                <article class="recommend-card">
+                                   </div>
 
-                                    <a
-                                        class="product-detail-link"
-                                        href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
-                                    >
 
-                                        <div class="product-image">
+                                   <div class="recommend-product-info">
 
-                                            {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
-                                                <img
-                                                    src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
-                                                    alt="{{ item.san_pham.ten_san_pham }}"
-                                                    loading="lazy"
-                                                >
-                                            {% else %}
-                                                <img
-                                                    src="{% static 'images/product-notebook.jpg' %}"
-                                                    alt="Ảnh sản phẩm đang cập nhật"
-                                                    loading="lazy"
-                                                >
-                                            {% endif %}
 
-                                        </div>
+                                       <p class="product-brand">
+                                           {{ item.san_pham.thuong_hieu.ten_thuong_hieu }}
+                                       </p>
 
-                                        <div class="recommend-product-info">
 
-                                            <p class="product-brand">
-                                                {{ item.san_pham.thuong_hieu.ten_thuong_hieu }}
-                                            </p>
+                                       <h3>{{ item.san_pham.ten_san_pham }}</h3>
 
-                                            <h3>{{ item.san_pham.ten_san_pham }}</h3>
 
-                                            <div class="product-price">
+                                       <div class="product-price">
 
-                                                {% if item.gia_thap_nhat != None %}
-                                                    <strong>{{ item.gia_hien_thi }}đ</strong>
-                                                {% else %}
-                                                    <strong>Chưa có giá</strong>
-                                                {% endif %}
 
-                                            </div>
+                                           {% if item.co_khuyen_mai %}
 
-                                        </div>
 
-                                    </a>
+                                               <span class="promotion-badge">
+                                                   -{{ item.phan_tram_giam|floatformat:0 }}%
+                                               </span>
 
-                                </article>
 
-                            {% endfor %}
+                                               <del class="original-price">
+                                                   {{ item.gia_goc_hien_thi }}đ
+                                               </del>
 
-                        </div>
 
-                    {% endif %}
+                                               <strong class="promotion-price">
+                                                   {{ item.gia_khuyen_mai_hien_thi }}đ
+                                               </strong>
 
-                {% endif %}
 
-            </div>
+                                           {% elif item.gia_thap_nhat != None %}
 
-        </div>
 
-    </div>
+                                               <strong>
+                                                   {{ item.gia_hien_thi }}đ
+                                               </strong>
+
+
+                                           {% else %}
+
+
+                                               <strong>Chưa có giá</strong>
+
+
+                                           {% endif %}
+
+
+                                       </div>
+
+
+                                   </div>
+
+
+                               </a>
+
+
+                               <div class="product-card-extra">
+
+
+                                   <p class="product-sold">
+                                       Đã bán: {{ item.san_pham.so_luong_da_ban|default:"0" }}
+                                   </p>
+
+
+                                   <div class="product-rating">
+
+
+                                       <span class="rating-star">★</span>
+                                       <span>Chưa có đánh giá</span>
+
+
+                                       <form
+                                           method="POST"
+                                           action="{% url 'sanpham:toggle_favorite' %}"
+                                       >
+                                           {% csrf_token %}
+
+
+                                           <input
+                                               type="hidden"
+                                               name="ma_san_pham"
+                                               value="{{ item.san_pham.ma_san_pham }}"
+                                           >
+
+
+                                           <input
+                                               type="hidden"
+                                               name="next"
+                                               value="{{ request.get_full_path }}"
+                                           >
+
+
+                                           <button
+                                               type="submit"
+                                               class="favorite-btn {% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}is-favorite{% endif %}"
+                                               title="{% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+                                               aria-label="{% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}"
+                                           >
+                                               {% if item.san_pham.ma_san_pham in danh_sach_yeu_thich %}
+                                                   ♥
+                                               {% else %}
+                                                   ♡
+                                               {% endif %}
+                                           </button>
+
+
+                                       </form>
+
+
+                                   </div>
+
+
+                                  <!-- HAI NÚT MUA HÀNG -->
+<div class="product-buy-actions d-flex gap-2 mt-3">
+
+
+   {% if item.co_the_mua_truc_tiep %}
+
+
+       <!-- THÊM VÀO GIỎ -->
+       {% if request.session.ma_khach_hang %}
+
+
+           <form
+               method="POST"
+               action="{% url 'GIOHANG:them_vao_gio' %}"
+               class="flex-fill"
+           >
+               {% csrf_token %}
+
+
+               <input
+                   type="hidden"
+                   name="ma_bien_the"
+                   value="{{ item.bien_the_duy_nhat.ma_bien_the }}"
+               >
+
+
+               <input type="hidden" name="so_luong" value="1">
+
+
+               <button
+                   type="submit"
+                   class="btn btn-outline-primary product-add-cart w-100"
+               >
+                   <i class="fa-solid fa-cart-shopping me-1"></i>
+                   Thêm vào giỏ
+               </button>
+           </form>
+
+
+       {% else %}
+
+
+           <a
+               href="{% url 'KHACHHANG:dang_nhap' %}?next={{ request.get_full_path|urlencode }}"
+               class="btn btn-outline-primary product-add-cart flex-fill"
+           >
+               <i class="fa-solid fa-cart-shopping me-1"></i>
+               Thêm vào giỏ
+           </a>
+
+
+       {% endif %}
+
+
+       <!-- MUA NGAY -->
+       {% if request.session.ma_khach_hang %}
+
+
+           <form
+               method="POST"
+               action="{% url 'CHECKOUT:checkout' %}"
+               class="flex-fill"
+           >
+               {% csrf_token %}
+
+
+               <input
+                   type="hidden"
+                   name="ma_bien_the"
+                   value="{{ item.bien_the_duy_nhat.ma_bien_the }}"
+               >
+
+
+               <input type="hidden" name="so_luong" value="1">
+
+
+               <button
+                   type="submit"
+                   class="btn btn-primary product-buy-now w-100"
+               >
+                   Mua ngay
+                   <i class="fa-solid fa-arrow-right ms-1"></i>
+               </button>
+           </form>
+
+
+       {% else %}
+
+
+           <a
+               href="{% url 'KHACHHANG:dang_nhap' %}?next={{ request.get_full_path|urlencode }}"
+               class="btn btn-primary product-buy-now flex-fill"
+           >
+               Mua ngay
+               <i class="fa-solid fa-arrow-right ms-1"></i>
+           </a>
+
+
+       {% endif %}
+
+
+
+
+
+
+      {% else %}
+
+
+   <!-- SẢN PHẨM CÓ NHIỀU BIẾN THỂ -->
+
+
+   {% if request.session.ma_khach_hang %}
+
+
+       <a
+           href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+           class="btn btn-outline-primary product-add-cart flex-fill"
+       >
+           <i class="fa-solid fa-cart-shopping me-1"></i>
+           Thêm vào giỏ
+       </a>
+
+
+       <a
+           href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+           class="btn btn-primary product-buy-now flex-fill"
+       >
+           Mua ngay
+           <i class="fa-solid fa-arrow-right ms-1"></i>
+       </a>
+
+
+   {% else %}
+
+
+       <a
+           href="{% url 'KHACHHANG:dang_nhap' %}?next={% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+           class="btn btn-outline-primary product-add-cart flex-fill"
+       >
+           <i class="fa-solid fa-cart-shopping me-1"></i>
+           Thêm vào giỏ
+       </a>
+
+
+       <a
+           href="{% url 'KHACHHANG:dang_nhap' %}?next={% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+           class="btn btn-primary product-buy-now flex-fill"
+       >
+           Mua ngay
+           <i class="fa-solid fa-arrow-right ms-1"></i>
+       </a>
+
+
+   {% endif %}
+
+
+{% endif %}
+
+
+</div>
+</div>
+                           </article>
+
+
+                       {% endfor %}
+
+
+                   </div>
+
+
+               {% else %}
+
+
+                   <div class="empty-search">
+
+
+                       <div class="empty-search-icon">
+                           <i class="bi bi-search"></i>
+                       </div>
+
+
+                       <img
+                           src="{% static 'images/khong_tim_thay.png' %}"
+                           alt="Các nhân vật văn phòng phẩm đang tìm kiếm"
+                           class="empty-search-image"
+                       >
+
+
+                       <h3>Không tìm thấy sản phẩm phù hợp</h3>
+
+
+                       <p>
+                           Rất tiếc, NOSCO chưa tìm thấy sản phẩm phù hợp với từ khóa
+                           <strong>"{{ request.GET.q }}"</strong>.
+                       </p>
+
+
+                       <p class="empty-search-hint">
+                           Bạn có thể thử từ khóa khác hoặc tham khảo các sản phẩm bên dưới nhé!
+                       </p>
+
+
+                   </div>
+
+
+                   {% if san_pham_goi_y %}
+
+
+                       <div class="recommend-heading">
+                           <h3>Gợi ý dành cho bạn</h3>
+                       </div>
+
+
+                       <div class="recommend-grid">
+
+
+                           {% for item in san_pham_goi_y %}
+
+
+                               <article class="recommend-card">
+
+
+                                   <a
+                                       class="product-detail-link"
+                                       href="{% url 'sanpham:chi_tiet_san_pham' item.san_pham.ma_san_pham %}"
+                                   >
+
+
+                                       <div class="product-image">
+
+
+                                           {% if item.anh_dai_dien and item.anh_dai_dien.duong_dan_anh %}
+                                               <img
+                                                   src="{{ item.anh_dai_dien.duong_dan_anh.url }}"
+                                                   alt="{{ item.san_pham.ten_san_pham }}"
+                                                   loading="lazy"
+                                               >
+                                           {% else %}
+                                               <img
+                                                   src="{% static 'images/product-notebook.jpg' %}"
+                                                   alt="Ảnh sản phẩm đang cập nhật"
+                                                   loading="lazy"
+                                               >
+                                           {% endif %}
+
+
+                                       </div>
+
+
+                                       <div class="recommend-product-info">
+
+
+                                           <p class="product-brand">
+                                               {{ item.san_pham.thuong_hieu.ten_thuong_hieu }}
+                                           </p>
+
+
+                                           <h3>{{ item.san_pham.ten_san_pham }}</h3>
+
+
+                                           <div class="product-price">
+
+
+                                               {% if item.gia_thap_nhat != None %}
+                                                   <strong>{{ item.gia_hien_thi }}đ</strong>
+                                               {% else %}
+                                                   <strong>Chưa có giá</strong>
+                                               {% endif %}
+
+
+                                           </div>
+
+
+                                       </div>
+
+
+                                   </a>
+
+
+                               </article>
+
+
+                           {% endfor %}
+
+
+                       </div>
+
+
+                   {% endif %}
+
+
+               {% endif %}
+
+
+           </div>
+
+
+       </div>
+
+
+   </div>
+
 
 </section>
 
+
 {% endblock %}
+

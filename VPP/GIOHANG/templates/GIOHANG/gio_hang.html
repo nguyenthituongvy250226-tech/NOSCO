@@ -1,522 +1,658 @@
 
+
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
 {% load l10n %}
 {% block title %}Giỏ hàng | NOSCO{% endblock %}
 
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'GIOHANG/gio_hang.css' %}">
 
+
 <style>
-    .cart-page a.checkout-btn {
-        opacity: 1;
-        cursor: pointer;
-        text-decoration: none;
-        box-sizing: border-box;
-    }
+   .cart-page a.checkout-btn {
+       opacity: 1;
+       cursor: pointer;
+       text-decoration: none;
+       box-sizing: border-box;
+   }
 
-    .cart-page a.checkout-btn:hover {
-        background: var(--primary-dark);
-    }
 
-    .cart-page button.checkout-btn:disabled {
-        opacity: .55;
-        cursor: not-allowed;
-    }
+   .cart-page a.checkout-btn:hover {
+       background: var(--primary-dark);
+   }
 
-    /* Nhóm nút Chọn tất cả + Xóa đã chọn */
-    .cart-page .cart-products-actions {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        flex-wrap: wrap;
-    }
 
-    .cart-page .cart-products-actions form {
-        margin: 0;
-    }
+   .cart-page button.checkout-btn:disabled {
+       opacity: .55;
+       cursor: not-allowed;
+   }
 
-    .cart-page .remove-selected-btn {
-        color: #d64545;
-    }
 
-    .cart-page .remove-selected-btn:hover {
-        color: #b93030;
-    }
+   /* Nhóm nút Chọn tất cả + Xóa đã chọn */
+   .cart-page .cart-products-actions {
+       display: flex;
+       align-items: center;
+       gap: 18px;
+       flex-wrap: wrap;
+   }
 
-    /* Tách mỗi sản phẩm thành một thẻ bo góc */
-    .cart-page .cart-products {
-        padding: 0;
-        border: none;
-        background: transparent;
-    }
 
-    .cart-page .cart-products-header {
-        margin-bottom: 12px;
-        padding: 14px 18px;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: #fff;
-    }
+   .cart-page .cart-products-actions form {
+       margin: 0;
+   }
 
-    .cart-page .cart-product {
-        margin-bottom: 12px;
-        padding: 16px 18px;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: #fff;
-        transition: border-color .2s, box-shadow .2s;
-    }
 
-    .cart-page .cart-product:hover {
-        border-color: #cfe1f3;
-        box-shadow: 0 6px 18px rgba(24, 59, 89, .07);
-    }
+   .cart-page .remove-selected-btn {
+       color: #d64545;
+   }
 
-    .cart-page .cart-product.is-selected {
-        border-color: #cfe1f3;
-        background: #fbfdff;
-    }
 
-    /* Bo góc các thành phần nhỏ */
-    .cart-page .product-image {
-        border-radius: 10px;
-    }
+   .cart-page .remove-selected-btn:hover {
+       color: #b93030;
+   }
 
-    .cart-page .quantity-control {
-        border-radius: 8px;
-    }
 
-    .cart-page .checkbox-btn {
-        border-radius: 5px;
-    }
+   /* Tách mỗi sản phẩm thành một thẻ bo góc */
+   .cart-page .cart-products {
+       padding: 0;
+       border: none;
+       background: transparent;
+   }
 
-    /* Dòng thông tin bảo mật */
-    .cart-page .checkout-note,
-    .cart-page .checkout-note i {
-        color: #2e9e5b !important;
-    }
 
-    .cart-page .checkout-note {
-        font-weight: 600;
-    }
+   .cart-page .cart-products-header {
+       margin-bottom: 12px;
+       padding: 14px 18px;
+       border: 1px solid var(--border);
+       border-radius: 12px;
+       background: #fff;
+   }
 
-    /* Nền xám xanh */
-    .cart-page {
-        background: #eef2f7 !important;
-        box-shadow: 0 0 0 100vmax #eef2f7 !important;
-        clip-path: inset(0 -100vmax) !important;
-    }
 
-    /* Bỏ khung trắng bọc ngoài danh sách */
-    .cart-page .cart-products {
-        padding: 0 !important;
-        border: none !important;
-        background: transparent !important;
-    }
+   .cart-page .cart-product {
+       margin-bottom: 12px;
+       padding: 16px 18px;
+       border: 1px solid var(--border);
+       border-radius: 12px;
+       background: #fff;
+       transition: border-color .2s, box-shadow .2s;
+   }
 
-    /* Các thẻ nền trắng */
-    .cart-page .cart-products-header,
-    .cart-page .cart-product,
-    .cart-page .cart-summary,
-    .cart-page .empty-cart {
-        background: #fff !important;
-        border: 1px solid #e3e9f0 !important;
-        border-radius: 12px !important;
-    }
 
-    .cart-page .cart-products-header {
-        margin-bottom: 12px !important;
-        padding: 14px 18px !important;
-    }
+   .cart-page .cart-product:hover {
+       border-color: #cfe1f3;
+       box-shadow: 0 6px 18px rgba(24, 59, 89, .07);
+   }
 
-    .cart-page .cart-product {
-        margin-bottom: 12px !important;
-        padding: 16px 18px !important;
-    }
 
-    .cart-page .cart-product.is-selected {
-        border-color: #cfe1f3 !important;
-    }
+   .cart-page .cart-product.is-selected {
+       border-color: #cfe1f3;
+       background: #fbfdff;
+   }
 
-    /* Tiêu đề nhỏ phía trên Giỏ hàng */
-    .cart-page .cart-eyebrow {
-        color: var(--primary) !important;
-        font-size: 11px !important;
-        font-weight: 800 !important;
-        letter-spacing: 1.2px !important;
-        text-transform: uppercase !important;
-    }
 
-    .cart-page .cart-heading h1 span {
-        color: var(--muted) !important;
-        font-weight: 500 !important;
-    }
+   /* Bo góc các thành phần nhỏ */
+   .cart-page .product-image {
+       border-radius: 10px;
+   }
+
+
+   .cart-page .quantity-control {
+       border-radius: 8px;
+   }
+
+
+   .cart-page .checkbox-btn {
+       border-radius: 5px;
+   }
+
+
+   /* Dòng thông tin bảo mật */
+   .cart-page .checkout-note,
+   .cart-page .checkout-note i {
+       color: #2e9e5b !important;
+   }
+
+
+   .cart-page .checkout-note {
+       font-weight: 600;
+   }
+
+
+   /* Nền xám xanh */
+   .cart-page {
+       background: #eef2f7 !important;
+       box-shadow: 0 0 0 100vmax #eef2f7 !important;
+       clip-path: inset(0 -100vmax) !important;
+   }
+
+
+   /* Bỏ khung trắng bọc ngoài danh sách */
+   .cart-page .cart-products {
+       padding: 0 !important;
+       border: none !important;
+       background: transparent !important;
+   }
+
+
+   /* Các thẻ nền trắng */
+   .cart-page .cart-products-header,
+   .cart-page .cart-product,
+   .cart-page .cart-summary,
+   .cart-page .empty-cart {
+       background: #fff !important;
+       border: 1px solid #e3e9f0 !important;
+       border-radius: 12px !important;
+   }
+
+
+   .cart-page .cart-products-header {
+       margin-bottom: 12px !important;
+       padding: 14px 18px !important;
+   }
+
+
+   .cart-page .cart-product {
+       margin-bottom: 12px !important;
+       padding: 16px 18px !important;
+   }
+
+
+   .cart-page .cart-product.is-selected {
+       border-color: #cfe1f3 !important;
+   }
+
+
+   /* Tiêu đề nhỏ phía trên Giỏ hàng */
+   .cart-page .cart-eyebrow {
+       color: var(--primary) !important;
+       font-size: 11px !important;
+       font-weight: 800 !important;
+       letter-spacing: 1.2px !important;
+       text-transform: uppercase !important;
+   }
+
+
+   .cart-page .cart-heading h1 span {
+       color: var(--muted) !important;
+       font-weight: 500 !important;
+   }
 </style>
 {% endblock %}
 
 
+
+
 {% block content %}
+
 
 <div class="cart-page">
 
-    <!-- Tiêu đề -->
-    <div class="cart-heading">
-        <div>
-            <p class="cart-breadcrumb">Trang chủ / Giỏ hàng</p>
 
-            <h1>
-                Giỏ hàng
-                <span>({{ danh_sach|length }} sản phẩm)</span>
-            </h1>
-        </div>
+   <!-- Tiêu đề -->
+   <div class="cart-heading">
+       <div>
+           <p class="cart-breadcrumb">
+   <a href="/">Trang chủ</a>
+   <span>/</span>
+   <a href="{% url 'GIOHANG:xem_gio_hang' %}">Giỏ hàng</a>
+</p>
 
 
-    </div>
+           <h1>
+               Giỏ hàng
+               <span>({{ danh_sach|length }} sản phẩm)</span>
+           </h1>
+       </div>
 
 
-    <!-- Thông báo -->
-    {% if messages %}
-        <div class="cart-messages">
-            {% for message in messages %}
-                <div class="cart-message {{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
 
 
-    {% if danh_sach %}
+   </div>
 
-    <div class="cart-layout">
 
-        <!-- Danh sách sản phẩm -->
-        <div class="cart-products">
 
-            <div class="cart-products-header">
-                <h3>Sản phẩm trong giỏ hàng</h3>
 
-                <div class="cart-products-actions">
+   <!-- Thông báo -->
+   {% if messages %}
+       <div class="cart-messages">
+           {% for message in messages %}
+               <div class="cart-message {{ message.tags }}">
+                   {{ message }}
+               </div>
+           {% endfor %}
+       </div>
+   {% endif %}
 
-                    <!-- Chọn tất cả -->
-                    <form method="POST"
-                          action="{% url 'GIOHANG:chon_tat_ca' %}">
-                        {% csrf_token %}
 
-                        <input type="hidden"
-                               name="chon_tat_ca"
-                               value="{% if tat_ca_duoc_chon %}false{% else %}true{% endif %}">
 
-                        <button type="submit" class="select-all-btn">
-                            Chọn tất cả
-                        </button>
-                    </form>
 
+   {% if danh_sach %}
 
-                    <!-- Xóa sản phẩm đã chọn -->
-                    <form method="POST"
-                          action="{% url 'GIOHANG:xoa_da_chon' %}"
-                          onsubmit="return confirm('Xóa các sản phẩm đã chọn khỏi giỏ hàng?');">
-                        {% csrf_token %}
 
-                        <button type="submit"
-                                class="select-all-btn remove-selected-btn">
-                            Xóa đã chọn
-                        </button>
-                    </form>
+   <div class="cart-layout">
 
 
-                    <!-- Chia sẻ giỏ hàng -->
-                    <form method="POST"
-                          action="{% url 'GIOHANG:tao_chia_se' %}"
-                          data-no-ajax>
-                        {% csrf_token %}
+       <!-- Danh sách sản phẩm -->
+       <div class="cart-products">
 
-                        <button type="submit" class="select-all-btn">
-                            <i class="fa-solid fa-share-nodes"></i>
-                            Chia sẻ giỏ hàng
-                        </button>
-                    </form>
 
-                </div>
-            </div>
+           <div class="cart-products-header">
+               <h3>Sản phẩm trong giỏ hàng</h3>
 
 
-            {% for item in danh_sach %}
+               <div class="cart-products-actions">
 
-            <div class="cart-product {% if item.trang_thai_chon %}is-selected{% endif %}">
 
-                <!-- Chọn sản phẩm -->
-                <form method="POST"
-                      action="{% url 'GIOHANG:chon_san_pham' item.ma_chi_tiet_gio_hang %}"
-                      class="product-checkbox">
-                    {% csrf_token %}
+                   <!-- Chọn tất cả -->
+                   <form method="POST"
+                         action="{% url 'GIOHANG:chon_tat_ca' %}">
+                       {% csrf_token %}
 
-                    <button type="submit"
-                            class="checkbox-btn {% if item.trang_thai_chon %}checked{% endif %}"
-                            aria-label="Chọn sản phẩm">
 
-                        {% if item.trang_thai_chon %}
-                            <i class="fa-solid fa-check"></i>
-                        {% endif %}
+                       <input type="hidden"
+                              name="chon_tat_ca"
+                              value="{% if tat_ca_duoc_chon %}false{% else %}true{% endif %}">
 
-                    </button>
-                </form>
 
+                       <button type="submit" class="select-all-btn">
+                           Chọn tất cả
+                       </button>
+                   </form>
 
-                <!-- Hình ảnh -->
-                <div class="product-image">
-                    {% if item.hinh_anh %}
-                        <img src="{{ item.hinh_anh }}"
-                             alt="{{ item.ten_san_pham }}">
-                    {% else %}
-                        <div class="no-image">
-                            <i class="fa-regular fa-image"></i>
-                        </div>
-                    {% endif %}
-                </div>
 
 
-                <!-- Thông tin sản phẩm -->
-                <div class="product-info">
 
-                    <h4>{{ item.ten_san_pham }}</h4>
+                   <!-- Xóa sản phẩm đã chọn -->
+                   <form method="POST"
+                         action="{% url 'GIOHANG:xoa_da_chon' %}"
+                         onsubmit="return confirm('Xóa các sản phẩm đã chọn khỏi giỏ hàng?');">
+                       {% csrf_token %}
 
-                    {% if item.mau_sac %}
-                        <p>Màu sắc: {{ item.mau_sac }}</p>
-                    {% endif %}
 
-                    {% if item.kich_thuoc %}
-                        <p>Kích thước: {{ item.kich_thuoc }}</p>
-                    {% endif %}
+                       <button type="submit"
+                               class="select-all-btn remove-selected-btn">
+                           Xóa đã chọn
+                       </button>
+                   </form>
 
-                    <p class="product-variant">
-                        Mã biến thể: {{ item.ma_bien_the_sp }}
-                    </p>
 
-                    <div class="product-price">
-                        {{ item.don_gia|floatformat:0|localize }}₫
-                    </div>
 
-                </div>
 
+                   <!-- Chia sẻ giỏ hàng -->
+                   <form method="POST"
+                         action="{% url 'GIOHANG:tao_chia_se' %}"
+                         data-no-ajax>
+                       {% csrf_token %}
 
-                <!-- Số lượng -->
-                <div class="product-quantity">
-                    <span>Số lượng</span>
 
-                    <div class="quantity-control">
+                       <button type="submit" class="select-all-btn">
+                           <i class="fa-solid fa-share-nodes"></i>
+                           Chia sẻ giỏ hàng
+                       </button>
+                   </form>
 
-                        <!-- Giảm số lượng -->
-                        <form method="POST"
-                              action="{% url 'GIOHANG:giam_so_luong' item.ma_chi_tiet_gio_hang %}">
-                            {% csrf_token %}
 
-                            <button type="submit"
-                                    {% if item.so_luong <= 1 %}disabled{% endif %}>
-                                <i class="fa-solid fa-minus"></i>
-                            </button>
-                        </form>
+               </div>
+           </div>
 
-                        <span class="quantity-number">
-                            {{ item.so_luong }}
-                        </span>
 
-                        <!-- Tăng số lượng -->
-                        <form method="POST"
-                              action="{% url 'GIOHANG:tang_so_luong' item.ma_chi_tiet_gio_hang %}">
-                            {% csrf_token %}
 
-                            <button type="submit">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </form>
 
-                    </div>
-                </div>
+           {% for item in danh_sach %}
 
 
-                <!-- Thành tiền và xóa -->
-                <div class="product-total">
+           <div class="cart-product {% if item.trang_thai_chon %}is-selected{% endif %}">
 
-                    <strong>
-                        {{ item.thanh_tien|floatformat:0|localize }}₫
-                    </strong>
 
-                    <form method="POST"
-                          action="{% url 'GIOHANG:xoa_san_pham' item.ma_chi_tiet_gio_hang %}"
-                          onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?');">
-                        {% csrf_token %}
+               <!-- Chọn sản phẩm -->
+               <form method="POST"
+                     action="{% url 'GIOHANG:chon_san_pham' item.ma_chi_tiet_gio_hang %}"
+                     class="product-checkbox">
+                   {% csrf_token %}
 
-                        <button type="submit" class="remove-btn">
-                            <i class="fa-regular fa-trash-can"></i>
-                            Xóa
-                        </button>
-                    </form>
 
-                </div>
+                   <button type="submit"
+                           class="checkbox-btn {% if item.trang_thai_chon %}checked{% endif %}"
+                           aria-label="Chọn sản phẩm">
 
-            </div>
 
-            {% endfor %}
+                       {% if item.trang_thai_chon %}
+                           <i class="fa-solid fa-check"></i>
+                       {% endif %}
 
 
-            <!-- Tiếp tục mua sắm -->
-            <a href="/" class="continue-shopping">
-                <i class="fa-solid fa-arrow-left"></i>
-                Tiếp tục mua sắm
-            </a>
+                   </button>
+               </form>
 
-        </div>
 
 
-        <!-- Tổng kết đơn hàng -->
-        <div class="cart-summary">
 
-            <h3>Tổng đơn hàng</h3>
+               <!-- Hình ảnh -->
+               <div class="product-image">
+                   {% if item.hinh_anh %}
+                       <img src="{{ item.hinh_anh }}"
+                            alt="{{ item.ten_san_pham }}">
+                   {% else %}
+                       <div class="no-image">
+                           <i class="fa-regular fa-image"></i>
+                       </div>
+                   {% endif %}
+               </div>
 
-            <div class="summary-row">
-                <span>Số lượng sản phẩm</span>
-                <strong>{{ so_luong_chon }}</strong>
-            </div>
 
-            <div class="summary-row">
-                <span>Tạm tính</span>
-                <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
-            </div>
 
-            <div class="summary-row">
-                <span>Phí vận chuyển</span>
-                <span>Được tính khi đặt hàng</span>
-            </div>
 
-            <div class="summary-divider"></div>
+               <!-- Thông tin sản phẩm -->
+               <div class="product-info">
 
-            <div class="summary-total">
-                <span>Tổng cộng</span>
-                <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
-            </div>
 
+                   <h4>{{ item.ten_san_pham }}</h4>
 
-            {% if so_luong_chon > 0 %}
 
-                <a href="/checkout/" class="checkout-btn">
-                    Tiến hành đặt hàng
-                    <i class="fa-solid fa-arrow-right"></i>
-                </a>
+                   {% if item.mau_sac %}
+                       <p>Màu sắc: {{ item.mau_sac }}</p>
+                   {% endif %}
 
-            {% else %}
 
-                <button type="button"
-                        class="checkout-btn"
-                        disabled>
-                    Tiến hành đặt hàng
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
+                   {% if item.kich_thuoc %}
+                       <p>Kích thước: {{ item.kich_thuoc }}</p>
+                   {% endif %}
 
-            {% endif %}
 
+                   <p class="product-variant">
+                       Mã biến thể: {{ item.ma_bien_the_sp }}
+                   </p>
 
-            <p class="checkout-note">
-                <i class="fa-solid fa-shield-halved"></i>
-                Thông tin mua hàng của bạn được bảo mật.
-            </p>
 
-        </div>
+                   <div class="product-price">
+                       {{ item.don_gia|floatformat:0|localize }}₫
+                   </div>
 
-    </div>
 
+               </div>
 
-    {% else %}
 
-    <!-- Giỏ hàng trống -->
-    <div class="empty-cart">
 
-        <div class="empty-cart-icon">
-            <i class="fa-solid fa-bag-shopping"></i>
-        </div>
 
-        <h2>Giỏ hàng đang trống</h2>
+               <!-- Số lượng -->
+               <div class="product-quantity">
+                   <span>Số lượng</span>
 
-        <p>
-            Bạn chưa có sản phẩm nào trong giỏ hàng.
-            Hãy khám phá các sản phẩm văn phòng phẩm của NOSCO nhé!
-        </p>
 
-        <a href="/" class="shopping-btn">
-            Khám phá sản phẩm
-            <i class="fa-solid fa-arrow-right"></i>
-        </a>
+                   <div class="quantity-control">
 
-    </div>
 
-    {% endif %}
+                       <!-- Giảm số lượng -->
+                       <form method="POST"
+                             action="{% url 'GIOHANG:giam_so_luong' item.ma_chi_tiet_gio_hang %}">
+                           {% csrf_token %}
+
+
+                           <button type="submit"
+                                   {% if item.so_luong <= 1 %}disabled{% endif %}>
+                               <i class="fa-solid fa-minus"></i>
+                           </button>
+                       </form>
+
+
+                       <span class="quantity-number">
+                           {{ item.so_luong }}
+                       </span>
+
+
+                       <!-- Tăng số lượng -->
+                       <form method="POST"
+                             action="{% url 'GIOHANG:tang_so_luong' item.ma_chi_tiet_gio_hang %}">
+                           {% csrf_token %}
+
+
+                           <button type="submit">
+                               <i class="fa-solid fa-plus"></i>
+                           </button>
+                       </form>
+
+
+                   </div>
+               </div>
+
+
+
+
+               <!-- Thành tiền và xóa -->
+               <div class="product-total">
+
+
+                   <strong>
+                       {{ item.thanh_tien|floatformat:0|localize }}₫
+                   </strong>
+
+
+                   <form method="POST"
+                         action="{% url 'GIOHANG:xoa_san_pham' item.ma_chi_tiet_gio_hang %}"
+                         onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?');">
+                       {% csrf_token %}
+
+
+                       <button type="submit" class="remove-btn">
+                           <i class="fa-regular fa-trash-can"></i>
+                           Xóa
+                       </button>
+                   </form>
+
+
+               </div>
+
+
+           </div>
+
+
+           {% endfor %}
+
+
+
+
+           <!-- Tiếp tục mua sắm -->
+           <a href="/" class="continue-shopping">
+               <i class="fa-solid fa-arrow-left"></i>
+               Tiếp tục mua sắm
+           </a>
+
+
+       </div>
+
+
+
+
+       <!-- Tổng kết đơn hàng -->
+       <div class="cart-summary">
+
+
+           <h3>Tổng đơn hàng</h3>
+
+
+           <div class="summary-row">
+               <span>Số lượng sản phẩm</span>
+               <strong>{{ so_luong_chon }}</strong>
+           </div>
+
+
+           <div class="summary-row">
+               <span>Tạm tính</span>
+               <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
+           </div>
+
+
+           <div class="summary-row">
+               <span>Phí vận chuyển</span>
+               <span>Được tính khi đặt hàng</span>
+           </div>
+
+
+           <div class="summary-divider"></div>
+
+
+           <div class="summary-total">
+               <span>Tổng cộng</span>
+               <strong>{{ tam_tinh|floatformat:0|localize }}₫</strong>
+           </div>
+
+
+
+
+           {% if so_luong_chon > 0 %}
+
+
+               <a href="/checkout/" class="checkout-btn">
+                   Tiến hành đặt hàng
+                   <i class="fa-solid fa-arrow-right"></i>
+               </a>
+
+
+           {% else %}
+
+
+               <button type="button"
+                       class="checkout-btn"
+                       disabled>
+                   Tiến hành đặt hàng
+                   <i class="fa-solid fa-arrow-right"></i>
+               </button>
+
+
+           {% endif %}
+
+
+
+
+           <p class="checkout-note">
+               <i class="fa-solid fa-shield-halved"></i>
+               Thông tin mua hàng của bạn được bảo mật.
+           </p>
+
+
+       </div>
+
+
+   </div>
+
+
+
+
+   {% else %}
+
+
+   <!-- Giỏ hàng trống -->
+   <div class="empty-cart">
+
+
+       <div class="empty-cart-icon">
+           <i class="fa-solid fa-bag-shopping"></i>
+       </div>
+
+
+       <h2>Giỏ hàng đang trống</h2>
+
+
+       <p>
+           Bạn chưa có sản phẩm nào trong giỏ hàng.
+           Hãy khám phá các sản phẩm văn phòng phẩm của NOSCO nhé!
+       </p>
+
+
+       <a href="/" class="shopping-btn">
+           Khám phá sản phẩm
+           <i class="fa-solid fa-arrow-right"></i>
+       </a>
+
+
+   </div>
+
+
+   {% endif %}
+
 
 </div>
+
+
 
 
 <!-- Cập nhật giỏ hàng không tải lại trang -->
 <script>
 (function () {
-    var busy = false;
+   var busy = false;
 
-    document.addEventListener("submit", function (e) {
-        var form = e.target;
 
-        // Chỉ xử lý form nằm trong giỏ hàng
-        if (!form.closest(".cart-page")) return;
+   document.addEventListener("submit", function (e) {
+       var form = e.target;
 
-        // Không AJAX đối với form chia sẻ giỏ hàng
-        if (form.hasAttribute("data-no-ajax")) return;
 
-        // Nếu người dùng hủy xác nhận thì không gửi form
-        if (e.defaultPrevented) return;
+       // Chỉ xử lý form nằm trong giỏ hàng
+       if (!form.closest(".cart-page")) return;
 
-        e.preventDefault();
 
-        if (busy) return;
-        busy = true;
+       // Không AJAX đối với form chia sẻ giỏ hàng
+       if (form.hasAttribute("data-no-ajax")) return;
 
-        fetch(form.action, {
-            method: "POST",
-            body: new FormData(form),
-            credentials: "same-origin"
-        })
-        .then(function (res) {
-            if (!res.ok) {
-                throw new Error("HTTP " + res.status);
-            }
 
-            return res.text();
-        })
-        .then(function (html) {
-            var doc = new DOMParser().parseFromString(html, "text/html");
-            var moi = doc.querySelector(".cart-page");
-            var cu = document.querySelector(".cart-page");
+       // Nếu người dùng hủy xác nhận thì không gửi form
+       if (e.defaultPrevented) return;
 
-            if (!moi || !cu) {
-                throw new Error("Không đọc được giỏ hàng");
-            }
 
-            cu.innerHTML = moi.innerHTML;
+       e.preventDefault();
 
-            // Tự ẩn thông báo sau 3 giây
-            setTimeout(function () {
-                var box = document.querySelector(".cart-messages");
-                if (box) box.remove();
-            }, 3000);
-        })
-        .catch(function () {
-            // Nếu AJAX lỗi thì gửi form theo cách thông thường
-            form.submit();
-        })
-        .finally(function () {
-            busy = false;
-        });
-    });
+
+       if (busy) return;
+       busy = true;
+
+
+       fetch(form.action, {
+           method: "POST",
+           body: new FormData(form),
+           credentials: "same-origin"
+       })
+       .then(function (res) {
+           if (!res.ok) {
+               throw new Error("HTTP " + res.status);
+           }
+
+
+           return res.text();
+       })
+       .then(function (html) {
+           var doc = new DOMParser().parseFromString(html, "text/html");
+           var moi = doc.querySelector(".cart-page");
+           var cu = document.querySelector(".cart-page");
+
+
+           if (!moi || !cu) {
+               throw new Error("Không đọc được giỏ hàng");
+           }
+
+
+           cu.innerHTML = moi.innerHTML;
+
+
+           // Tự ẩn thông báo sau 3 giây
+           setTimeout(function () {
+               var box = document.querySelector(".cart-messages");
+               if (box) box.remove();
+           }, 3000);
+       })
+       .catch(function () {
+           // Nếu AJAX lỗi thì gửi form theo cách thông thường
+           form.submit();
+       })
+       .finally(function () {
+           busy = false;
+       });
+   });
 })();
 </script>
 
+
 {% endblock %}
+
