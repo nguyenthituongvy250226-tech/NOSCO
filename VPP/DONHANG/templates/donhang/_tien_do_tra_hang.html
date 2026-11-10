@@ -1,61 +1,147 @@
+
 <section class="return-tracking-card">
+
+  <!-- TỔNG QUAN YÊU CẦU -->
   <div class="return-status-row">
     <span>Trạng thái xử lý</span>
     <strong>{{ yeu_cau_tra.get_trang_thai_tra_display }}</strong>
   </div>
+
   <div class="return-tracking-meta">
-    <div><span>Mã yêu cầu trả hàng</span><strong>{{ yeu_cau_tra.ma_yeu_cau_tra }}</strong></div>
-    <div><span>Ngày yêu cầu</span><strong>{{ yeu_cau_tra.ngay_tao|date:"d/m/Y H:i" }}</strong></div>
-    <div><span>Lý do trả hàng</span><strong>{{ yeu_cau_tra.ly_do_tra }}</strong></div>
+    <div>
+      <span>Mã yêu cầu trả hàng</span>
+      <strong>{{ yeu_cau_tra.ma_yeu_cau_tra }}</strong>
+    </div>
+    <div>
+      <span>Ngày yêu cầu</span>
+      <strong>{{ yeu_cau_tra.ngay_tao|date:"d/m/Y H:i" }}</strong>
+    </div>
   </div>
+
+  <!-- TIẾN TRÌNH -->
   {% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}
-    <div class="order-banner is-error"><strong>Yêu cầu trả hàng không được duyệt</strong>{% if yeu_cau_tra.ket_qua_xl %}<span>Lý do không duyệt: {{ yeu_cau_tra.ket_qua_xl }}</span>{% endif %}</div>
+    <div class="order-banner is-error">
+      <strong>Yêu cầu trả hàng không được duyệt</strong>
+      {% if yeu_cau_tra.ket_qua_xl %}
+        <span>Lý do không duyệt: {{ yeu_cau_tra.ket_qua_xl }}</span>
+      {% endif %}
+    </div>
   {% else %}
     <div class="return-progress" role="list" aria-label="Tiến độ trả hàng">
-      <div class="return-progress-line" style="{% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}width:33%{% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}width:66%{% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}width:100%{% endif %}"></div>
+      <div
+        class="return-progress-line"
+        style="{% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}width:33%{% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}width:66%{% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}width:100%{% endif %}">
+      </div>
+
       {% for buoc in buoc_tien_do_tra %}
         <div class="return-progress-step {% if buoc.hoan_tat %}is-done{% elif buoc.hien_tai %}is-current{% endif %}" role="listitem">
-          <span class="return-progress-dot">{% if buoc.hoan_tat %}✓{% else %}{{ forloop.counter }}{% endif %}</span>
+          <span class="return-progress-dot">
+            {% if buoc.hoan_tat %}✓{% else %}{{ forloop.counter }}{% endif %}
+          </span>
           <span>{{ buoc.ten }}</span>
         </div>
       {% endfor %}
     </div>
   {% endif %}
+
+  <!-- SẢN PHẨM TRẢ -->
   <div class="return-tracking-items">
-    <strong>Sản phẩm yêu cầu trả</strong>
-    {% for line in yeu_cau_tra.san_pham_tra.all %}<span>{{ line.chi_tiet_don_hang.ma_bien_the }} × {{ line.so_luong }}</span>{% endfor %}
+    <strong class="return-section-title">Sản phẩm yêu cầu trả</strong>
+
+    {% for line in yeu_cau_tra.san_pham_tra.all %}
+      <div class="return-product-row">
+        <span>{{ line.chi_tiet_don_hang.ma_bien_the }}</span>
+        <strong>× {{ line.so_luong }}</strong>
+      </div>
+    {% endfor %}
   </div>
+
+  <!-- THÔNG TIN YÊU CẦU VÀ HOÀN TIỀN -->
   <div class="return-request-meta">
-    <strong>Thông tin yêu cầu</strong>
-    <div><span>Lý do</span><b>{{ yeu_cau_tra.ly_do_tra }}</b></div>
-    <div><span>Phương thức hoàn tiền</span><b>{{ yeu_cau_tra.get_phuong_thuc_hoan_tien_display }}</b></div>
-    {% if yeu_cau_tra.phuong_thuc_hoan_tien == "tai_khoan_thanh_toan" %}
-      <div><span>Ngân hàng</span><b>{{ yeu_cau_tra.get_ngan_hang_hoan_tien_display|default:yeu_cau_tra.ngan_hang_hoan_tien|default:"Chưa cập nhật" }}</b></div>
-      <div><span>Tên chủ tài khoản</span><b>{{ yeu_cau_tra.ten_chu_tai_khoan|default:"Chưa cập nhật" }}</b></div>
-      <div><span>Số tài khoản</span><b>{{ yeu_cau_tra.so_tai_khoan|default:"Chưa cập nhật" }}</b></div>
-    {% endif %}
-    {% if yeu_cau_tra.ma_van_don_khach %}<div><span>Mã vận đơn khách gửi</span><b>{{ yeu_cau_tra.ma_van_don_khach }}</b></div>{% endif %}
-    {% if yeu_cau_tra.mo_ta_van_de %}<div class="return-request-description"><span>Mô tả vấn đề</span><b>{{ yeu_cau_tra.mo_ta_van_de|linebreaksbr }}</b></div>{% endif %}
+    <strong class="return-section-title">Thông tin đổi trả & hoàn tiền</strong>
+
+    <div class="return-info-grid">
+
+      <div class="return-info-item">
+        <span>Lý do trả hàng</span>
+        <b>{{ yeu_cau_tra.ly_do_tra|default:"Chưa cập nhật" }}</b>
+      </div>
+
+      <div class="return-info-item">
+        <span>Phương thức hoàn tiền</span>
+        <b>{{ yeu_cau_tra.get_phuong_thuc_hoan_tien_display|default:"Chưa cập nhật" }}</b>
+      </div>
+
+      {% if yeu_cau_tra.phuong_thuc_hoan_tien == "tai_khoan_thanh_toan" %}
+        <div class="return-info-item">
+          <span>Ngân hàng</span>
+          <b>{{ yeu_cau_tra.get_ngan_hang_hoan_tien_display|default:yeu_cau_tra.ngan_hang_hoan_tien|default:"Chưa cập nhật" }}</b>
+        </div>
+
+        <div class="return-info-item">
+          <span>Tên chủ tài khoản</span>
+          <b>{{ yeu_cau_tra.ten_chu_tai_khoan|default:"Chưa cập nhật" }}</b>
+        </div>
+
+        <div class="return-info-item">
+          <span>Số tài khoản</span>
+          <b>{{ yeu_cau_tra.so_tai_khoan|default:"Chưa cập nhật" }}</b>
+        </div>
+      {% endif %}
+
+      {% if yeu_cau_tra.ma_van_don_khach %}
+        <div class="return-info-item">
+          <span>Mã vận đơn khách gửi</span>
+          <b>{{ yeu_cau_tra.ma_van_don_khach }}</b>
+        </div>
+      {% endif %}
+
+      {% if yeu_cau_tra.mo_ta_van_de %}
+        <div class="return-info-item return-info-full">
+          <span>Mô tả vấn đề</span>
+          <b>{{ yeu_cau_tra.mo_ta_van_de|linebreaksbr }}</b>
+        </div>
+      {% endif %}
+
+    </div>
   </div>
+
+  <!-- ẢNH / VIDEO MINH CHỨNG -->
   {% with files=yeu_cau_tra.minh_chung.all %}
     {% if files %}
       <div class="return-evidence-list">
-        <strong>Ảnh/video minh chứng</strong>
-        <div>
+        <strong class="return-section-title">Ảnh/video minh chứng</strong>
+
+        <div class="return-evidence-items">
           {% for evidence in files %}
-            <a href="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}" target="_blank" rel="noopener">{{ evidence.ten_tep }}</a>
+            <a href="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}" target="_blank" rel="noopener">
+              <i class="fa-solid fa-file-image" aria-hidden="true"></i>
+              <span>{{ evidence.ten_tep }}</span>
+              <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+            </a>
           {% endfor %}
         </div>
       </div>
     {% endif %}
   {% endwith %}
+
+  <!-- THÔNG TIN GỬI HÀNG TRẢ -->
   {% if yeu_cau_tra.trang_thai_tra == "da_duyet" or yeu_cau_tra.trang_thai_tra == "hoan_tat" %}
     <div class="return-shipping-card">
-      <strong class="return-shipping-title">Thông tin gửi trả</strong>
+      <strong class="return-section-title">Thông tin gửi hàng trả về</strong>
+
       <div class="return-shipping-details">
-        <div><span>Đơn vị vận chuyển</span><b>{{ yeu_cau_tra.don_vi_van_chuyen_tra|default:"Chưa cập nhật" }}</b></div>
-        <div><span>Mã vận đơn</span><b>{{ yeu_cau_tra.ma_van_don_tra|default:"Chưa cập nhật" }}</b></div>
+        <div class="return-info-item">
+          <span>Đơn vị vận chuyển</span>
+          <b>{{ yeu_cau_tra.don_vi_van_chuyen_tra|default:"Chưa cập nhật" }}</b>
+        </div>
+
+        <div class="return-info-item">
+          <span>Mã vận đơn</span>
+          <b>{{ yeu_cau_tra.ma_van_don_tra|default:"Chưa cập nhật" }}</b>
+        </div>
       </div>
     </div>
   {% endif %}
+
 </section>

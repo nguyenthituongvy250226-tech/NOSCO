@@ -1,0 +1,234 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+
+
+
+{% block extra_css %}
+<style>
+/* Khu vực trang đánh giá */
+.review-page {
+    max-width: 1100px;
+    margin: 40px auto 70px;
+    padding: 0 20px;
+}
+
+.review-page .review-form-container {
+    max-width: 760px;
+    margin: 35px auto;
+    padding: 35px 40px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.review-page .review-form-heading {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.review-page .reviews-eyebrow {
+    color: #1769aa;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.review-page .review-form-heading h3 {
+    margin: 12px 0;
+    color: #222;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.review-page .review-form-heading p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.review-page .review-form-group {
+    margin-bottom: 25px;
+}
+
+.review-page .review-form-group > label {
+    display: block;
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.review-page .review-star-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.review-page .review-star-options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.review-page .review-star-options label:has(input:checked) {
+    border-color: #1769aa;
+    background: #f0f7fc;
+    color: #1769aa;
+}
+
+.review-page .review-form-group textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    font: inherit;
+    resize: vertical;
+}
+
+.review-page .review-form-group textarea:focus {
+    outline: none;
+    border-color: #1769aa;
+}
+
+.review-page .review-submit-button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 7px;
+    background: #1769aa !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.review-page .review-submit-button:hover {
+    background: #12558b !important;
+}
+
+.review-page .review-submit-button:hover {
+    background: #12558b;
+}
+
+.review-page .errorlist {
+    margin-top: 8px;
+    color: #d93025;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .review-page .review-form-container {
+        padding: 25px 18px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block title %}Viết đánh giá | NOSCO{% endblock %}
+
+{% block content %}
+<section class="product-detail-page review-page">
+    <div class="product-detail-container">
+
+        <nav class="product-detail-breadcrumb" aria-label="Đường dẫn">
+            <a href="/">Trang chủ</a>
+            <span>/</span>
+            <a href="{% url 'sanpham:chi_tiet_san_pham' san_pham.ma_san_pham %}">
+                {{ san_pham.ten_san_pham }}
+            </a>
+            <span>/</span>
+            <span>Viết đánh giá</span>
+        </nav>
+
+        <div class="reviews-section">
+
+            <div class="reviews-heading">
+                <div>
+                    <span class="reviews-eyebrow">GÓC CHIA SẺ</span>
+                    <h2>Viết đánh giá của bạn</h2>
+                    <p>
+                        Ý kiến của bạn sẽ giúp khách hàng khác lựa chọn
+                        sản phẩm phù hợp hơn.
+                    </p>
+                </div>
+            </div>
+
+            <div class="review-form-container" id="review-form">
+
+                <div class="review-form-heading">
+                    <span class="reviews-eyebrow">CHIA SẺ TRẢI NGHIỆM</span>
+                    <h3>{{ san_pham.ten_san_pham }}</h3>
+                    <p>
+                        Hãy chia sẻ cảm nhận của bạn về sản phẩm.
+                    </p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="review-form-group">
+                        <label>Đánh giá của bạn</label>
+
+                        <div class="review-star-options">
+                            {% for radio in form_danh_gia.so_sao %}
+                                <label>
+                                    {{ radio.tag }}
+                                    <span>{{ radio.choice_label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                        {{ form_danh_gia.so_sao.errors }}
+                    </div>
+
+                    <div class="review-form-group">
+                        <label>Nhận xét sản phẩm</label>
+                        {{ form_danh_gia.noi_dung }}
+                        {{ form_danh_gia.noi_dung.errors }}
+                    </div>
+                    <div class="mb-3">
+    <label class="form-label">
+        Hình ảnh minh họa
+    </label>
+
+    {{ form_danh_gia.hinh_anh }}
+
+    {% if form_danh_gia.hinh_anh.errors %}
+        <div class="text-danger">
+            {{ form_danh_gia.hinh_anh.errors }}
+        </div>
+    {% endif %}
+</div>
+
+                    <button type="submit" class="review-submit-button">
+                        Gửi đánh giá
+                    </button>
+                </form>
+
+            </div>
+
+            <div class="reviews-footer">
+                <span class="reviews-footer-icon">✦</span>
+                <p>
+                    <strong>Mỗi trải nghiệm đều đáng quý.</strong>
+                    NOSCO luôn mong muốn mang đến những sản phẩm
+                    văn phòng phẩm phù hợp với nhu cầu của bạn.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+{% endblock %}

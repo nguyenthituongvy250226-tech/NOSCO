@@ -6,7 +6,7 @@ from .models import DanhGiaSanPham
 class DanhGiaSanPhamForm(forms.ModelForm):
     class Meta:
         model = DanhGiaSanPham
-        fields = ["so_sao", "noi_dung"]
+        fields = ["so_sao", "noi_dung","hinh_anh"]
 
         widgets = {
             "so_sao": forms.RadioSelect(),

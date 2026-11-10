@@ -17,6 +17,9 @@
     <div class="customer-account-panel customer-form-panel">
         <form method="POST" class="customer-form">
             {% csrf_token %}
+            {% if next_url %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+            {% endif %}
             {{ form.as_p }}
             <div class="customer-form-actions">
                 <button type="submit" class="customer-primary-button">Lưu thông tin</button>

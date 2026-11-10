@@ -585,6 +585,16 @@ data-promotion-percent="{{ phan_tram_giam|default_if_none:'' }}"
 
 
                <p>{{ danh_gia.noi_dung|linebreaksbr }}</p>
+
+{% if danh_gia.hinh_anh %}
+    <div class="review-image">
+        <img
+            src="{{ danh_gia.hinh_anh.url }}"
+            alt="Hình ảnh đánh giá"
+            style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px;"
+        >
+    </div>
+{% endif %}
            </article>
        {% endfor %}
    </div>
@@ -612,57 +622,7 @@ data-promotion-percent="{{ phan_tram_giam|default_if_none:'' }}"
 {% endif %}
 
 
-       <!-- FORM VIẾT ĐÁNH GIÁ -->
-<div class="review-form-container">
-   <div class="review-form-heading">
-       <span class="reviews-eyebrow">CHIA SẺ TRẢI NGHIỆM</span>
-       <h3>Viết đánh giá của bạn</h3>
-       <p>Ý kiến của bạn sẽ giúp khách hàng khác lựa chọn sản phẩm phù hợp hơn.</p>
-   </div>
 
-
-   <form class="review-form" method="POST">
-   {% csrf_token %}
-
-
-   <div class="review-form-group">
-       <label>Đánh giá của bạn</label>
-       <div class="review-star-options">
-           {% for radio in form_danh_gia.so_sao %}
-               <label>
-                   {{ radio.tag }}
-                   <span>{{ radio.choice_label }}</span>
-               </label>
-           {% endfor %}
-       </div>
-       {{ form_danh_gia.so_sao.errors }}
-   </div>
-
-
-   <div class="review-form-group">
-       <label>Nhận xét sản phẩm</label>
-       {{ form_danh_gia.noi_dung }}
-       {{ form_danh_gia.noi_dung.errors }}
-   </div>
-
-
-   <button type="submit" class="review-submit-button">
-       Gửi đánh giá
-   </button>
-</form>
-</div>
-       <div class="reviews-footer">
-           <span class="reviews-footer-icon">✦</span>
-           <p>
-               <strong>Mỗi trải nghiệm đều đáng quý.</strong>
-               NOSCO luôn mong muốn mang đến những sản phẩm văn phòng phẩm
-               phù hợp với nhu cầu của bạn.
-           </p>
-       </div>
-
-
-   </div>
-</div>
 
 
 
@@ -1684,7 +1644,28 @@ if (quantityInput) {
 })();
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.location.hash !== "#review-form") return;
 
+    const reviewTab = document.querySelector(
+        '.product-detail-tab[data-tab="reviews"]'
+    );
+
+    const reviewForm = document.getElementById("review-form");
+
+    if (reviewTab && reviewForm) {
+        reviewTab.click();
+
+        setTimeout(function () {
+            reviewForm.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }, 150);
+    }
+});
+</script>
 {% endblock %}
 đây
 

@@ -395,6 +395,24 @@ def danh_sach_san_pham(request):
 
 
        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+       # Thống kê đánh giá của sản phẩm
+       thong_ke_danh_gia = DanhGiaSanPham.objects.using("sanpham").filter(
+           san_pham_id=san_pham.ma_san_pham
+       ).aggregate(
+           diem_trung_binh=Avg("so_sao"),
+           so_luot_danh_gia=Count("id")
+       )
+
+       thong_tin_gia["diem_trung_binh"] = (
+           round(thong_ke_danh_gia["diem_trung_binh"], 1)
+           if thong_ke_danh_gia["diem_trung_binh"] is not None
+           else 0
+       )
+
+       thong_tin_gia["so_luot_danh_gia"] = thong_ke_danh_gia["so_luot_danh_gia"]
+       thong_tin_gia["ti_le_sao"] = (
+               thong_tin_gia["diem_trung_binh"] * 20
+       )
 
 
        # Xác định sản phẩm có thể mua trực tiếp hay không
@@ -565,6 +583,23 @@ def home(request):
 
 
        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+       # Thống kê đánh giá của sản phẩm
+       thong_ke_danh_gia = DanhGiaSanPham.objects.using("sanpham").filter(
+           san_pham_id=san_pham.ma_san_pham
+       ).aggregate(
+           diem_trung_binh=Avg("so_sao"),
+           so_luot_danh_gia=Count("id")
+       )
+
+       thong_tin_gia["diem_trung_binh"] = (
+           round(thong_ke_danh_gia["diem_trung_binh"], 1)
+           if thong_ke_danh_gia["diem_trung_binh"] is not None
+           else 0
+       )
+
+       thong_tin_gia["so_luot_danh_gia"] = (
+           thong_ke_danh_gia["so_luot_danh_gia"]
+       )
 
 
        thong_tin_gia["con_hang"] = any(
@@ -847,7 +882,88 @@ def base(request):
 # 7. CHI TIẾT SẢN PHẨM
 # =========================================================
 
+def viet_danh_gia_san_pham(request, ma_san_pham):
 
+    san_pham = get_object_or_404(
+        SanPham,
+        ma_san_pham=ma_san_pham,
+        trang_thai_ban="Đang bán",
+    )
+
+    ma_khach_hang = request.session.get("ma_khach_hang")
+
+    if not ma_khach_hang:
+        messages.warning(
+            request,
+            "Vui lòng đăng nhập tài khoản khách hàng để đánh giá sản phẩm."
+        )
+        return redirect("KHACHHANG:dang_nhap")
+
+    # Kiểm tra khách hàng đã mua và nhận sản phẩm chưa
+    ma_cac_bien_the = list(
+        BienTheSanPham.objects.using("sanpham")
+        .filter(san_pham=san_pham)
+        .values_list("ma_bien_the", flat=True)
+    )
+
+    da_mua = ChiTietDonHang.objects.using("default").filter(
+        ma_don_hang__ma_khach_hang=ma_khach_hang,
+        ma_don_hang__trang_thai_don="da_giao",
+        ma_bien_the__in=ma_cac_bien_the,
+    ).exists()
+
+    if not da_mua:
+        messages.warning(
+            request,
+            "Bạn cần mua và nhận sản phẩm thành công trước khi đánh giá."
+        )
+        return redirect(
+            "sanpham:chi_tiet_san_pham",
+            ma_san_pham=ma_san_pham
+        )
+    # Kiểm tra khách hàng đã đánh giá sản phẩm chưa
+    da_danh_gia = DanhGiaSanPham.objects.using("sanpham").filter(
+        san_pham_id=san_pham.ma_san_pham,
+        ma_khach_hang=ma_khach_hang
+    ).exists()
+
+    if da_danh_gia:
+        messages.warning(
+            request,
+            "Bạn đã đánh giá sản phẩm này rồi."
+        )
+        return redirect(
+            "sanpham:chi_tiet_san_pham",
+            ma_san_pham=ma_san_pham
+        )
+    if request.method == "POST":
+        form = DanhGiaSanPhamForm(request.POST, request.FILES)
+        if form.is_valid():
+            danh_gia = form.save(commit=False)
+            danh_gia.san_pham = san_pham
+            danh_gia.ma_khach_hang = ma_khach_hang
+            danh_gia.save(using="sanpham")
+
+            messages.success(
+                request,
+                "Đánh giá của bạn đã được gửi thành công!"
+            )
+
+            return redirect(
+                "sanpham:chi_tiet_san_pham",
+                ma_san_pham=ma_san_pham
+            )
+    else:
+        form = DanhGiaSanPhamForm()
+
+    return render(
+        request,
+        "SANPHAM/viet_danh_gia.html",
+        {
+            "san_pham": san_pham,
+            "form_danh_gia": form,
+        },
+    )
 
 
 def chi_tiet_san_pham(request, ma_san_pham):
@@ -1078,12 +1194,10 @@ def chi_tiet_san_pham(request, ma_san_pham):
            .values_list("ma_bien_the", flat=True)
        )
 
-
        # Kiểm tra khách đã mua và nhận sản phẩm chưa
        da_mua = ChiTietDonHang.objects.using("default").filter(
            ma_don_hang__ma_khach_hang=ma_khach_hang,
            ma_don_hang__trang_thai_don="da_giao",
-           trang_thai_giao="da_giao",
            ma_bien_the__in=ma_cac_bien_the,
        ).exists()
 
@@ -1098,15 +1212,29 @@ def chi_tiet_san_pham(request, ma_san_pham):
                ma_san_pham=ma_san_pham
            )
 
+       # Kiểm tra khách hàng đã đánh giá sản phẩm chưa
+       da_danh_gia = DanhGiaSanPham.objects.using("sanpham").filter(
+           san_pham_id=san_pham.ma_san_pham,
+           ma_khach_hang=ma_khach_hang
+       ).exists()
 
-       form = DanhGiaSanPhamForm(request.POST)
+       if da_danh_gia:
+           messages.warning(
+               request,
+               "Bạn đã đánh giá sản phẩm này rồi."
+           )
+           return redirect(
+               "sanpham:chi_tiet_san_pham",
+               ma_san_pham=ma_san_pham
+           )
+       form = DanhGiaSanPhamForm(request.POST, request.FILES)
 
 
        if form.is_valid():
            danh_gia = form.save(commit=False)
            danh_gia.san_pham = san_pham
            danh_gia.ma_khach_hang = ma_khach_hang
-           danh_gia.save()
+           danh_gia.save(using="sanpham")
 
 
            messages.success(

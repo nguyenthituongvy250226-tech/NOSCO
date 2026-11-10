@@ -559,8 +559,15 @@
 
 
        <div class="product-rating">
-           <span class="rating-star">★</span>
-           <span>Chưa có đánh giá</span>
+    <span class="rating-star">★</span>
+
+    {% if item.so_luot_danh_gia > 0 %}
+        <span>
+            {{ item.diem_trung_binh }} ({{ item.so_luot_danh_gia }} đánh giá)
+        </span>
+    {% else %}
+        <span>Chưa có đánh giá</span>
+    {% endif %}
 
 
            <form method="post" action="{% url 'sanpham:toggle_favorite' %}">
@@ -793,8 +800,15 @@
 
 
        <div class="product-rating">
-           <span class="rating-star">★</span>
-           <span>Chưa có đánh giá</span>
+    <span class="rating-star">★</span>
+
+    {% if the.so_luot_danh_gia > 0 %}
+        <span>
+            {{ the.diem_trung_binh }} ({{ the.so_luot_danh_gia }} đánh giá)
+        </span>
+    {% else %}
+        <span>Chưa có đánh giá</span>
+    {% endif %}
 
 
           <form method="POST" action="{% url 'sanpham:toggle_favorite' %}">

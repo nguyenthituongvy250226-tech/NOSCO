@@ -1,0 +1,82 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Yêu cầu gửi thành công{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="success-card">
+        <div class="success-icon-circle">✓</div>
+
+        <h1 class="success-title">
+            Yêu cầu trả hàng đã được gửi thành công!
+        </h1>
+
+        <div class="success-message-box">
+            <p>
+                NOSCO đã tiếp nhận yêu cầu trả hàng của bạn.
+            </p>
+            <p>
+                Vui lòng theo dõi thông tin đơn hàng để cập nhật kết quả xử lý.
+            </p>
+        </div>
+
+        <div class="order-ref">
+            Mã đơn hàng:
+            <span>{{ don_hang.ma_don_hang }}</span>
+        </div>
+
+        <div class="return-guide-box">
+            <h3>Hướng dẫn trả hàng</h3>
+
+            <ol>
+                <li>
+                    <strong>Chờ xét duyệt:</strong>
+                    Nhân viên NOSCO sẽ kiểm tra thông tin và phê duyệt yêu cầu của bạn.
+                </li>
+                <li>
+                    <strong>Chuẩn bị sản phẩm:</strong>
+                    Giữ nguyên sản phẩm, phụ kiện và đóng gói cẩn thận để chuẩn bị bàn giao.
+                </li>
+                <li>
+                    <strong>Bàn giao hàng:</strong>
+                    Sau khi yêu cầu được phê duyệt, NOSCO sẽ sắp xếp đơn vị vận chuyển đến lấy hàng tại địa chỉ của bạn.
+                </li>
+                <li>
+                    <strong>Kiểm tra và hoàn tiền:</strong>
+                    NOSCO sẽ kiểm tra sản phẩm sau khi nhận hàng và tiến hành hoàn tiền nếu đáp ứng điều kiện.
+                </li>
+            </ol>
+
+            <h3>Quy định về phí vận chuyển</h3>
+            <ul>
+                <li>Shop chịu phí nếu giao sai sản phẩm, thiếu hàng hoặc sản phẩm bị lỗi.</li>
+                <li>Trường hợp hàng hư hỏng trong quá trình vận chuyển, NOSCO sẽ phối hợp với đơn vị vận chuyển để xác định trách nhiệm.</li>
+                <li>Khách hàng chịu phí nếu đổi ý hoặc không còn nhu cầu sử dụng.</li>
+                <li>Các trường hợp khác được xem xét theo chính sách trả hàng của NOSCO.</li>
+            </ul>
+        </div>
+
+        <p class="help-text">
+            Bạn có thể theo dõi tình trạng xử lý yêu cầu trong trang chi tiết đơn hàng.
+        </p>
+
+        <div class="btn-group-center">
+            <a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}"
+               class="btn-primary-blue">
+                Theo dõi đơn hàng
+            </a>
+
+            <a href="{% url 'home' %}"
+               class="btn-outline-gray">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -26,7 +26,6 @@
         padding: 22px;
     }
 
-    /* Thông tin khách hàng bên trái */
     .account-sidebar {
         min-width: 0;
         padding: 20px 14px;
@@ -57,7 +56,6 @@
         font-size: 13px;
         line-height: 1.45;
         overflow-wrap: break-word;
-        word-break: normal;
     }
 
     .account-profile p {
@@ -115,7 +113,6 @@
         color: #c0392b;
     }
 
-    /* Nội dung đơn hàng bên phải */
     .orders-content h2 {
         margin: 0 0 22px;
         font-size: 24px;
@@ -146,27 +143,46 @@
         font: inherit;
     }
 
-    .orders-tabs {
+    .order-status-counts {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        min-width: 700px;
+        gap: 8px;
+        padding: 0 0 16px;
+        margin: 0;
+        border-bottom: 1px solid #dfe5eb;
+    }
+
+    .order-status-counts-scroll {
+        overflow-x: auto;
+        margin-bottom: 18px;
+    }
+
+    .order-status-count {
         display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        border-bottom: 1px solid #ddd;
-        margin-bottom: 20px;
-    }
-
-    .orders-tab {
-        display: inline-block;
-        padding: 12px 10px;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 0;
+        padding: 9px 5px;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+        background: #f8fafc;
         color: #555;
+        font-size: 10px;
         text-decoration: none;
-        border-bottom: 3px solid transparent;
-        font-size: 13px;
+        white-space: nowrap;
     }
 
-    .orders-tab.active {
+    .order-status-count:hover,
+    .order-status-count.active {
+        border-color: #1769aa;
+        background: #edf6ff;
         color: #1769aa;
-        border-bottom-color: #1769aa;
-        font-weight: bold;
+    }
+
+    .order-status-count strong {
+        color: #1769aa;
     }
 
     .order-card {
@@ -244,12 +260,9 @@
         text-decoration: none;
     }
 
-    .order-actions form { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
-    .staff-order-form { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:0 15px 15px; }
-    .staff-order-form input, .staff-order-form select { min-width:140px; padding:9px; border:1px solid #d5dbe1; border-radius:5px; font:inherit; }
-    .staff-order-form button, .order-actions form button { padding:9px 13px; border:1px solid #1769aa; border-radius:5px; background:#1769aa; color:white; cursor:pointer; }
-    .staff-order-form button:hover, .order-actions form button:hover { background:#0d5592; }
-    .order-actions form button.order-btn-danger { border-color:#c0392b; background:#c0392b; }
+    .order-actions a:hover {
+        background: #edf6ff;
+    }
 
     .orders-empty {
         padding: 55px 15px;
@@ -262,46 +275,24 @@
         margin-bottom: 12px;
     }
 
-    .order-status-counts {
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        min-width: 700px;
-        gap: 8px;
-        padding: 0 0 16px;
-        margin: 0;
-        border-bottom: 1px solid #dfe5eb;
+    .order-alert {
+        padding: 10px 14px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        background: #eef8f1;
+        color: #237342;
     }
 
-    .order-status-counts-scroll {
-        overflow-x: auto;
-        margin-bottom: 18px;
+    .order-btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
     }
 
-    .order-status-count {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        min-width: 0;
-        padding: 9px 5px;
-        border: 1px solid #e5e7eb;
-        border-radius: 7px;
-        background: #f8fafc;
-        color: #555;
-        font-size: 10px;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-
-    .order-status-count:hover,
-    .order-status-count.active {
-        border-color: #1769aa;
-        background: #edf6ff;
-        color: #1769aa;
-    }
-
-    .order-status-count strong {
-        color: #1769aa;
+    .order-btn-primary {
+        background: #1769aa;
+        color: white;
     }
 
     @media (max-width: 800px) {
@@ -333,7 +324,7 @@
 <div class="orders-page">
     <div class="orders-layout">
 
-        <!-- SIDEBAR TÀI KHOẢN -->
+        <!-- SIDEBAR TÀI KHOẢN KHÁCH HÀNG -->
         <aside class="account-sidebar">
             <div class="account-profile">
                 <div class="account-avatar">
@@ -341,28 +332,12 @@
                 </div>
 
                 <h3>{{ ten_hien_thi }}</h3>
-                <p>{% if dang_la_nhan_vien %}Tài khoản nhân viên{% else %}Tài khoản khách hàng{% endif %}</p>
+                <p>Tài khoản khách hàng</p>
             </div>
 
             <nav class="orders-account-menu">
-                {% if dang_la_nhan_vien %}
-                <a href="{% url 'DONHANG:nhan_vien_don_hang' %}" class="orders-account-menu-item active">
-                    <i class="fa-solid fa-box"></i><span>Quản lý đơn hàng</span>
-                </a>
-                <a href="{% url 'DONHANG:nhan_vien_tra_hang' %}" class="orders-account-menu-item">
-                    <i class="fa-solid fa-arrow-rotate-left"></i><span>Trả hàng / hoàn tiền</span>
-                </a>
-                <a href="{% url 'KHACHHANG:danh_sach_khach_hang' %}" class="orders-account-menu-item">
-                    <i class="fa-solid fa-users"></i><span>Danh sách khách hàng</span>
-                </a>
-                <a href="{% url 'KHACHHANG:quan_ly_yeu_cau_ho_tro' %}" class="orders-account-menu-item">
-                    <i class="fa-solid fa-headset"></i><span>Yêu cầu hỗ trợ</span>
-                </a>
-                <a href="{% url 'KHACHHANG:dang_xuat' %}" class="orders-account-menu-item account-logout">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng xuất</span>
-                </a>
-                {% else %}
-                <a href="{% url 'KHACHHANG:ho_so_ca_nhan' %}" class="orders-account-menu-item">
+                <a href="{% url 'KHACHHANG:ho_so_ca_nhan' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-regular fa-id-card"></i>
                     <span>Thông tin cá nhân</span>
                 </a>
@@ -373,57 +348,84 @@
                     <span>Đơn hàng của tôi</span>
                 </a>
 
-                <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="orders-account-menu-item">
+                <a href="{% url 'KHACHHANG:so_dia_chi' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-solid fa-location-dot"></i>
                     <span>Sổ địa chỉ</span>
                 </a>
 
-                <a href="{% url 'sanpham:san_pham_yeu_thich' %}" class="orders-account-menu-item">
+                <a href="{% url 'sanpham:san_pham_yeu_thich' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-regular fa-heart"></i>
                     <span>Sản phẩm yêu thích</span>
                 </a>
 
-                <a href="{% url 'KHACHHANG:voucher_cua_toi' %}" class="orders-account-menu-item">
+                <a href="{% url 'KHACHHANG:voucher_cua_toi' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-solid fa-ticket"></i>
                     <span>Voucher của tôi</span>
                 </a>
 
-                <a href="{% url 'KHACHHANG:lich_su_tich_diem' %}" class="orders-account-menu-item">
+                <a href="{% url 'KHACHHANG:lich_su_tich_diem' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-solid fa-star"></i>
                     <span>Điểm tích lũy</span>
                 </a>
 
-                <a href="{% url 'KHACHHANG:danh_sach_thong_bao' %}" class="orders-account-menu-item">
+                <a href="{% url 'KHACHHANG:danh_sach_thong_bao' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-regular fa-bell"></i>
                     <span>Thông báo</span>
                 </a>
 
-                <a href="{% url 'KHACHHANG:danh_sach_yeu_cau' %}" class="orders-account-menu-item">
+                <a href="{% url 'KHACHHANG:danh_sach_yeu_cau' %}"
+                   class="orders-account-menu-item">
                     <i class="fa-solid fa-headset"></i>
                     <span>Hỗ trợ khách hàng</span>
                 </a>
 
-                <a href="{% url 'KHACHHANG:dang_xuat' %}" class="orders-account-menu-item account-logout">
+                <a href="{% url 'KHACHHANG:dang_xuat' %}"
+                   class="orders-account-menu-item account-logout">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     <span>Đăng xuất</span>
                 </a>
-                {% endif %}
             </nav>
         </aside>
 
         <!-- NỘI DUNG ĐƠN HÀNG -->
         <main class="orders-content">
-            {% if messages %}{% for message in messages %}<p class="order-alert" role="status">{{ message }}</p>{% endfor %}{% endif %}
-            <h2>{% if dang_la_nhan_vien %}Quản lý đơn hàng{% else %}Đơn hàng của tôi{% endif %}</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="order-alert" role="status">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            {% endif %}
+
+            <h2>Đơn hàng của tôi</h2>
+
             {% if co_the_tao_don_mau %}
-                <form method="post" action="{% url 'DONHANG:tao_don_hang_mau' %}">
+                <form method="post"
+                      action="{% url 'DONHANG:tao_don_hang_mau' %}">
                     {% csrf_token %}
-                    <p>Dữ liệu mẫu chỉ tạo cho tài khoản của bạn, không thay đổi giỏ hàng hay khuyến mãi. Nếu chưa lưu địa chỉ, đơn mẫu sẽ dùng địa chỉ giả lập và không được giao thật.</p>
-                    <button class="order-btn order-btn-primary" type="submit">Tạo đơn hàng mẫu để kiểm thử</button>
+                    <p>
+                        Dữ liệu mẫu chỉ tạo cho tài khoản của bạn,
+                        không thay đổi giỏ hàng hay khuyến mãi.
+                        Nếu chưa lưu địa chỉ, đơn mẫu sẽ dùng địa chỉ
+                        giả lập và không được giao thật.
+                    </p>
+                    <button class="order-btn order-btn-primary" type="submit">
+                        Tạo đơn hàng mẫu để kiểm thử
+                    </button>
                 </form>
             {% endif %}
 
-            <form method="get" action="{% url 'DONHANG:trang_thai' trang_thai_slug %}" class="orders-filters">
+            <!-- TÌM KIẾM ĐƠN HÀNG -->
+            <form method="get"
+                  action="{% url 'DONHANG:trang_thai' trang_thai_slug %}"
+                  class="orders-filters">
+
                 <input
                     type="text"
                     name="q"
@@ -441,20 +443,28 @@
                 <button type="submit">Tìm kiếm</button>
             </form>
 
+            <!-- LỌC THEO TRẠNG THÁI -->
             <div class="order-status-counts-scroll">
-              <nav class="order-status-counts" aria-label="Lọc đơn hàng theo trạng thái">
-                {% for tt in cac_trang_thai %}
-                    <a class="order-status-count {% if trang_thai_hien_tai == tt.ma %}active{% endif %}"
-                       href="{% url 'DONHANG:trang_thai' tt.slug %}{% if tu_khoa or ngay_dat %}?{% if tu_khoa %}q={{ tu_khoa|urlencode }}{% endif %}{% if tu_khoa and ngay_dat %}&amp;{% endif %}{% if ngay_dat %}ngay_dat={{ ngay_dat }}{% endif %}{% endif %}">
-                        {{ tt.ten }}
-                        <strong>{{ tt.tong_so }}</strong>
-                    </a>
-                {% endfor %}
-              </nav>
+                <nav class="order-status-counts"
+                     aria-label="Lọc đơn hàng theo trạng thái">
+
+                    {% for tt in cac_trang_thai %}
+                        <a
+                            class="order-status-count {% if trang_thai_hien_tai == tt.ma %}active{% endif %}"
+                            href="{% url 'DONHANG:trang_thai' tt.slug %}{% if tu_khoa or ngay_dat %}?{% if tu_khoa %}q={{ tu_khoa|urlencode }}{% endif %}{% if tu_khoa and ngay_dat %}&amp;{% endif %}{% if ngay_dat %}ngay_dat={{ ngay_dat }}{% endif %}{% endif %}">
+
+                            {{ tt.ten }}
+                            <strong>{{ tt.tong_so }}</strong>
+                        </a>
+                    {% endfor %}
+
+                </nav>
             </div>
 
+            <!-- DANH SÁCH ĐƠN HÀNG -->
             {% for dh in don_hang %}
                 <section class="order-card">
+
                     <div class="order-header">
                         <span>
                             Mã đơn hàng:
@@ -468,19 +478,46 @@
 
                     {% for ct in dh.chi_tiet.all %}
                         <div class="order-product">
-                            <div>
-                                <strong>
-                                    Biến thể sản phẩm: {{ ct.ma_bien_the }}
-                                </strong>
-                                <p>Số lượng: {{ ct.so_luong }}</p>
-                                <p>Đơn giá: {{ ct.don_gia|floatformat:0 }} đ</p>
-                            </div>
+    <div>
+        <strong>
+            Biến thể sản phẩm: {{ ct.ma_bien_the }}
+        </strong>
 
-                            <div>
-                                Thành tiền:
-                                <strong>{{ ct.thanh_tien|floatformat:0 }} đ</strong>
-                            </div>
-                        </div>
+        <p>Số lượng: {{ ct.so_luong }}</p>
+
+        <p>
+            Đơn giá:
+            {{ ct.don_gia|floatformat:0 }} đ
+        </p>
+    </div>
+
+    <div>
+        Thành tiền:
+        <strong>
+            {{ ct.thanh_tien|floatformat:0 }} đ
+        </strong>
+    </div>
+</div>
+
+{% if dh.trang_thai_don == "da_giao" and ct.ma_san_pham_danh_gia %}
+    <div style="padding: 0 15px 15px;">
+        <a
+            href="{% url 'sanpham:viet_danh_gia_san_pham' ct.ma_san_pham_danh_gia %}#tab-reviews"
+            style="
+                display: inline-block;
+                padding: 9px 16px;
+                background: #1769aa;
+                color: white;
+                border-radius: 5px;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+            "
+        >
+            ★ Viết đánh giá sản phẩm
+        </a>
+    </div>
+{% endif %}
                     {% empty %}
                         <div class="order-product">
                             Chưa có chi tiết sản phẩm cho đơn hàng này.
@@ -488,37 +525,58 @@
                     {% endfor %}
 
                     <div class="order-total">
-                        Ngày đặt: {{ dh.ngay_dat|date:"d/m/Y" }}<br>
+                        Ngày đặt:
+                        {{ dh.ngay_dat|date:"d/m/Y" }}<br>
+
                         Tổng tiền hàng:
                         {{ dh.tong_tien_hang|floatformat:0 }} đ<br>
+
                         Giảm giá:
                         {{ dh.so_tien_giam|floatformat:0 }} đ<br>
+
                         <strong>
                             Tổng thanh toán:
                             {{ dh.tong_tien|floatformat:0 }} đ
                         </strong>
                     </div>
+
                     {% if dh.co_the_thanh_toan_lai %}
-                      <p class="payment-reminder">Đơn hàng đang chờ thanh toán. Vui lòng hoàn tất trong vòng 24 giờ kể từ lúc đặt hàng.</p>
+                        <p class="payment-reminder">
+                            Đơn hàng đang chờ thanh toán.
+                            Vui lòng hoàn tất trong vòng 24 giờ
+                            kể từ lúc đặt hàng.
+                        </p>
                     {% elif dh.thanh_toan_da_thanh_cong %}
-                      <p class="payment-reminder payment-complete">Đơn hàng đã được thanh toán.</p>
+                        <p class="payment-reminder payment-complete">
+                            Đơn hàng đã được thanh toán.
+                        </p>
                     {% endif %}
 
                     <div class="order-actions">
-                        <a href="{% url 'DONHANG:chi_tiet' dh.ma_don_hang %}">Xem chi tiết</a>
+                        <a href="{% url 'DONHANG:chi_tiet' dh.ma_don_hang %}">
+                            Xem chi tiết
+                        </a>
+
                         {% if dh.co_the_thanh_toan_lai %}
-                          <a href="{% url 'THANHTOAN:thanh_toan_lai' dh.ma_don_hang %}">Thanh toán lại</a>
+                            <a href="{% url 'THANHTOAN:thanh_toan_lai' dh.ma_don_hang %}">
+                                Thanh toán lại
+                            </a>
                         {% endif %}
                     </div>
+
                 </section>
+
             {% empty %}
                 <div class="orders-empty">
                     <div class="empty-icon">📦</div>
-                    {% if dang_la_nhan_vien %}<h3>Không có đơn hàng ở trạng thái này</h3><p>Chọn ô trạng thái phía trên để xem các đơn hàng khác.</p>{% else %}<h3>Bạn chưa có đơn hàng</h3><p>Đơn hàng của bạn sẽ hiển thị tại đây khi có dữ liệu.</p>{% endif %}
+                    <h3>Bạn chưa có đơn hàng</h3>
+                    <p>
+                        Đơn hàng của bạn sẽ hiển thị tại đây khi có dữ liệu.
+                    </p>
                 </div>
             {% endfor %}
-        </main>
 
-    </div>
+        </main>
+    </div>\
 </div>
 {% endblock %}

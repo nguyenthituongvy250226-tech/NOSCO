@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chi tiết đơn đã hủy{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+
+    <!-- TIÊU ĐỀ ĐƠN HÀNG -->
+    <div>
+        <a href="{% url 'DONHANG:danh_sach' %}" class="back-link">
+            &larr; Quay lại đơn hàng
+        </a>
+
+        <div class="header-top" style="margin-top: 4px;">
+            <h1 class="order-title">
+                Chi tiết đơn hàng #{{ don_hang.ma_don_hang }}
+            </h1>
+            <span class="badge-cancelled">• Đã hủy</span>
+        </div>
+
+        <p class="order-date">
+            Ngày đặt: {{ don_hang.ngay_dat|date:"d/m/Y, H:i" }}
+        </p>
+    </div>
+
+    <!-- TRẠNG THÁI ĐƠN HÀNG -->
+    <div class="card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="card-title" style="margin: 0;">
+                Trạng thái giao hàng
+            </h2>
+            <span class="stepper-subtext">
+                Cập nhật theo tiến trình giao hàng
+            </span>
+        </div>
+
+        <div class="stepper-wrapper">
+            <div class="stepper-line-bg"></div>
+
+            {% if don_hang.giao_hang.trang_thai == "giao_that_bai" %}
+
+                <!-- TRƯỜNG HỢP GIAO HÀNG THẤT BẠI -->
+                <div class="stepper-line-active step-line-red"></div>
+
+                <div class="step-item">
+                    <div class="step-circle green">✓</div>
+                    <span class="step-label green">Chờ xác nhận</span>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle green">✓</div>
+                    <span class="step-label green">Chờ lấy hàng</span>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle green">✓</div>
+                    <span class="step-label green">Đang giao</span>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle danger">✕</div>
+                    <span class="step-label danger">Đã hủy</span>
+                </div>
+
+            {% else %}
+
+                <!-- TRƯỜNG HỢP KHÁCH HỦY TRƯỚC KHI XÁC NHẬN -->
+                <div class="stepper-line-active step-line-1"></div>
+
+                <div class="step-item">
+                    <div class="step-circle green">✓</div>
+                    <span class="step-label green">Chờ xác nhận</span>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle pending">2</div>
+                    <span class="step-label pending">Chờ lấy hàng</span>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle pending">3</div>
+                    <span class="step-label pending">Đang giao</span>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-circle danger">✕</div>
+                    <span class="step-label danger">Đã hủy</span>
+                </div>
+
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- THÔNG BÁO HỦY ĐƠN -->
+    <div class="alert-banner">
+        <div>
+            <h3 class="alert-title">Đơn hàng đã bị hủy</h3>
+
+            {% if don_hang.giao_hang.trang_thai == "giao_that_bai" %}
+                <p class="alert-desc">
+                    Lý do:
+                    {{ don_hang.giao_hang.ly_do_that_bai|default:"Giao hàng không thành công do không liên hệ được với người nhận." }}
+                </p>
+            {% else %}
+                <p class="alert-desc">
+                    Lý do: Đơn hàng đã được hủy trước khi xác nhận.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- THÔNG TIN NHẬN HÀNG -->
+    <div class="card-box" style="margin-bottom: 20px;">
+        <h2 class="card-title" style="margin: 0;">
+            Thông tin nhận hàng
+        </h2>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Tên người nhận:</strong>
+                {{ don_hang.ten_nguoi_nhan }}
+            </p>
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Số điện thoại:</strong>
+                {{ don_hang.sdt_nguoi_nhan }}
+            </p>
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Địa chỉ nhận hàng:</strong>
+                {{ don_hang.dia_chi_nhan_hang }}
+            </p>
+
+        </div>
+    </div>
+
+    <!-- KHU VỰC SẢN PHẨM VÀ THANH TOÁN -->
+    <div class="grid-container" style="display: flex; gap: 20px; align-items: flex-start;">
+
+        <!-- CỘT TRÁI: SẢN PHẨM -->
+        <div class="grid-left" style="flex: 1.5; min-width: 0;">
+            <div class="card-box" style="margin: 0;">
+                <h2 class="card-title" style="margin-bottom: 12px;">
+                    Sản phẩm trong đơn
+                </h2>
+
+                {% for item in chi_tiet %}
+                    <div class="product-item" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px;">
+
+                        <div class="product-info" style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+
+                            {% if item.hinh_anh_hien_thi %}
+                                <img
+                                    src="{{ item.hinh_anh_hien_thi.duong_dan_anh.url }}"
+                                    alt=""
+                                    class="product-img"
+                                    style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0;"
+                                >
+                            {% endif %}
+
+                            <div style="min-width: 0;">
+                                <h4 class="product-name" style="margin: 0; font-size: 14px;">
+                                    {% if item.bien_the_san_pham %}
+                                        {{ item.bien_the_san_pham.san_pham.ten_san_pham }}
+                                    {% else %}
+                                        Sản phẩm
+                                    {% endif %}
+                                </h4>
+
+                                {% if item.bien_the_san_pham %}
+                                    <p style="margin: 3px 0; font-size: 12px; color: #64748b;">
+                                        {% if item.bien_the_san_pham.mau_sac %}
+                                            Màu: {{ item.bien_the_san_pham.mau_sac }}
+                                        {% endif %}
+
+                                        {% if item.bien_the_san_pham.kich_thuoc %}
+                                            | Size: {{ item.bien_the_san_pham.kich_thuoc }}
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+
+                                <p style="margin: 3px 0; font-size: 12px; color: #64748b;">
+                                    Số lượng: {{ item.so_luong }}
+                                </p>
+
+                                <p style="margin: 3px 0; font-size: 12px; color: #64748b;">
+                                    Đơn giá: {{ item.don_gia|floatformat:0 }} đ
+                                </p>
+                            </div>
+                        </div>
+
+                        <span style="font-weight: 600; white-space: nowrap;">
+                            {{ item.thanh_tien|floatformat:0 }} đ
+                        </span>
+                    </div>
+
+                {% empty %}
+                    <p>Đơn hàng chưa có sản phẩm.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- CỘT PHẢI: TÓM TẮT VÀ THANH TOÁN -->
+        <div class="grid-right" style="flex: 1.3; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+
+            <!-- TÓM TẮT ĐƠN HÀNG -->
+            <div class="card-box payment-box" style="margin: 0;">
+                <h2 class="card-title" style="margin-bottom: 16px;">
+                    Tóm tắt đơn hàng
+                </h2>
+
+                <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                    <span>Tổng tiền hàng</span>
+                    <strong>
+                        {{ don_hang.tong_tien_hang|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                    <span>Giảm giá</span>
+                    <strong style="color: #16a34a;">
+                        -{{ don_hang.so_tien_giam|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                    <span>Phí vận chuyển</span>
+                    <strong>
+                        {% if phi_van_chuyen > 0 %}
+                            {{ phi_van_chuyen|floatformat:0 }} đ
+                        {% else %}
+                            Miễn phí
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 12px 0;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                    <span style="color: #475569; font-size: 14px;">
+                        Tổng thanh toán
+                    </span>
+
+                    <strong style="font-size: 18px; color: #2563eb;">
+                        {{ don_hang.tong_tien|floatformat:0 }} đ
+                    </strong>
+                </div>
+            </div>
+
+
+            <!-- Thông tin thanh toán -->
+            <div class="card-box payment-info-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 16px;">
+                    Thông tin thanh toán
+                </h2>
+
+                {% for tt in cac_thanh_toan %}
+
+                    <div class="payment-detail-list">
+
+                        <!-- Phương thức thanh toán -->
+                        <div class="payment-detail-row">
+                            <span class="payment-detail-label">
+                                Phương thức thanh toán
+                            </span>
+
+                            <strong class="payment-detail-value">
+                                {% if tt.PhuongThucThanhToan == "COD" %}
+                                    Thanh toán khi nhận hàng (COD)
+                                {% elif tt.PhuongThucThanhToan == "VNPAY" %}
+                                    VNPay
+                                {% else %}
+                                    {{ tt.PhuongThucThanhToan }}
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <!-- Số tiền giao dịch -->
+                        <div class="payment-detail-row">
+                            <span class="payment-detail-label">
+                                Số tiền giao dịch
+                            </span>
+
+                            <strong class="payment-detail-value">
+                                {{ tt.SoTienThanhToan|floatformat:0 }} đ
+                            </strong>
+                        </div>
+
+                        <!-- Trạng thái thanh toán -->
+                        <div class="payment-detail-row">
+                            <span class="payment-detail-label">
+                                Trạng thái thanh toán
+                            </span>
+
+                            <strong class="payment-detail-value">
+                                {% if tt.TrangThaiThanhToan == "DaThanhToan" %}
+                                    <span style="color: #16a34a;">Đã thanh toán</span>
+                                {% elif tt.TrangThaiThanhToan == "ThatBai" %}
+                                    <span style="color: #dc2626;">Thanh toán thất bại</span>
+                                {% elif tt.TrangThaiThanhToan == "DaHoanTien" %}
+                                    <span style="color: #2563eb;">Đã hoàn tiền</span>
+                                {% else %}
+                                    <span style="color: #d97706;">Chờ thanh toán</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p style="margin: 0; color: #64748b; font-size: 14px;">
+                        Chưa có thông tin giao dịch thanh toán.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- NÚT HỦY YÊU CẦU TRẢ HÀNG -->
+            {% if don_hang.co_yeu_cau_huy %}
+                <div class="action-wrapper">
+                    <button
+                        type="button"
+                        class="btn-cancel-request"
+                        onclick="toggleCancelRequestModal(true)"
+                    >
+                        Hủy yêu cầu
+                    </button>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- MODAL XÁC NHẬN HỦY YÊU CẦU -->
+    <div id="cancelRequestModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">
+                Xác nhận hủy yêu cầu
+            </h3>
+
+            <p class="modal-desc">
+                Bạn có chắc chắn muốn hủy yêu cầu này không?
+            </p>
+
+            <div class="modal-actions">
+                <button
+                    type="button"
+                    class="btn-modal-no"
+                    onclick="toggleCancelRequestModal(false)"
+                >
+                    Không
+                </button>
+
+                <form
+                    method="POST"
+                    action="{% url 'DONHANG:huy_yeu_cau_tra_hang' don_hang.ma_don_hang %}"
+                >
+                    {% csrf_token %}
+
+                    <button type="submit" class="btn-modal-yes">
+                        Xác nhận hủy
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function toggleCancelRequestModal(show) {
+        const modal = document.getElementById('cancelRequestModal');
+
+        if (modal) {
+            modal.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    // Đóng modal khi bấm ra ngoài hộp thoại
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('cancelRequestModal');
+
+        if (event.target === modal) {
+            toggleCancelRequestModal(false);
+        }
+    });
+
+    // Đóng modal bằng phím Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            toggleCancelRequestModal(false);
+        }
+    });
+</script>
+
+{% endblock %}

@@ -288,12 +288,16 @@
                                    </p>
 
 
-                                   <div class="product-rating">
+                                  <div class="product-rating">
+    <span class="rating-star">★</span>
 
-
-                                       <span class="rating-star">★</span>
-                                       <span>Chưa có đánh giá</span>
-
+    {% if item.so_luot_danh_gia > 0 %}
+        <span>
+            {{ item.diem_trung_binh }} ({{ item.so_luot_danh_gia }} đánh giá)
+        </span>
+    {% else %}
+        <span>Chưa có đánh giá</span>
+    {% endif %}
 
                                        <form
                                            method="POST"

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Yêu cầu trả hàng / hoàn tiền{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}?v=101">{% endblock %}
 {% block content %}
 <main class="order-form-page return-page">
   <p class="order-breadcrumb"><a href="{% url 'DONHANG:chi_tiet' don_hang.ma_don_hang %}">← Chi tiết đơn hàng</a></p>
@@ -100,23 +100,32 @@
   }
 
   const refundMethods = document.querySelectorAll(
-    'input[name="phuong_thuc_hoan_tien"]'
+      'input[name="phuong_thuc_hoan_tien"]'
   );
+
   const bankDetails = document.getElementById("bank-refund-details");
+
   function updateRefundFields() {
-    const bankRefund = document.querySelector(
-      'input[name="phuong_thuc_hoan_tien"]:checked'
-    );
-    const showBankFields = bankRefund &&
-      bankRefund.value === "tai_khoan_thanh_toan";
-    bankDetails.hidden = !showBankFields;
-    bankDetails.querySelectorAll("input, select").forEach(function (field) {
-      field.disabled = !showBankFields;
-    });
+      if (!bankDetails) return;
+
+      const bankRefund = document.querySelector(
+          'input[name="phuong_thuc_hoan_tien"]:checked'
+      );
+
+      const showBankFields = bankRefund &&
+          bankRefund.value === "tai_khoan_thanh_toan";
+
+      bankDetails.hidden = !showBankFields;
+
+      bankDetails.querySelectorAll("input, select").forEach(function(field) {
+          field.disabled = !showBankFields;
+      });
   }
-  refundMethods.forEach(function (method) {
-    method.addEventListener("change", updateRefundFields);
+
+  refundMethods.forEach(function(method) {
+      method.addEventListener("change", updateRefundFields);
   });
+
   updateRefundFields();
 </script>
 {% endblock %}

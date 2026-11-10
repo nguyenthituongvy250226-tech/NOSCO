@@ -16,7 +16,12 @@ urlpatterns = [
 
     # Thêm hoặc bỏ yêu thích
     path("yeu-thich/toggle/", views.toggle_favorite, name="toggle_favorite"),
-
+path(
+    "<str:ma_san_pham>/danh-gia/",
+    views.viet_danh_gia_san_pham,
+    name="viet_danh_gia_san_pham",
+),
     # Chi tiết sản phẩm: đặt cuối cùng
     path("<str:ma_san_pham>/", views.chi_tiet_san_pham, name="chi_tiet_san_pham"),
+
 ]

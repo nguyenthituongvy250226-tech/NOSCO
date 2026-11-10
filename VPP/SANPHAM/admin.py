@@ -7,6 +7,7 @@ from .models import (
     HinhAnhSanPham,
     BaiViet,
     SanPhamQuaTang,
+DanhGiaSanPham,
 
 )
 
@@ -92,3 +93,15 @@ class SanPhamQuaTangAdmin(admin.ModelAdmin):
     list_editable = ["vi_tri"]
     ordering = ["vi_tri"]
     list_per_page = 8
+
+@admin.register(DanhGiaSanPham)
+class DanhGiaSanPhamAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "san_pham",
+        "ma_khach_hang",
+        "so_sao",
+        "ngay_danh_gia",
+    )
+    list_filter = ("so_sao", "ngay_danh_gia")
+    search_fields = ("noi_dung",)

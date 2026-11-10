@@ -292,6 +292,12 @@ class DanhGiaSanPham(models.Model):
     )
 
     noi_dung = models.TextField(max_length=1000)
+    hinh_anh = models.ImageField(
+        upload_to="danh_gia_san_pham/",
+        null=True,
+        blank=True,
+        verbose_name="Hình ảnh đánh giá"
+    )
 
     ngay_danh_gia = models.DateTimeField(auto_now_add=True)
 

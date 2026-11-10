@@ -1,0 +1,560 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chi tiết đơn đã giao{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+
+    <!-- Thông báo -->
+    {% if messages %}
+        <div style="margin: 15px 0;">
+            {% for message in messages %}
+                <div style="
+                    padding: 12px 16px;
+                    margin-bottom: 8px;
+                    border-radius: 6px;
+                    background: #fee2e2;
+                    color: #b91c1c;
+                    border: 1px solid #fecaca;
+                ">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Tiêu đề đơn hàng -->
+    <div>
+        <a href="{% url 'DONHANG:danh_sach' %}" class="back-link">
+            &larr; Quay lại đơn hàng
+        </a>
+
+        <div class="header-top" style="margin-top: 4px;">
+            <h1 class="order-title">
+                Chi tiết đơn hàng #{{ don_hang.ma_don_hang }}
+            </h1>
+
+            <span class="badge-delivered">• Đã giao</span>
+        </div>
+
+        <p class="order-date">
+            Ngày đặt: {{ don_hang.ngay_dat|date:"d/m/Y, H:i" }}
+        </p>
+    </div>
+
+    <!-- Tiến trình đơn hàng -->
+    <div class="card-box">
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        ">
+            <h2 class="card-title" style="margin: 0;">
+                Trạng thái đơn hàng
+            </h2>
+
+            <span class="stepper-subtext">
+                Đơn hàng đã được giao đến người nhận
+            </span>
+        </div>
+
+        <div class="stepper-wrapper">
+            <div class="stepper-line-bg"></div>
+            <div class="stepper-line-active step-line-4"></div>
+
+            <div class="step-item">
+                <div class="step-circle green">✓</div>
+                <span class="step-label green">Chờ xác nhận</span>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle green">✓</div>
+                <span class="step-label green">Chờ lấy hàng</span>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle green">✓</div>
+                <span class="step-label green">Đang giao</span>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle green">✓</div>
+                <span class="step-label green">Đã giao hàng</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông báo giao hàng thành công -->
+    <div class="alert-banner-success" style="padding: 12px 16px;">
+        <p class="alert-desc-success" style="font-weight: 600; margin: 0;">
+            ✓ Đơn hàng đã được giao thành công. Vui lòng xác nhận đã nhận hàng
+            hoặc gửi yêu cầu trả hàng nếu có vấn đề với sản phẩm.
+        </p>
+    </div>
+
+    <!-- Thông tin nhận hàng -->
+    <div class="card-box" style="margin-bottom: 20px;">
+
+        <h2 class="card-title" style="margin: 0;">
+            Thông tin nhận hàng
+        </h2>
+
+        <div style="
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        ">
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Tên người nhận:</strong>
+                {{ don_hang.ten_nguoi_nhan }}
+            </p>
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Số điện thoại:</strong>
+                {{ don_hang.sdt_nguoi_nhan }}
+            </p>
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Địa chỉ nhận hàng:</strong>
+                {{ don_hang.dia_chi_nhan_hang }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Hai cột nội dung -->
+    <div class="grid-container" style="
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+    ">
+
+        <!-- Cột trái: Sản phẩm -->
+        <div class="grid-left" style="flex: 1.5; min-width: 0;">
+            <div class="card-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 12px;">
+                    Sản phẩm trong đơn
+                </h2>
+
+                {% for item in chi_tiet %}
+                    <div class="product-item" style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 12px;
+                        margin-bottom: 16px;
+                    ">
+
+                        <div class="product-info" style="
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            min-width: 0;
+                        ">
+
+                            {% if item.hinh_anh_hien_thi %}
+                                <img
+                                    src="{{ item.hinh_anh_hien_thi.duong_dan_anh.url }}"
+                                    alt=""
+                                    class="product-img"
+                                    style="
+                                        width: 60px;
+                                        height: 60px;
+                                        object-fit: cover;
+                                        border-radius: 6px;
+                                        flex-shrink: 0;
+                                    "
+                                >
+                            {% endif %}
+
+                            <div style="min-width: 0;">
+                                <h4 class="product-name" style="
+                                    margin: 0;
+                                    font-size: 14px;
+                                ">
+                                    {% if item.bien_the_san_pham %}
+                                        {{ item.bien_the_san_pham.san_pham.ten_san_pham }}
+                                    {% else %}
+                                        Sản phẩm
+                                    {% endif %}
+                                </h4>
+
+                                {% if item.bien_the_san_pham %}
+                                    <p style="
+                                        margin: 3px 0;
+                                        font-size: 12px;
+                                        color: #64748b;
+                                    ">
+                                        {% if item.bien_the_san_pham.mau_sac %}
+                                            Màu: {{ item.bien_the_san_pham.mau_sac }}
+                                        {% endif %}
+
+                                        {% if item.bien_the_san_pham.kich_thuoc %}
+                                            | Size: {{ item.bien_the_san_pham.kich_thuoc }}
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+
+                                <p style="
+                                    margin: 3px 0;
+                                    font-size: 12px;
+                                    color: #64748b;
+                                ">
+                                    Số lượng: {{ item.so_luong }}
+                                </p>
+
+                                <p style="
+                                    margin: 3px 0;
+                                    font-size: 12px;
+                                    color: #64748b;
+                                ">
+                                    Đơn giá: {{ item.don_gia|floatformat:0 }} đ
+                                </p>
+                            </div>
+                        </div>
+
+                        <span style="
+                            font-weight: 600;
+                            white-space: nowrap;
+                        ">
+                            {{ item.thanh_tien|floatformat:0 }} đ
+                        </span>
+
+                    </div>
+                {% empty %}
+                    <p>Không có sản phẩm trong đơn hàng.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- Cột phải: Tóm tắt và thanh toán -->
+        <div class="grid-right" style="
+            flex: 1.3;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        ">
+
+            <!-- Tóm tắt đơn hàng -->
+            <div class="card-box payment-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 16px;">
+                    Tóm tắt đơn hàng
+                </h2>
+
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 12px;
+                ">
+                    <span>Tổng tiền hàng</span>
+                    <strong style="white-space: nowrap;">
+                        {{ don_hang.tong_tien_hang|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 12px;
+                ">
+                    <span>Giảm giá</span>
+                    <strong style="
+                        color: #16a34a;
+                        white-space: nowrap;
+                    ">
+                        -{{ don_hang.so_tien_giam|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 12px;
+                    margin-bottom: 12px;
+                ">
+                    <span>Phí vận chuyển</span>
+                    <strong style="white-space: nowrap;">
+                        {% if phi_van_chuyen > 0 %}
+                            {{ phi_van_chuyen|floatformat:0 }} đ
+                        {% else %}
+                            Miễn phí
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <hr style="
+                    border: 0;
+                    border-top: 1px solid #e2e8f0;
+                    margin: 12px 0;
+                ">
+
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                ">
+                    <span style="color: #475569; font-size: 14px;">
+                        Tổng thanh toán
+                    </span>
+
+                    <strong style="
+                        font-size: 18px;
+                        color: #2563eb;
+                        white-space: nowrap;
+                    ">
+                        {{ don_hang.tong_tien|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <!-- Thông tin thanh toán -->
+            <div class="card-box payment-info-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 16px;">
+                    Thông tin thanh toán
+                </h2>
+
+                {% for tt in cac_thanh_toan %}
+
+                    <div class="payment-detail-list">
+
+                        <!-- Phương thức thanh toán -->
+                        <div class="payment-detail-row">
+                            <span class="payment-detail-label">
+                                Phương thức thanh toán
+                            </span>
+
+                            <strong class="payment-detail-value">
+                                {% if tt.PhuongThucThanhToan == "COD" %}
+                                    Thanh toán khi nhận hàng (COD)
+                                {% elif tt.PhuongThucThanhToan == "VNPAY" %}
+                                    VNPay
+                                {% else %}
+                                    {{ tt.PhuongThucThanhToan }}
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <!-- Số tiền giao dịch -->
+                        <div class="payment-detail-row">
+                            <span class="payment-detail-label">
+                                Số tiền giao dịch
+                            </span>
+
+                            <strong class="payment-detail-value">
+                                {{ tt.SoTienThanhToan|floatformat:0 }} đ
+                            </strong>
+                        </div>
+
+                        <!-- Trạng thái thanh toán -->
+                        <div class="payment-detail-row">
+                            <span class="payment-detail-label">
+                                Trạng thái thanh toán
+                            </span>
+
+                            <strong class="payment-detail-value">
+                                {% if tt.TrangThaiThanhToan == "DaThanhToan" %}
+                                    <span style="color: #16a34a;">Đã thanh toán</span>
+                                {% elif tt.TrangThaiThanhToan == "ThatBai" %}
+                                    <span style="color: #dc2626;">Thanh toán thất bại</span>
+                                {% elif tt.TrangThaiThanhToan == "DaHoanTien" %}
+                                    <span style="color: #2563eb;">Đã hoàn tiền</span>
+                                {% else %}
+                                    <span style="color: #d97706;">Chờ thanh toán</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p style="margin: 0; color: #64748b; font-size: 14px;">
+                        Chưa có thông tin giao dịch thanh toán.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- Hai nút thao tác -->
+            <div style="
+                display: flex;
+                gap: 12px;
+                width: 100%;
+            ">
+                <button
+                    type="button"
+                    onclick="toggleReceivedModal(true)"
+                    style="
+                        flex: 1;
+                        border: 1px solid #cbd5e1;
+                        color: #2563eb;
+                        background: #ffffff;
+                        padding: 10px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        text-align: center;
+                    "
+                >
+                    Xác nhận nhận hàng
+                </button>
+
+                <button
+                    type="button"
+                    onclick="toggleReturnModal(true)"
+                    style="
+                        flex: 1;
+                        border: 1px solid #ef4444;
+                        color: #ef4444;
+                        background: #ffffff;
+                        padding: 10px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        text-align: center;
+                    "
+                >
+                    Yêu cầu trả hàng
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal xác nhận đã nhận hàng -->
+    <div id="receivedModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+
+            <h3 class="modal-title">
+                Xác nhận đã nhận hàng
+            </h3>
+
+            <p class="modal-desc">
+                Bạn có chắc chắn đã nhận được đầy đủ sản phẩm của đơn hàng này không?
+                Sau khi xác nhận, đơn hàng sẽ chuyển sang trạng thái Hoàn tất.
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn-modal-no"
+                    onclick="toggleReceivedModal(false)"
+                >
+                    Không
+                </button>
+
+                <form
+                    method="POST"
+                    action="{% url 'DONHANG:xac_nhan_da_nhan' don_hang.ma_don_hang %}"
+                >
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn-modal-yes"
+                        style="background-color: #0284c7;"
+                    >
+                        Xác nhận
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận yêu cầu trả hàng -->
+    <div id="returnRequestModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+
+            <h3 class="modal-title">
+                Xác nhận yêu cầu trả hàng
+            </h3>
+
+            <p class="modal-desc">
+                Bạn có chắc chắn muốn gửi yêu cầu trả hàng cho đơn hàng này không?
+                Bạn sẽ được chuyển đến trang gửi yêu cầu trả hàng và hoàn tiền.
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="btn-modal-no"
+                    onclick="toggleReturnModal(false)"
+                >
+                    Không
+                </button>
+
+                <a
+                    href="{% url 'DONHANG:yeu_cau_tra_hang' don_hang.ma_don_hang %}"
+                    class="btn-modal-yes"
+                >
+                    Xác nhận
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- JavaScript điều khiển modal -->
+<script>
+    function toggleReceivedModal(show) {
+        const modal = document.getElementById('receivedModal');
+
+        if (modal) {
+            modal.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    function toggleReturnModal(show) {
+        const modal = document.getElementById('returnRequestModal');
+
+        if (modal) {
+            modal.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const receivedModal = document.getElementById('receivedModal');
+        const returnModal = document.getElementById('returnRequestModal');
+
+        if (event.target === receivedModal) {
+            toggleReceivedModal(false);
+        }
+
+        if (event.target === returnModal) {
+            toggleReturnModal(false);
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            toggleReceivedModal(false);
+            toggleReturnModal(false);
+        }
+    });
+</script>
+
+{% endblock %}

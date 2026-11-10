@@ -1,0 +1,281 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chi tiết đơn chờ lấy hàng{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/order.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+
+    <!-- Tiêu đề đơn hàng -->
+    <div>
+        <a href="{% url 'DONHANG:danh_sach' %}" class="back-link">
+            &larr; Quay lại đơn hàng
+        </a>
+
+        <div class="header-top" style="margin-top: 4px;">
+            <h1 class="order-title">
+                Chi tiết đơn hàng #{{ don_hang.ma_don_hang }}
+            </h1>
+
+            <span class="badge-preparing">• Chờ lấy hàng</span>
+        </div>
+
+        <p class="order-date">
+            Ngày đặt: {{ don_hang.ngay_dat|date:"d/m/Y, H:i" }}
+        </p>
+    </div>
+
+    <!-- Tiến trình đơn hàng -->
+    <div class="card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="card-title" style="margin: 0;">
+                Trạng thái giao hàng
+            </h2>
+
+            <span class="stepper-subtext">
+                Cập nhật theo tiến trình giao hàng
+            </span>
+        </div>
+
+        <div class="stepper-wrapper">
+            <div class="stepper-line-bg"></div>
+            <div class="stepper-line-active step-line-2"></div>
+
+            <div class="step-item">
+                <div class="step-circle green">✓</div>
+                <span class="step-label green">Chờ xác nhận</span>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle green">✓</div>
+                <span class="step-label green">Chờ lấy hàng</span>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle pending">3</div>
+                <span class="step-label pending">Đang giao</span>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle pending">4</div>
+                <span class="step-label pending">Đã giao hàng</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin nhận hàng -->
+    <div class="card-box" style="margin-bottom: 20px;">
+
+        <h2 class="card-title" style="margin: 0;">
+            Thông tin nhận hàng
+        </h2>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Tên người nhận:</strong>
+                {{ don_hang.ten_nguoi_nhan }}
+            </p>
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Số điện thoại:</strong>
+                {{ don_hang.sdt_nguoi_nhan }}
+            </p>
+
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+                <strong style="color: #1e293b;">Địa chỉ nhận hàng:</strong>
+                {{ don_hang.dia_chi_nhan_hang }}
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Hai cột nội dung -->
+    <div class="grid-container" style="display: flex; gap: 20px; align-items: flex-start;">
+
+        <!-- Cột trái: Sản phẩm -->
+        <div class="grid-left" style="flex: 1.5; min-width: 0;">
+            <div class="card-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 12px;">
+                    Sản phẩm trong đơn
+                </h2>
+
+                {% for item in chi_tiet %}
+
+                    <div class="product-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+
+                        <div class="product-info" style="display: flex; align-items: center; gap: 10px;">
+
+                            {% if item.hinh_anh_hien_thi %}
+                                <img
+                                    src="{{ item.hinh_anh_hien_thi.duong_dan_anh.url }}"
+                                    alt=""
+                                    class="product-img"
+                                    style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;"
+                                >
+                            {% endif %}
+
+                            <div>
+                                <h4 class="product-name" style="margin: 0; font-size: 14px;">
+                                    {% if item.bien_the_san_pham %}
+                                        {{ item.bien_the_san_pham.san_pham.ten_san_pham }}
+                                    {% else %}
+                                        Sản phẩm
+                                    {% endif %}
+                                </h4>
+
+                                {% if item.bien_the_san_pham %}
+                                    <p style="margin: 3px 0; font-size: 12px; color: #64748b;">
+                                        {% if item.bien_the_san_pham.mau_sac %}
+                                            Màu: {{ item.bien_the_san_pham.mau_sac }}
+                                        {% endif %}
+
+                                        {% if item.bien_the_san_pham.kich_thuoc %}
+                                            | Size: {{ item.bien_the_san_pham.kich_thuoc }}
+                                        {% endif %}
+                                    </p>
+                                {% endif %}
+
+                                <p style="margin: 3px 0; font-size: 12px; color: #64748b;">
+                                    Số lượng: {{ item.so_luong }}
+                                </p>
+
+                                <p style="margin: 3px 0; font-size: 12px; color: #64748b;">
+                                    Đơn giá: {{ item.don_gia|floatformat:0 }} đ
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <span style="font-weight: 600;">
+                            {{ item.thanh_tien|floatformat:0 }} đ
+                        </span>
+
+                    </div>
+
+                {% empty %}
+                    <p>Đơn hàng chưa có sản phẩm.</p>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- Cột phải: Tóm tắt và thanh toán -->
+        <div class="grid-right" style="flex: 1.3; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+
+            <!-- Tóm tắt đơn hàng -->
+            <div class="card-box payment-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 16px;">
+                    Tóm tắt đơn hàng
+                </h2>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span>Tổng tiền hàng</span>
+                    <strong>
+                        {{ don_hang.tong_tien_hang|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span>Giảm giá</span>
+                    <strong style="color: #16a34a;">
+                        -{{ don_hang.so_tien_giam|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span>Phí vận chuyển</span>
+                    <strong>
+                        {% if phi_van_chuyen > 0 %}
+                            {{ phi_van_chuyen|floatformat:0 }} đ
+                        {% else %}
+                            Miễn phí
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 12px 0;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #475569; font-size: 14px;">
+                        Tổng thanh toán
+                    </span>
+
+                    <strong style="font-size: 18px; color: #2563eb;">
+                        {{ don_hang.tong_tien|floatformat:0 }} đ
+                    </strong>
+                </div>
+
+            </div>
+
+            <!-- Thông tin thanh toán -->
+            <div class="card-box" style="margin: 0;">
+
+                <h2 class="card-title" style="margin-bottom: 16px;">
+                    Thông tin thanh toán
+                </h2>
+
+                {% for tt in cac_thanh_toan %}
+
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+
+                        <div style="display: flex; justify-content: space-between; gap: 12px;">
+                            <span style="color: #64748b;">Phương thức</span>
+                            <strong>
+                                {% if tt.PhuongThucThanhToan == "COD" %}
+                                    Thanh toán khi nhận hàng (COD)
+                                {% elif tt.PhuongThucThanhToan == "VNPAY" %}
+                                    VNPay
+                                {% else %}
+                                    {{ tt.PhuongThucThanhToan }}
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; gap: 12px;">
+                            <span style="color: #64748b;">Số tiền giao dịch</span>
+                            <strong>
+                                {{ tt.SoTienThanhToan|floatformat:0 }} đ
+                            </strong>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; gap: 12px;">
+                            <span style="color: #64748b;">Trạng thái</span>
+
+                            <strong>
+                                {% if tt.TrangThaiThanhToan == "DaThanhToan" %}
+                                    <span style="color: #16a34a;">Đã thanh toán</span>
+                                {% elif tt.TrangThaiThanhToan == "ThatBai" %}
+                                    <span style="color: #dc2626;">Thanh toán thất bại</span>
+                                {% elif tt.TrangThaiThanhToan == "DaHoanTien" %}
+                                    <span style="color: #2563eb;">Đã hoàn tiền</span>
+                                {% else %}
+                                    <span style="color: #d97706;">Chờ thanh toán</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p style="margin: 0; color: #64748b; font-size: 14px;">
+                        Chưa có thông tin giao dịch thanh toán.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
