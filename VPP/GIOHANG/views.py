@@ -624,16 +624,56 @@ def trang_chia_se(request, ma):
 
 
 
+@khach_hang_required
 def nhan_gio_hang(request, ma):
-   # Tạm thời: bước 2 sẽ làm trang xem và nạp vào giỏ
-   chia_se = get_object_or_404(
-       ChiaSeGioHang,
-       ma_chia_se=ma
-   )
+    chia_se = get_object_or_404(
+        ChiaSeGioHang,
+        ma_chia_se=ma
+    )
 
+    danh_sach = []
 
-   return HttpResponse(
-       f"Link hợp lệ, gồm {len(chia_se.noi_dung)} sản phẩm. "
-       "Bước 2 sẽ làm tiếp."
-   )
+    for item in chia_se.noi_dung:
+        bien_the = get_object_or_404(
+            BienTheSanPham.objects.using("sanpham").select_related("san_pham"),
+            ma_bien_the=item["ma_bien_the"]
+        )
 
+        # Lấy hình đại diện, nếu không có thì lấy hình đầu tiên
+        hinh = bien_the.hinh_anh.filter(
+            anh_dai_dien=True
+        ).first()
+
+        if not hinh:
+            hinh = bien_the.hinh_anh.first()
+
+        so_luong = item["so_luong"]
+        don_gia = tinh_gia_khuyen_mai(
+            bien_the.san_pham.ma_san_pham,
+            bien_the.gia_ban
+        )
+
+        danh_sach.append({
+            "ten_san_pham": bien_the.san_pham.ten_san_pham,
+            "ma_san_pham": bien_the.san_pham.ma_san_pham,
+            "ma_bien_the_sp": bien_the.ma_bien_the,
+            "mau_sac": bien_the.mau_sac,
+            "kich_thuoc": bien_the.kich_thuoc,
+            "don_gia": don_gia,
+            "so_luong": so_luong,
+            "thanh_tien": don_gia * so_luong,
+            "hinh_anh": hinh.duong_dan_anh.url if hinh else None,
+        })
+
+    tong_tien = sum(
+        item["thanh_tien"] for item in danh_sach
+    )
+
+    return render(
+        request,
+        "GIOHANG/gio_hang_duoc_chia_se.html",
+        {
+            "danh_sach": danh_sach,
+            "tong_tien": tong_tien,
+        }
+    )
