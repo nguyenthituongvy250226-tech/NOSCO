@@ -3,114 +3,146 @@
 {% block title %}Yêu cầu trả hàng{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/order.css' %}">{% endblock %}
 
+
 {% block content %}
 <div class="order-detail-container">
-  <div>
-    <a href="{% url 'DONHANG:danh_sach' %}" class="back-link">&larr; Quay lại đơn hàng</a>
-    <div class="header-top" style="margin-top: 4px;">
-      <h1 class="order-title">Chi tiết đơn hàng #{{ don_hang.ma_don_hang }}</h1>
-      <span class="badge-preparing">• Trả hàng / Hoàn tiền</span>
-    </div>
-    <p class="order-date">Mã yêu cầu: <strong>{{ yeu_cau_tra.ma_yeu_cau_tra }}</strong> · Ngày yêu cầu: {{ yeu_cau_tra.ngay_tao|date:"d/m/Y H:i" }}</p>
-  </div>
+ <div>
+   <a href="{% url 'DONHANG:danh_sach' %}" class="back-link">&larr; Quay lại đơn hàng</a>
+   <div class="header-top" style="margin-top: 4px;">
+     <h1 class="order-title">Chi tiết đơn hàng #{{ don_hang.ma_don_hang }}</h1>
+     <span class="badge-preparing">• Trả hàng / Hoàn tiền</span>
+   </div>
+   <p class="order-date">Mã yêu cầu: <strong>{{ yeu_cau_tra.ma_yeu_cau_tra }}</strong> · Ngày yêu cầu: {{ yeu_cau_tra.ngay_tao|date:"d/m/Y H:i" }}</p>
+ </div>
 
-  <div class="card-box">
-    <h2 class="card-title" style="margin-bottom: 17px;">Tiến trình xử lý yêu cầu</h2>
 
-    {% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}
-      <div class="order-banner is-error" style="background: #fef2f2; border: 1px solid #f87171; padding: 12px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
-        <strong>Yêu cầu trả hàng không được duyệt</strong>
-        {% if yeu_cau_tra.ket_qua_xl %}<span style="display: block; margin-top: 4px;">Lý do không duyệt: {{ yeu_cau_tra.ket_qua_xl }}</span>{% endif %}
-      </div>
-    {% else %}
-      <!-- Tiến độ trả hàng dựa trên biến buoc_tien_do_tra từ views.py -->
-      <div class="stepper-wrapper" style="position: relative; margin-top: 20px;">
-        <div class="stepper-line-bg"></div>
-        <div class="stepper-line-active" style="width: {% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}33%{% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}66%{% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}100%{% else %}0%{% endif %}; background-color: #2563eb;"></div>
+ <div class="card-box">
+   <h2 class="card-title" style="margin-bottom: 17px;">Tiến trình xử lý yêu cầu</h2>
 
-        {% for buoc in buoc_tien_do_tra %}
-          <div class="step-item">
-            <div class="step-circle {% if buoc.hoan_tat %}success{% elif buoc.hien_tai %}success{% else %}pending{% endif %}" style="{% if buoc.hien_tai %}background-color: #0284c7;{% endif %}">
-              {% if buoc.hoan_tat %}✓{% elif buoc.hien_tai %}●{% else %}{{ forloop.counter }}{% endif %}
-            </div>
-            <span class="step-label {% if buoc.hoan_tat or buoc.hien_tai %}success{% else %}pending{% endif %}" style="{% if buoc.hien_tai %}color: #0284c7; font-weight: 600;{% endif %}">{{ buoc.ten }}</span>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-  </div>
 
-  <div class="card-box">
-    <h2 class="card-title">Thông tin đổi trả & hoàn tiền</h2>
-    <div class="info-grid-2col">
-      <div><span class="info-label-uppercase">LÝ DO ĐỔI TRẢ</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.ly_do_tra|default:"Sản phẩm bị lỗi/hỏng" }}</p></div>
-      <div><span class="info-label-uppercase">PHƯƠNG THỨC HOÀN TIỀN</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.get_phuong_thuc_hoan_tien_display|default:"Hoàn tiền vào ví NOSCO" }}</p></div>
-    </div>
-
-    {% if yeu_cau_tra.phuong_thuc_hoan_tien == "tai_khoan_thanh_toan" %}
-    <div style="margin-top: 12px; font-size: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-      <div><span>Ngân hàng: </span><b>{{ yeu_cau_tra.get_ngan_hang_hoan_tien_display|default:yeu_cau_tra.ngan_hang_hoan_tien|default:"Chưa cập nhật" }}</b></div>
-      <div><span>Số tài khoản: </span><b>{{ yeu_cau_tra.so_tai_khoan|default:"Chưa cập nhật" }}</b></div>
-      <div style="grid-column: span 2;"><span>Chủ tài khoản: </span><b>{{ yeu_cau_tra.ten_chu_tai_khoan|default:"Chưa cập nhật" }}</b></div>
-    </div>
-    {% endif %}
-
-    <div style="margin-top: 12px; font-size: 12px; color: #64748b;">
-      <strong>Mô tả chi tiết:</strong> {{ yeu_cau_tra.mo_ta_van_de|default:"Không có mô tả thêm"|linebreaksbr }}
-    </div>
-  </div>
-
-  <div class="card-box">
-    <h2 class="card-title">Ảnh / Video minh chứng</h2>
-    {% with files=yeu_cau_tra.minh_chung.all %}
-      {% if files %}
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-          {% for evidence in files %}
-            <a href="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}" target="_blank" rel="noopener" style="font-size: 12px; color: #2563eb; text-decoration: underline;">📎 {{ evidence.ten_tep }}</a>
-          {% endfor %}
+   {% if yeu_cau_tra.trang_thai_tra == "tu_choi" %}
+     <div class="order-banner is-error" style="background: #fef2f2; border: 1px solid #f87171; padding: 12px; border-radius: 8px; margin-bottom: 20px; color: #991b1b;">
+       <strong>Yêu cầu trả hàng không được duyệt</strong>
+       {% if yeu_cau_tra.ket_qua_xl %}<span style="display: block; margin-top: 4px;">Lý do không duyệt: {{ yeu_cau_tra.ket_qua_xl }}</span>{% endif %}
+     </div>
+   {% else %}
+     <!-- Tiến độ trả hàng dựa trên biến buoc_tien_do_tra từ views.py -->
+     <div class="stepper-wrapper" style="position: relative; margin-top: 20px;">
+       <div class="stepper-line-bg"></div>
+       <div class="stepper-line-active"
+             style="
+                 width: {% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}0%
+                        {% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}25%
+                        {% elif yeu_cau_tra.trang_thai_tra == 'cho_hoan_tien' %}50%
+                        {% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}75%
+                        {% endif %};
+                 background-color: #16a34a;
+             ">
         </div>
-      {% else %}
-        <p style="font-size: 12px; color: #64748b; margin: 0;">Không có tệp minh chứng nào.</p>
-      {% endif %}
-    {% endwith %}
-  </div>
-
-  <div class="card-box">
-    <h2 class="card-title">Thông tin gửi hàng trả về</h2>
-    <div class="info-grid-2col">
-      <div><span class="info-label-uppercase">ĐƠN VỊ VẬN CHUYỂN</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.don_vi_van_chuyen_tra|default:"Chưa cập nhật" }}</p></div>
-      <div><span class="info-label-uppercase">MÃ VẬN ĐƠN TRẢ</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.ma_van_don_tra|default:"Chưa cập nhật" }}</p></div>
-    </div>
-  </div>
-    <!-- Chỉ hiển thị nút hủy khi đơn đang ở trạng thái chờ xử lý -->
-    {% if yeu_cau_tra.trang_thai_tra == "cho_xu_ly" %}
-    <div class="action-wrapper" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; width: 100%;">
-      <button type="button" class="btn-cancel-request" onclick="toggleModal(true)" style="border: 1px solid #ef4444; color: #ef4444; background: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Hủy yêu cầu</button>
-    </div>
-    {% endif %}
+       {% for buoc in buoc_tien_do_tra %}
+           <div class="step-item">
+               <div class="step-circle {% if buoc.hoan_tat or buoc.hien_tai %}success{% else %}pending{% endif %}"
+                    style="{% if buoc.hoan_tat or buoc.hien_tai %}background-color: #16a34a; border-color: #16a34a; color: #fff;{% endif %}">
+                   {% if buoc.hoan_tat or buoc.hien_tai %}
+                       ✓
+                   {% else %}
+                       {{ forloop.counter }}
+                   {% endif %}
+               </div>
 
 
-  <!-- Modal Xác nhận Hủy Yêu Cầu Trả Hàng -->
-  <div id="cancelModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-      <h3 class="modal-title">Xác nhận hủy yêu cầu trả hàng</h3>
-      <p class="modal-desc">Bạn có chắc chắn muốn hủy yêu cầu trả hàng này không?</p>
-      <div class="modal-actions">
-        <button type="button" class="btn-modal-no" onclick="toggleModal(false)">Không</button>
-        <!-- Trỏ đúng namespace URL hủy yêu cầu trả hàng -->
-        <form method="POST" action="{% url 'DONHANG:huy_yeu_cau_tra_hang' don_hang.ma_don_hang %}">
-          {% csrf_token %}
-          <button type="submit" class="btn-modal-yes" style="background-color: #ef4444; color: #fff;">Xác nhận hủy</button>
-        </form>
-      </div>
-    </div>
-  </div>
+               <span class="step-label {% if buoc.hoan_tat or buoc.hien_tai %}success{% else %}pending{% endif %}"
+                     style="{% if buoc.hoan_tat or buoc.hien_tai %}color: #16a34a; font-weight: 600;{% endif %}">
+                   {{ buoc.ten }}
+               </span>
+           </div>
+       {% endfor %}
+     </div>
+   {% endif %}
+ </div>
+
+
+ <div class="card-box">
+   <h2 class="card-title">Thông tin đổi trả & hoàn tiền</h2>
+   <div class="info-grid-2col">
+     <div><span class="info-label-uppercase">LÝ DO ĐỔI TRẢ</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.ly_do_tra|default:"Sản phẩm bị lỗi/hỏng" }}</p></div>
+     <div><span class="info-label-uppercase">PHƯƠNG THỨC HOÀN TIỀN</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.get_phuong_thuc_hoan_tien_display|default:"Hoàn tiền vào ví NOSCO" }}</p></div>
+   </div>
+
+
+   {% if yeu_cau_tra.phuong_thuc_hoan_tien == "tai_khoan_thanh_toan" %}
+   <div style="margin-top: 12px; font-size: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+     <div><span>Ngân hàng: </span><b>{{ yeu_cau_tra.get_ngan_hang_hoan_tien_display|default:yeu_cau_tra.ngan_hang_hoan_tien|default:"Chưa cập nhật" }}</b></div>
+     <div><span>Số tài khoản: </span><b>{{ yeu_cau_tra.so_tai_khoan|default:"Chưa cập nhật" }}</b></div>
+     <div style="grid-column: span 2;"><span>Chủ tài khoản: </span><b>{{ yeu_cau_tra.ten_chu_tai_khoan|default:"Chưa cập nhật" }}</b></div>
+   </div>
+   {% endif %}
+
+
+   <div style="margin-top: 12px; font-size: 12px; color: #64748b;">
+     <strong>Mô tả chi tiết:</strong> {{ yeu_cau_tra.mo_ta_van_de|default:"Không có mô tả thêm"|linebreaksbr }}
+   </div>
+ </div>
+
+
+ <div class="card-box">
+   <h2 class="card-title">Ảnh / Video minh chứng</h2>
+   {% with files=yeu_cau_tra.minh_chung.all %}
+     {% if files %}
+       <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+         {% for evidence in files %}
+           <a href="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}" target="_blank" rel="noopener" style="font-size: 12px; color: #2563eb; text-decoration: underline;">📎 {{ evidence.ten_tep }}</a>
+         {% endfor %}
+       </div>
+     {% else %}
+       <p style="font-size: 12px; color: #64748b; margin: 0;">Không có tệp minh chứng nào.</p>
+     {% endif %}
+   {% endwith %}
+ </div>
+
+
+ <div class="card-box">
+   <h2 class="card-title">Thông tin gửi hàng trả về</h2>
+   <div class="info-grid-2col">
+     <div><span class="info-label-uppercase">ĐƠN VỊ VẬN CHUYỂN</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.don_vi_van_chuyen_tra|default:"Chưa cập nhật" }}</p></div>
+     <div><span class="info-label-uppercase">MÃ VẬN ĐƠN TRẢ</span><p style="font-size: 12px; margin: 0;">{{ yeu_cau_tra.ma_van_don_tra|default:"Chưa cập nhật" }}</p></div>
+   </div>
+ </div>
+   <!-- Chỉ hiển thị nút hủy khi đơn đang ở trạng thái chờ xử lý -->
+   {% if yeu_cau_tra.trang_thai_tra == "cho_xu_ly" %}
+   <div class="action-wrapper" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; width: 100%;">
+     <button type="button" class="btn-cancel-request" onclick="toggleModal(true)" style="border: 1px solid #ef4444; color: #ef4444; background: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Hủy yêu cầu</button>
+   </div>
+   {% endif %}
+
+
+
+
+ <!-- Modal Xác nhận Hủy Yêu Cầu Trả Hàng -->
+ <div id="cancelModal" class="modal-overlay" style="display: none;">
+   <div class="modal-content">
+     <h3 class="modal-title">Xác nhận hủy yêu cầu trả hàng</h3>
+     <p class="modal-desc">Bạn có chắc chắn muốn hủy yêu cầu trả hàng này không?</p>
+     <div class="modal-actions">
+       <button type="button" class="btn-modal-no" onclick="toggleModal(false)">Không</button>
+       <!-- Trỏ đúng namespace URL hủy yêu cầu trả hàng -->
+       <form method="POST" action="{% url 'DONHANG:huy_yeu_cau_tra_hang' don_hang.ma_don_hang %}">
+         {% csrf_token %}
+         <button type="submit" class="btn-modal-yes" style="background-color: #ef4444; color: #fff;">Xác nhận hủy</button>
+       </form>
+     </div>
+   </div>
+ </div>
 </div>
 
+
 <script>
-  function toggleModal(show) {
-    const modal = document.getElementById('cancelModal');
-    if (modal) modal.style.display = show ? 'flex' : 'none';
-  }
+ function toggleModal(show) {
+   const modal = document.getElementById('cancelModal');
+   if (modal) modal.style.display = show ? 'flex' : 'none';
+ }
 </script>
 {% endblock %}
+
+
+

@@ -1,0 +1,17 @@
+
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+
+    {% if querydr_url %}
+        <li>
+            <form action="{{ querydr_url }}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="button">
+                    Tra cứu giao dịch VNPay (QueryDR)
+                </button>
+            </form>
+        </li>
+    {% endif %}
+{% endblock %}

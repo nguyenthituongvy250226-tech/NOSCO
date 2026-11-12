@@ -2,6 +2,9 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+from uuid import uuid4
+
+
 class Voucher(models.Model):
 
     MaVoucher = models.CharField(
@@ -85,10 +88,17 @@ class Voucher(models.Model):
                 raise ValidationError({
                     'GiaTriGiam': 'Mức giảm phần trăm không được vượt quá 100%.'
                 })
+def tao_ma_voucher_khach_hang():
+   return uuid4().hex[:10].upper()
+
 class VoucherKhachHang(models.Model):
     MaVoucherKhachHang = models.CharField(
         max_length=10,
-        primary_key=True
+        primary_key=True,
+        default = tao_ma_voucher_khach_hang,
+        editable = False,
+
+
     )
 
     MaVoucher = models.ForeignKey(
@@ -98,20 +108,20 @@ class VoucherKhachHang(models.Model):
         related_name='voucher_khach_hang'
     )
 
-    # CHỜ TÍCH HỢP VỚI APP KHACHHANG
-    # MaKhachHang = models.ForeignKey(
-    #     'KHACHHANG.KhachHang',
-    #     on_delete=models.CASCADE,
-    #     db_column='MaKhachHang',
-    #     related_name='voucher_da_nhan'
-    # )
-
-    # MaLichSuDiem = models.ForeignKey(
-    #     'KHACHHANG.LichSuTichDiem',
-    #     on_delete=models.PROTECT,
-    #     db_column='MaLichSuDiem',
-    #     related_name='voucher_da_doi'
-    # )
+    MaKhachHang = models.ForeignKey(
+        'KHACHHANG.HoSoKhachHang',
+        on_delete=models.CASCADE,
+        db_column='MaKhachHang',
+        related_name='voucher_da_su_dung'
+    )
+    MaDonHang = models.ForeignKey(
+        'DONHANG.DonHang',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='MaDonHang',
+        related_name='voucher_khach_hang'
+    )
 
     NgayLay = models.DateTimeField(auto_now_add=True)
 
@@ -129,6 +139,12 @@ class VoucherKhachHang(models.Model):
         db_table = 'VoucherKhachHang'
         verbose_name = 'Voucher khách hàng'
         verbose_name_plural = 'Quản lý voucher khách hàng'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['MaVoucher', 'MaKhachHang'],
+                name='unique_voucher_per_customer'
+            )
+        ]
 
     def __str__(self):
         return f'{self.MaVoucherKhachHang} - {self.MaVoucher}'

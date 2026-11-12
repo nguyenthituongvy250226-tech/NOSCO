@@ -15,12 +15,14 @@ def ap_dung_voucher(request):
     ma_voucher = request.POST.get("ma_voucher", "")
     tong_tien_hang = request.POST.get("tong_tien_hang", "0")
     hang_thanh_vien = request.POST.get("hang_thanh_vien")
+    ma_khach_hang = request.session.get("ma_khach_hang")
 
     try:
         ket_qua = kiem_tra_va_tinh_voucher(
             ma_voucher=ma_voucher,
             tong_tien_hang=tong_tien_hang,
             hang_thanh_vien=hang_thanh_vien,
+            ma_khach_hang=ma_khach_hang,
         )
     except (ValueError, TypeError):
         return JsonResponse({
@@ -114,6 +116,12 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
     ma_san_pham = [
         item.MaSanPham for item in chi_tiet
     ]
+    # Tính số lượng đã bán của các sản phẩm trong chương trình
+    from SANPHAM.views import lay_so_luong_da_ban_theo_san_pham
+
+    so_luong_da_ban_theo_sp = lay_so_luong_da_ban_theo_san_pham(
+        ma_san_pham
+    )
 
     # Truy vấn sản phẩm từ database SANPHAM
     danh_sach_sp = (
@@ -185,9 +193,9 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
             "co_the_mua_truc_tiep": co_the_mua_truc_tiep,
             "bien_the_duy_nhat": bien_the_duy_nhat,
             "thuong_hieu": sp.thuong_hieu.ten_thuong_hieu,
-            "so_luong_da_ban": getattr(
-                sp, "so_luong_da_ban", 0
-            ),
+            "so_luong_da_ban": so_luong_da_ban_theo_sp.get(
+    str(sp.ma_san_pham), 0
+),
             "gia_goc_hien_thi": (
                 f"{gia_goc:,.0f}".replace(",", ".")
                 if gia_goc is not None else None

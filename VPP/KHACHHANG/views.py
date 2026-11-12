@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
-from KHUYENMAI.models import Voucher
+from KHUYENMAI.models import Voucher, VoucherKhachHang
 
 from .models import (
     NguoiDung,
@@ -530,6 +530,116 @@ def sua_dia_chi(request, ma_dia_chi):
 # =====================================================
 
 @khach_hang_required
+@khach_hang_required
+def voucher_cua_toi(request):
+   """
+   Hiển thị voucher phù hợp với hạng thành viên của khách hàng.
+
+
+   - Hiển thị voucher sắp diễn ra.
+   - Hiển thị voucher đang diễn ra.
+   - Bao gồm voucher áp dụng cho tất cả thành viên.
+   - Ẩn voucher đã sử dụng.
+   - Ẩn voucher đã hết hạn hoặc ngừng hoạt động.
+   """
+
+
+   hien_tai = timezone.now()
+
+
+   # 1. Lấy hồ sơ khách hàng đang đăng nhập
+   ho_so = lay_ho_so_khach_hang(request.nguoi_dung)
+
+
+   # 2. Chuẩn hóa hạng thành viên
+   mapping_hang = {
+       "Thành viên": "TatCaThanhVien",
+       "TatCaThanhVien": "TatCaThanhVien",
+
+
+       "Đồng": "Dong",
+       "Dong": "Dong",
+
+
+       "Bạc": "Bac",
+       "Bac": "Bac",
+
+
+       "Vàng": "Vang",
+       "Vang": "Vang",
+
+
+       "Kim cương": "KimCuong",
+       "KimCuong": "KimCuong",
+   }
+
+
+   hang_thanh_vien = mapping_hang.get(
+       (ho_so.HangThanhVien or "").strip()
+   )
+
+
+   # 3. Nếu không xác định được hạng thành viên,
+   # chỉ hiển thị voucher áp dụng cho tất cả thành viên.
+   if hang_thanh_vien:
+       dieu_kien_hang = (
+           Q(DoiTuongApDung="TatCaThanhVien")
+           | Q(DoiTuongApDung=hang_thanh_vien)
+       )
+   else:
+       dieu_kien_hang = Q(
+           DoiTuongApDung="TatCaThanhVien"
+       )
+
+
+   # 4. Lấy mã voucher khách hàng đã sử dụng
+   # hoặc đã được đánh dấu hết hạn trong lịch sử nhận voucher.
+   voucher_khong_kha_dung = VoucherKhachHang.objects.filter(
+       MaKhachHang=ho_so,
+       TrangThai__in=["DaSuDung", "HetHan"],
+   ).values_list("MaVoucher_id", flat=True)
+
+
+   # 5. Lấy voucher phù hợp:
+   # - Đang hoạt động.
+   # - Đúng hạng thành viên hoặc áp dụng cho tất cả.
+   # - Chưa hết hạn.
+   # - Chưa được khách hàng sử dụng.
+   danh_sach_voucher = Voucher.objects.filter(
+       dieu_kien_hang,
+       TrangThai=True,
+       NgayKetThuc__gte=hien_tai,
+   ).exclude(
+       MaVoucher__in=voucher_khong_kha_dung
+   ).order_by(
+       "NgayBatDau",
+       "NgayKetThuc",
+   )
+
+
+   # 6. Xác định trạng thái hiển thị cho từng voucher
+   for voucher in danh_sach_voucher:
+
+
+       if hien_tai < voucher.NgayBatDau:
+           voucher.trang_thai_hien_thi = "SapDienRa"
+
+
+       else:
+           voucher.trang_thai_hien_thi = "DangDienRa"
+
+
+   # 7. Trả dữ liệu về giao diện
+   return render(
+       request,
+       "KHACHHANG/voucher_cua_toi.html",
+       {
+           "ho_so": ho_so,
+           "danh_sach_voucher": danh_sach_voucher,
+       },
+   )
+
+
 @require_POST
 def xoa_dia_chi(request, ma_dia_chi):
     ho_so = lay_ho_so_khach_hang(request.nguoi_dung)
@@ -597,19 +707,7 @@ def lich_su_tich_diem(request):
 
 
 @khach_hang_required
-def voucher_cua_toi(request):
-    hien_tai = timezone.now()
-    danh_sach_voucher = Voucher.objects.filter(
-        TrangThai=True,
-        NgayBatDau__lte=hien_tai,
-        NgayKetThuc__gte=hien_tai,
-    ).order_by("NgayKetThuc")
 
-    return render(
-        request,
-        "KHACHHANG/voucher_cua_toi.html",
-        {"danh_sach_voucher": danh_sach_voucher},
-    )
 
 
 # =====================================================

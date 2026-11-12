@@ -5,7 +5,7 @@
 {% load humanize %}
 {% load l10n %}
 
-
+{% load static l10n %}
 {% block title %}Thanh toán | NOSCO{% endblock %}
 
 
@@ -67,7 +67,12 @@
    {% endif %}
 
 
-   <form method="POST" id="checkout-form" class="checkout-layout">
+   <form
+    method="POST"
+    action="{% url 'CHECKOUT:checkout' %}{% if che_do_thanh_toan == 'mua_ngay' %}?mode=mua_ngay{% else %}?mode=gio_hang{% endif %}"
+    id="checkout-form"
+    class="checkout-layout"
+>
        {% csrf_token %}
 
 
@@ -419,39 +424,39 @@
 
 
                <!-- MÃ GIẢM GIÁ -->
-               <div class="voucher">
-                   <label for="ma_giam_gia">Mã giảm giá</label>
+<div
+    class="voucher"
+    id="voucher-container"
+    data-tong-tien-hang="{{ tam_tinh|unlocalize }}"
+    data-phi-van-chuyen="{{ phi_van_chuyen|unlocalize }}"
+    data-hang-thanh-vien="{{ hang_thanh_vien }}"
+    data-url="{% url 'khuyenmai:ap_dung_voucher' %}"
+>
+    <label for="ma_giam_gia">Mã giảm giá</label>
 
+    <div class="voucher-row">
+        <div class="voucher-input">
+            <i class="fa-solid fa-tag"></i>
 
-                   <div class="voucher-row">
+            <input
+                type="text"
+                id="ma_giam_gia"
+                name="ma_giam_gia"
+                placeholder="Nhập mã giảm giá"
+            >
+        </div>
 
+        <button
+            type="button"
+            class="voucher-btn"
+            id="btn-ap-dung-voucher"
+        >
+            Áp dụng
+        </button>
+    </div>
 
-                       <div class="voucher-input">
-                           <i class="fa-solid fa-tag"></i>
-
-
-                           <input
-                               type="text"
-                               id="ma_giam_gia"
-                               name="ma_giam_gia"
-                               placeholder="Nhập mã giảm giá"
-                           >
-                       </div>
-
-
-                       <button
-                           type="button"
-                           class="voucher-btn"
-                           disabled
-                       >
-                           Áp dụng
-                       </button>
-
-
-                   </div>
-               </div>
-
-
+    <p id="voucher-message" class="voucher-message"></p>
+</div>
                <!-- TỔNG TIỀN -->
                <div class="order-sum">
 
@@ -468,7 +473,7 @@
 
                    <div class="sum-row">
                        <span>Giảm giá</span>
-                       <strong>0₫</strong>
+                       <strong id="so-tien-giam">0₫</strong>
                    </div>
 
 
@@ -490,14 +495,12 @@
 
 
                <div class="order-total">
-                   <span>Tổng cộng</span>
+    <span>Tổng cộng</span>
 
-
-                   <strong>
-                       {{ tong_tien|floatformat:0|localize }}₫
-                   </strong>
-               </div>
-
+    <strong id="tong-thanh-toan">
+        {{ tong_tien|floatformat:0|localize }}₫
+    </strong>
+</div>
 
                <button
                    type="submit"
@@ -520,4 +523,115 @@
 
 
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("voucher-container");
+    const inputVoucher = document.getElementById("ma_giam_gia");
+    const btnApDung = document.getElementById("btn-ap-dung-voucher");
+    const message = document.getElementById("voucher-message");
+    const hienThiGiamGia = document.getElementById("so-tien-giam");
+    const hienThiTongTien = document.getElementById("tong-thanh-toan");
+
+    if (
+        !container ||
+        !inputVoucher ||
+        !btnApDung ||
+        !message ||
+        !hienThiGiamGia ||
+        !hienThiTongTien
+    ) {
+        console.error("Không tìm thấy thành phần áp dụng voucher.");
+        return;
+    }
+
+    const tamTinh = Number(container.dataset.tongTienHang);
+    const phiVanChuyen = Number(container.dataset.phiVanChuyen);
+    const urlApDung = container.dataset.url;
+    const hangThanhVien = container.dataset.hangThanhVien;
+
+    function dinhDangTien(tien) {
+        return Math.round(tien).toLocaleString("vi-VN") + "₫";
+    }
+
+    function hienThiLaiTongTien(giamGia = 0) {
+        hienThiGiamGia.textContent = dinhDangTien(giamGia);
+
+        hienThiTongTien.textContent = dinhDangTien(
+            tamTinh - giamGia + phiVanChuyen
+        );
+    }
+
+    btnApDung.addEventListener("click", async function () {
+        const maVoucher = inputVoucher.value.trim().toUpperCase();
+
+        if (!maVoucher) {
+            message.textContent = "Vui lòng nhập mã giảm giá.";
+            message.style.color = "red";
+            hienThiLaiTongTien(0);
+            return;
+        }
+
+        const csrfToken = document.querySelector(
+            '[name="csrfmiddlewaretoken"]'
+        ).value;
+
+        const formData = new FormData();
+        formData.append("ma_voucher", maVoucher);
+        formData.append("tong_tien_hang", tamTinh);
+        formData.append("hang_thanh_vien", hangThanhVien);
+
+        btnApDung.disabled = true;
+        btnApDung.textContent = "Đang kiểm tra...";
+
+        try {
+            const response = await fetch(urlApDung, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.thong_bao || "Có lỗi xảy ra.");
+            }
+
+            if (data.hop_le) {
+                const soTienGiam = Number(data.so_tien_giam);
+
+                hienThiLaiTongTien(soTienGiam);
+
+                inputVoucher.value = data.ma_voucher;
+
+                message.textContent = data.thong_bao;
+                message.style.color = "green";
+            } else {
+                hienThiLaiTongTien(0);
+
+                message.textContent = data.thong_bao;
+                message.style.color = "red";
+            }
+
+        } catch (error) {
+            hienThiLaiTongTien(0);
+
+            message.textContent =
+                error.message || "Không thể kiểm tra mã giảm giá.";
+
+            message.style.color = "red";
+
+        } finally {
+            btnApDung.disabled = false;
+            btnApDung.textContent = "Áp dụng";
+        }
+    });
+});
+</script>
+{% endblock %}
+
+
 

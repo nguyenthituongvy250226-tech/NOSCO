@@ -1,5 +1,9 @@
 from decimal import Decimal
 from types import SimpleNamespace
+from KHUYENMAI.services import kiem_tra_va_tinh_voucher
+
+from KHUYENMAI.models import VoucherKhachHang
+
 
 
 from django.contrib import messages
@@ -293,8 +297,9 @@ def checkout(request):
    elif (
        request.POST.get("che_do_thanh_toan") == "mua_ngay"
        or (
-           request.method == "GET"
-           and SESSION_MUA_NGAY in request.session
+               request.method == "GET"
+               and request.GET.get("mode") == "mua_ngay"
+               and SESSION_MUA_NGAY in request.session
        )
    ):
 
@@ -331,8 +336,8 @@ def checkout(request):
    else:
 
 
-       if request.method == "POST":
-           request.session.pop(SESSION_MUA_NGAY, None)
+
+       request.session.pop(SESSION_MUA_NGAY, None)
 
 
        gio_hang = lay_gio_hang(request)
@@ -517,6 +522,27 @@ def checkout(request):
            messages.error(request, str(error))
            return redirect("CHECKOUT:checkout")
 
+       # Kiểm tra voucher khi khách đặt hàng
+       ma_voucher = request.POST.get("ma_giam_gia", "").strip().upper()
+       so_tien_giam = Decimal("0")
+
+       if ma_voucher:
+           ket_qua_voucher = kiem_tra_va_tinh_voucher(
+               ma_voucher=ma_voucher,
+               tong_tien_hang=tam_tinh,
+               hang_thanh_vien=ho_so.HangThanhVien,
+               ma_khach_hang=ho_so.pk,
+           )
+
+           if not ket_qua_voucher["hop_le"]:
+               messages.error(
+                   request,
+                   ket_qua_voucher["thong_bao"]
+               )
+               return redirect("CHECKOUT:checkout")
+
+           so_tien_giam = ket_qua_voucher["so_tien_giam"]
+           ma_voucher = ket_qua_voucher["voucher"].MaVoucher
 
        # Lưu khung giờ giao vào ghi chú vì model DonHang hiện chưa có
        # trường riêng dành cho khung giờ giao hàng.
@@ -553,10 +579,12 @@ def checkout(request):
            "ten_nguoi_nhan": dia_chi_obj.TenNguoiNhan,
            "sdt_nguoi_nhan": dia_chi_obj.SoDienThoai,
            "dia_chi_nhan_hang": dia_chi_obj.DiaChi,
-           "so_tien_giam": Decimal("0"),
+
            "phi_van_chuyen": phi_van_chuyen,
-           "ma_voucher": None,
+
            "ghi_chu": ghi_chu_day_du,
+           "so_tien_giam": so_tien_giam,
+           "ma_voucher": ma_voucher or None,
        }
 
 
@@ -574,7 +602,16 @@ def checkout(request):
                    if phuong_thuc_thanh_toan == "vnpay"
                    else "COD"
                )
-
+               # 4. Ghi nhận khách hàng đã sử dụng voucher
+               if ma_voucher:
+                   VoucherKhachHang.objects.update_or_create(
+                       MaVoucher_id=ma_voucher,
+                       MaKhachHang=ho_so,
+                       defaults={
+                           "MaDonHang": don_hang,
+                           "TrangThai": "DaSuDung",
+                       }
+                   )
 
                thanh_toan = tao_thanh_toan_cho_don(
                    don_hang,
@@ -662,7 +699,7 @@ def checkout(request):
        "tam_tinh": tam_tinh,
        "phi_van_chuyen": phi_van_chuyen,
        "tong_tien": tong_tien,
-
+       "hang_thanh_vien": ho_so.HangThanhVien if ho_so else "",
 
        "mien_phi": mien_phi,
        "che_do_thanh_toan": che_do_thanh_toan,

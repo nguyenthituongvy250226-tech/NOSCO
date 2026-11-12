@@ -506,10 +506,13 @@
            {% if so_luong_chon > 0 %}
 
 
-               <a href="/checkout/" class="checkout-btn">
-                   Tiến hành đặt hàng
-                   <i class="fa-solid fa-arrow-right"></i>
-               </a>
+               <a
+    href="{% url 'CHECKOUT:checkout' %}?mode=gio_hang"
+    class="checkout-btn"
+>
+    Tiến hành đặt hàng
+    <i class="fa-solid fa-arrow-right"></i>
+</a>
 
 
            {% else %}

@@ -33,9 +33,77 @@ from KHACHHANG.models import HoSoKhachHang
 
 
 from DONHANG.models import ChiTietDonHang
+from django.db.models import Min, Q, Avg, Count, Sum
+from DONHANG.models import ChiTietDonHang, ChiTietYeuCauTraHang
+def lay_so_luong_da_ban_theo_san_pham(danh_sach_ma_sp):
+    """
+    Tính số lượng bán thực tế của từng sản phẩm.
+    Đơn đã giao hoặc đang trả hàng được tính,
+    sau đó trừ số lượng đã hoàn tất trả hàng.
+    """
 
+    if not danh_sach_ma_sp:
+        return {}
 
+    # Lấy mã biến thể thuộc các sản phẩm cần thống kê
+    danh_sach_bien_the = list(
+        BienTheSanPham.objects.using("sanpham")
+        .filter(san_pham_id__in=danh_sach_ma_sp)
+        .values_list("ma_bien_the", "san_pham_id")
+    )
 
+    ma_bien_the_list = [
+        ma_bien_the for ma_bien_the, ma_sp in danh_sach_bien_the
+    ]
+
+    # Ánh xạ mã biến thể sang mã sản phẩm
+    bien_the_sang_san_pham = {
+        ma_bien_the: ma_sp
+        for ma_bien_the, ma_sp in danh_sach_bien_the
+    }
+
+    # Tổng số lượng đã giao
+    thong_ke_ban = (
+        ChiTietDonHang.objects.using("default")
+        .filter(
+            ma_bien_the__in=ma_bien_the_list,
+            ma_don_hang__trang_thai_don__in=["da_giao", "tra_hang"],
+        )
+        .values("ma_bien_the")
+        .annotate(tong_ban=Sum("so_luong"))
+    )
+
+    # Tổng số lượng đã hoàn tất trả hàng
+    thong_ke_tra = (
+        ChiTietYeuCauTraHang.objects.using("default")
+        .filter(
+            yeu_cau__trang_thai_tra="hoan_tat",
+            chi_tiet_don_hang__ma_bien_the__in=ma_bien_the_list,
+        )
+        .values("chi_tiet_don_hang__ma_bien_the")
+        .annotate(tong_tra=Sum("so_luong"))
+    )
+
+    # Tổng hợp số lượng theo sản phẩm
+    ket_qua = {
+        str(ma_sp): 0
+        for ma_sp in danh_sach_ma_sp
+    }
+
+    for item in thong_ke_ban:
+        ma_sp = bien_the_sang_san_pham.get(item["ma_bien_the"])
+
+        if ma_sp is not None:
+            ket_qua[str(ma_sp)] += item["tong_ban"] or 0
+
+    for item in thong_ke_tra:
+        ma_bien_the = item["chi_tiet_don_hang__ma_bien_the"]
+        ma_sp = bien_the_sang_san_pham.get(ma_bien_the)
+
+        if ma_sp is not None:
+            ket_qua[str(ma_sp)] -= item["tong_tra"] or 0
+
+    return ket_qua
 
 # =========================================================
 # 1. HÀM ĐỊNH DẠNG GIÁ
@@ -356,7 +424,9 @@ def danh_sach_san_pham(request):
    # 10. Lấy danh sách sản phẩm sau khi lọc
    cac_san_pham = list(san_pham_queryset)
 
-
+   so_luong_da_ban_theo_sp = lay_so_luong_da_ban_theo_san_pham(
+       [sp.ma_san_pham for sp in cac_san_pham]
+   )
    # Lấy thông tin khuyến mãi của các sản phẩm
    khuyen_mai_theo_sp = lay_khuyen_mai_theo_san_pham(
        [sp.ma_san_pham for sp in cac_san_pham]
@@ -395,6 +465,9 @@ def danh_sach_san_pham(request):
 
 
        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+       thong_tin_gia["so_luong_da_ban"] = so_luong_da_ban_theo_sp.get(
+           str(san_pham.ma_san_pham), 0
+       )
        # Thống kê đánh giá của sản phẩm
        thong_ke_danh_gia = DanhGiaSanPham.objects.using("sanpham").filter(
            san_pham_id=san_pham.ma_san_pham
@@ -547,7 +620,9 @@ def home(request):
 
    cac_san_pham = list(san_pham_queryset)
 
-
+   so_luong_da_ban_theo_sp = lay_so_luong_da_ban_theo_san_pham(
+       [sp.ma_san_pham for sp in cac_san_pham]
+   )
    # Lấy thông tin khuyến mãi của các sản phẩm
    khuyen_mai_theo_sp = lay_khuyen_mai_theo_san_pham(
        [sp.ma_san_pham for sp in cac_san_pham]
@@ -583,6 +658,9 @@ def home(request):
 
 
        thong_tin_gia["anh_dai_dien"] = anh_dai_dien
+       thong_tin_gia["so_luong_da_ban"] = so_luong_da_ban_theo_sp.get(
+           str(san_pham.ma_san_pham), 0
+       )
        # Thống kê đánh giá của sản phẩm
        thong_ke_danh_gia = DanhGiaSanPham.objects.using("sanpham").filter(
            san_pham_id=san_pham.ma_san_pham

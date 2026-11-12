@@ -1,75 +1,141 @@
 {% extends "KHACHHANG/base.html" %}
 
+
 {% block title %}
 Lịch sử tích điểm
 {% endblock %}
 
 
+
+
 {% block account_content %}
 <section class="customer-points-page">
-    <header class="customer-page-heading">
-        <div>
-            <p class="customer-page-eyebrow">THÀNH VIÊN NOSCO</p>
-            <h2>Điểm tích lũy</h2>
-            <p>Theo dõi điểm thưởng và lịch sử giao dịch của bạn.</p>
-        </div>
-    </header>
-    <div class="customer-points-summary">
-        <article class="customer-points-tier">
-            <span class="customer-points-label">HẠNG THÀNH VIÊN</span>
-            <i class="fa-solid fa-award" aria-hidden="true"></i>
-            <h3>{{ ho_so.HangThanhVien }}</h3>
-            <p>Cảm ơn bạn đã mua sắm và đồng hành cùng NOSCO.</p>
-        </article>
-        <article class="customer-points-balance">
-            <div>
-                <span class="customer-points-label">SỐ DƯ ĐIỂM HIỆN TẠI</span>
-                <strong>{{ ho_so.DiemTichLuy }}</strong>
-                <span class="customer-points-unit">điểm</span>
-            </div>
-            <i class="fa-solid fa-star" aria-hidden="true"></i>
-            <p>Tích lũy điểm từ các giao dịch mua sắm đủ điều kiện.</p>
-        </article>
-    </div>
-    <section class="customer-account-panel">
-        <div class="customer-section-heading">
-            <div>
-                <h3>Lịch sử giao dịch điểm</h3>
-                <p>Các lần cộng và sử dụng điểm trong tài khoản.</p>
-            </div>
-        </div>
-        <div class="customer-table-wrap">
-            <table class="customer-table">
-                <thead>
-                    <tr>
-                        <th>Ngày</th>
-                        <th>Nội dung</th>
-                        <th>Mã đơn hàng</th>
-                        <th>Giao dịch</th>
-                        <th>Điểm</th>
-                        <th>Số dư</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in danh_sach_lich_su %}
-                        <tr>
-                            <td>{{ item.NgayTao|date:"d/m/Y" }}</td>
-                            <td>{{ item.NoiDung }}</td>
-                            <td>{{ item.MaDonHang|default:"-" }}</td>
-                            <td>{{ item.get_LoaiGiaoDich_display }}</td>
-                            <td class="{% if item.LoaiGiaoDich == 'CONG' %}customer-points-positive{% else %}customer-points-negative{% endif %}">
-                                {% if item.LoaiGiaoDich == "CONG" %}+{% else %}-{% endif %}{{ item.SoDiem }}
-                            </td>
-                            <td>{{ item.SoDuDiem }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6" class="customer-table-empty">Chưa có giao dịch tích điểm.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </section>
+   <header class="customer-page-heading">
+       <div>
+           <p class="customer-page-eyebrow">THÀNH VIÊN NOSCO</p>
+           <h2>Điểm tích lũy</h2>
+           <p>Theo dõi điểm thưởng và lịch sử giao dịch của bạn.</p>
+       </div>
+   </header>
+   <div class="customer-points-summary">
+       <article class="customer-points-tier">
+           <span class="customer-points-label">HẠNG THÀNH VIÊN</span>
+           <i class="fa-solid fa-award" aria-hidden="true"></i>
+           <h3>{{ ho_so.HangThanhVien }}</h3>
+           <p>Cảm ơn bạn đã mua sắm và đồng hành cùng NOSCO.</p>
+       </article>
+       <article class="customer-points-balance">
+           <div>
+               <span class="customer-points-label">SỐ DƯ ĐIỂM HIỆN TẠI</span>
+               <strong>{{ ho_so.DiemTichLuy }}</strong>
+               <span class="customer-points-unit">điểm</span>
+           </div>
+           <i class="fa-solid fa-star" aria-hidden="true"></i>
+           <p>Tích lũy điểm từ các giao dịch mua sắm đủ điều kiện.</p>
+       </article>
+   </div>
+
+
+<!-- BẢNG QUY ĐỔI ĐIỂM VÀ HẠNG THÀNH VIÊN -->
+<section class="customer-account-panel customer-tier-panel">
+   <div class="customer-section-heading">
+       <div>
+           <h3>Bảng quy đổi điểm và hạng thành viên</h3>
+           <p>Tích lũy điểm để nâng hạng và nhận ưu đãi từ NOSCO.</p>
+       </div>
+   </div>
+
+
+   <div class="customer-points-rule">
+       <i class="fa-solid fa-star"></i>
+       <div>
+           <strong>Quy tắc tích điểm</strong>
+           <p>Mỗi 10.000đ chi tiêu đủ điều kiện được cộng 1 điểm.</p>
+       </div>
+   </div>
+
+
+   <div class="customer-table-wrap">
+       <table class="customer-table">
+           <thead>
+               <tr>
+                   <th>Hạng thành viên</th>
+                   <th>Điểm tích lũy</th>
+                   <th>Điều kiện đạt hạng</th>
+               </tr>
+           </thead>
+           <tbody>
+               <tr>
+                   <td>Thành viên</td>
+                   <td>0 – 99 điểm</td>
+                   <td>Hạng khởi đầu</td>
+               </tr>
+               <tr>
+                   <td>Đồng</td>
+                   <td>100 – 299 điểm</td>
+                   <td>Từ 100 điểm</td>
+               </tr>
+               <tr>
+                   <td>Bạc</td>
+                   <td>300 – 599 điểm</td>
+                   <td>Từ 300 điểm</td>
+               </tr>
+               <tr>
+                   <td>Vàng</td>
+                   <td>600 – 999 điểm</td>
+                   <td>Từ 600 điểm</td>
+               </tr>
+               <tr>
+                   <td>Kim cương</td>
+                   <td>Từ 1.000 điểm</td>
+                   <td>Từ 1.000 điểm</td>
+               </tr>
+           </tbody>
+       </table>
+   </div>
+</section>
+   <section class="customer-account-panel">
+       <div class="customer-section-heading">
+           <div>
+               <h3>Lịch sử giao dịch điểm</h3>
+               <p>Các lần cộng và sử dụng điểm trong tài khoản.</p>
+           </div>
+       </div>
+       <div class="customer-table-wrap">
+           <table class="customer-table">
+               <thead>
+                   <tr>
+                       <th>Ngày</th>
+                       <th>Nội dung</th>
+                       <th>Mã đơn hàng</th>
+                       <th>Giao dịch</th>
+                       <th>Điểm</th>
+                       <th>Số dư</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   {% for item in danh_sach_lich_su %}
+                       <tr>
+                           <td>{{ item.NgayTao|date:"d/m/Y" }}</td>
+                           <td>{{ item.NoiDung }}</td>
+                           <td>{{ item.MaDonHang|default:"-" }}</td>
+                           <td>{{ item.get_LoaiGiaoDich_display }}</td>
+                           <td class="{% if item.LoaiGiaoDich == 'CONG' %}customer-points-positive{% else %}customer-points-negative{% endif %}">
+                               {% if item.LoaiGiaoDich == "CONG" %}+{% else %}-{% endif %}{{ item.SoDiem }}
+                           </td>
+                           <td>{{ item.SoDuDiem }}</td>
+                       </tr>
+                   {% empty %}
+                       <tr>
+                           <td colspan="6" class="customer-table-empty">Chưa có giao dịch tích điểm.</td>
+                       </tr>
+                   {% endfor %}
+               </tbody>
+           </table>
+       </div>
+   </section>
 </section>
 {% endblock %}
+
+
+

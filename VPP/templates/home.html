@@ -554,8 +554,8 @@
 
    <div class="product-card-extra">
        <p class="product-sold">
-           Đã bán: {{ sp.so_luong_da_ban|default:"0" }}
-       </p>
+    Đã bán: {{ item.so_luong_da_ban|default:"0" }}
+</p>
 
 
        <div class="product-rating">
@@ -795,8 +795,8 @@
 
    <div class="product-card-extra">
        <p class="product-sold">
-           Đã bán: {{ the.san_pham.so_luong_da_ban|default:"0" }}
-       </p>
+    Đã bán: {{ the.so_luong_da_ban|default:"0" }}
+</p>
 
 
        <div class="product-rating">
@@ -1183,6 +1183,9 @@
 
 
                    <div class="product-price">
+                       <p class="product-sold">
+    Đã bán: {{ the.so_luong_da_ban|default:"0" }}
+</p>
                        {% if the.gia_hien_thi %}
                            <strong>{{ the.gia_hien_thi }}đ</strong>
                        {% else %}
