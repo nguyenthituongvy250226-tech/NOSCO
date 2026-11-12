@@ -29,8 +29,8 @@
   {% else %}
     <div class="return-progress" role="list" aria-label="Tiến độ trả hàng">
       <div
-        class="return-progress-line"
-        style="{% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}width:33%{% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}width:66%{% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}width:100%{% endif %}">
+          class="return-progress-line"
+          style="{% if yeu_cau_tra.trang_thai_tra == 'cho_xu_ly' %}width:0%{% elif yeu_cau_tra.trang_thai_tra == 'da_duyet' %}width:33.3333%{% elif yeu_cau_tra.trang_thai_tra == 'hoan_tat' %}width:66.6667%{% endif %}">
       </div>
 
       {% for buoc in buoc_tien_do_tra %}

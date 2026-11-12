@@ -140,7 +140,12 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
 
         # Lấy giá bán thấp nhất trong các biến thể
         bien_the = list(sp.bien_the.all())
+        # Xác định sản phẩm có thể mua trực tiếp hay không
+        co_the_mua_truc_tiep = len(bien_the) == 1
 
+        bien_the_duy_nhat = (
+            bien_the[0] if co_the_mua_truc_tiep else None
+        )
         gia_goc = min(
             (bt.gia_ban for bt in bien_the),
             default=None
@@ -177,6 +182,8 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
         danh_sach_hien_thi.append({
             "ma_san_pham": sp.ma_san_pham,
             "ten_san_pham": sp.ten_san_pham,
+            "co_the_mua_truc_tiep": co_the_mua_truc_tiep,
+            "bien_the_duy_nhat": bien_the_duy_nhat,
             "thuong_hieu": sp.thuong_hieu.ten_thuong_hieu,
             "so_luong_da_ban": getattr(
                 sp, "so_luong_da_ban", 0
@@ -189,8 +196,10 @@ def chi_tiet_khuyen_mai(request, ma_khuyen_mai):
                 f"{gia_khuyen_mai:,.0f}".replace(",", ".")
                 if gia_khuyen_mai is not None else None
             ),
+
             "phan_tram_giam": item.PhanTramGiam,
             "hinh_anh": hinh_anh,
+
         })
 
     return render(

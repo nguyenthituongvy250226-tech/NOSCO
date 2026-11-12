@@ -111,8 +111,7 @@
    <span class="product-detail-price-label">Giá bán</span>
 
 
-   <div class="product-detail-price" id="selectedVariantPrice">
-
+   <div class="product-detail-price {% if co_khuyen_mai %}has-promotion{% endif %}" id="selectedVariantPrice">
 
        {% if co_khuyen_mai %}
            <span class="promotion-badge" id="detailPromotionBadge">

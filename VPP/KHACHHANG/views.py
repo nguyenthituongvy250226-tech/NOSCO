@@ -358,14 +358,42 @@ def ho_so_ca_nhan(request):
 # =====================================================
 # 7. SỔ ĐỊA CHỈ
 # =====================================================
-
+from django.shortcuts import render, redirect, get_object_or_404
 @khach_hang_required
+
+
+
+
 def so_dia_chi(request):
     ho_so = lay_ho_so_khach_hang(request.nguoi_dung)
 
     danh_sach_dia_chi = SoDiaChi.objects.filter(
         MaKhachHang=ho_so,
     ).order_by("-MacDinh", "TenNguoiNhan")
+
+    # Xử lý khi khách nhấn Lưu lựa chọn
+    if (
+        request.method == "POST"
+        and request.POST.get("hanh_dong") == "luu_dia_chi_checkout"
+    ):
+        ma_dia_chi = request.POST.get("ma_dia_chi")
+        tu_checkout = request.POST.get("tu_checkout") == "1"
+
+        dia_chi_chon = danh_sach_dia_chi.filter(
+            MaDiaChi=ma_dia_chi
+        ).first()
+
+        if dia_chi_chon:
+            request.session["checkout_ma_dia_chi"] = (
+                dia_chi_chon.MaDiaChi
+            )
+            messages.success(request, "Đã cập nhật địa chỉ nhận hàng.")
+
+            if tu_checkout:
+                return redirect("CHECKOUT:checkout")
+
+        else:
+            messages.error(request, "Vui lòng chọn một địa chỉ hợp lệ.")
 
     return render(
         request,
@@ -374,8 +402,13 @@ def so_dia_chi(request):
             "ho_so": ho_so,
             "danh_sach_dia_chi": danh_sach_dia_chi,
             "danh_sach": danh_sach_dia_chi,
+            "tu_checkout": request.GET.get("tu_checkout") == "1",
+            "ma_dia_chi_dang_chon": request.session.get(
+                "checkout_ma_dia_chi"
+            ),
         },
     )
+
 
 
 # =====================================================

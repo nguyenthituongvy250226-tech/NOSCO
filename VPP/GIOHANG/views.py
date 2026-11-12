@@ -3,7 +3,7 @@
 import uuid
 import secrets
 
-
+from KHUYENMAI.services import tinh_gia_khuyen_mai
 from decimal import Decimal
 
 
@@ -132,7 +132,10 @@ def bo_sung_thong_tin_san_pham(danh_sach):
            item.ten_san_pham = san_pham.ten_san_pham
            item.mau_sac = bien_the.mau_sac
            item.kich_thuoc = bien_the.kich_thuoc
-           item.don_gia = bien_the.gia_ban
+           item.don_gia = tinh_gia_khuyen_mai(
+               san_pham.ma_san_pham,
+               bien_the.gia_ban
+           )
            item.so_luong_ton = bien_the.so_luong_ton
 
 

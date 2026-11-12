@@ -98,8 +98,8 @@
                    <!-- ĐIỀU HƯỚNG ĐẾN SỔ ĐỊA CHỈ KHÁCH HÀNG -->
                    <div class="address-action">
                        {% if dia_chi %}
-                           <a href="{% url 'KHACHHANG:so_dia_chi' %}?chon=checkout">
-   Thay đổi địa chỉ
+                           <a href="{% url 'KHACHHANG:so_dia_chi' %}?tu_checkout=1">
+    Thay đổi địa chỉ
 </a>
                        {% else %}
                            <a

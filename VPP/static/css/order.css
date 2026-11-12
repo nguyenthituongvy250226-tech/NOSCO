@@ -2281,3 +2281,48 @@
     text-align: right;
     overflow-wrap: anywhere;
 }
+
+/* Tiến trình trả hàng */
+.return-progress {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 30px 5px;
+}
+
+.return-progress-line {
+    position: absolute;
+    top: 15px;
+    left: 16.6667%;
+    height: 3px;
+    background: #059669;
+    border-radius: 5px;
+    z-index: 0;
+}
+
+.return-progress-step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    color: #94a3b8;
+    font-size: 12px;
+    text-align: center;
+}
+
+.return-progress-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50%;
+    background: #fff;
+    font-weight: 700;
+}

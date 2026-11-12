@@ -558,7 +558,7 @@ class YeuCauTraHangAdmin(admin.ModelAdmin):
         "ngay_tao",
         "ngay_xu_ly",
     )
-
+    list_editable = ("trang_thai_tra",)
     list_filter = (
         TrangThaiTraHangFilter,
         "phuong_thuc_hoan_tien",
@@ -575,7 +575,7 @@ class YeuCauTraHangAdmin(admin.ModelAdmin):
     readonly_fields = (
         "ngay_tao",
         "ngay_xu_ly",
-        "trang_thai_tra",
+
     )
 
     inlines = [

@@ -1,7 +1,7 @@
 from decimal import Decimal, InvalidOperation
 from django.utils import timezone
 from .models import Voucher
-
+from .models import Voucher, ChiTietKhuyenMai
 
 def kiem_tra_va_tinh_voucher(ma_voucher, tong_tien_hang, hang_thanh_vien=None):
     """
@@ -90,3 +90,29 @@ def kiem_tra_va_tinh_voucher(ma_voucher, tong_tien_hang, hang_thanh_vien=None):
     ket_qua["so_tien_giam"] = so_tien_giam.quantize(Decimal("1"))
 
     return ket_qua
+
+def tinh_gia_khuyen_mai(ma_san_pham, gia_goc):
+    gia_goc = Decimal(str(gia_goc))
+    thoi_gian_hien_tai = timezone.now()
+
+    chi_tiet = ChiTietKhuyenMai.objects.filter(
+        MaSanPham=ma_san_pham,
+        TrangThai=True,
+        MaKhuyenMai__NgayBatDau__lte=thoi_gian_hien_tai,
+        MaKhuyenMai__NgayKetThuc__gte=thoi_gian_hien_tai,
+    ).order_by(
+        "-MaKhuyenMai__NgayBatDau"
+    ).first()
+
+    if not chi_tiet:
+        return gia_goc
+
+    gia_sau_giam = gia_goc * (
+        Decimal("1") -
+        chi_tiet.PhanTramGiam / Decimal("100")
+    )
+
+    return max(
+        Decimal("0"),
+        gia_sau_giam
+    ).quantize(Decimal("1"))

@@ -22,7 +22,7 @@ from DONHANG.services import tao_don_hang
 from THANHTOAN.services import tao_thanh_toan_cho_don
 from THANHTOAN.vnpay import tao_url_thanh_toan
 
-
+from KHUYENMAI.services import tinh_gia_khuyen_mai
 
 
 # ==========================================
@@ -93,8 +93,10 @@ def tao_san_pham_mua_ngay(ma_bien_the, so_luong):
            f"Sản phẩm chỉ còn {bien_the.so_luong_ton} sản phẩm trong kho."
        )
 
-
-   don_gia = Decimal(str(bien_the.gia_ban))
+   don_gia = tinh_gia_khuyen_mai(
+       san_pham.ma_san_pham,
+       bien_the.gia_ban
+   )
    thanh_tien = don_gia * so_luong
 
 

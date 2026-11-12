@@ -864,7 +864,7 @@
     border-radius: 20px;
     font-size: 10px;
     font-weight: 600;
-    cursor: not-allowed;
+    cursor: pointer;
 }
 
 .danh-sach-san-pham-km .product-add-cart {

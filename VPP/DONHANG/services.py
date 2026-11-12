@@ -1,6 +1,6 @@
 
 """Các hàm nghiệp vụ dùng chung cho module đơn hàng."""
-
+from .signals import don_hang_da_tao
 import re
 import unicodedata
 
@@ -334,7 +334,12 @@ def tao_don_hang(
             don_gia=item["don_gia"],
             thanh_tien=item["thanh_tien"],
         )
-
+    transaction.on_commit(
+        lambda: don_hang_da_tao.send(
+            sender=DonHang,
+            don_hang=don,
+        )
+    )
     return don
 
 

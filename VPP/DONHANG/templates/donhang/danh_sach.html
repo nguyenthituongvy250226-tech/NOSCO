@@ -405,22 +405,6 @@
 
             <h2>Đơn hàng của tôi</h2>
 
-            {% if co_the_tao_don_mau %}
-                <form method="post"
-                      action="{% url 'DONHANG:tao_don_hang_mau' %}">
-                    {% csrf_token %}
-                    <p>
-                        Dữ liệu mẫu chỉ tạo cho tài khoản của bạn,
-                        không thay đổi giỏ hàng hay khuyến mãi.
-                        Nếu chưa lưu địa chỉ, đơn mẫu sẽ dùng địa chỉ
-                        giả lập và không được giao thật.
-                    </p>
-                    <button class="order-btn order-btn-primary" type="submit">
-                        Tạo đơn hàng mẫu để kiểm thử
-                    </button>
-                </form>
-            {% endif %}
-
             <!-- TÌM KIẾM ĐƠN HÀNG -->
             <form method="get"
                   action="{% url 'DONHANG:trang_thai' trang_thai_slug %}"

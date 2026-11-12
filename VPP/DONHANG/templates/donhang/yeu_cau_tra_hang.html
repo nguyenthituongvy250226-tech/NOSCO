@@ -38,13 +38,12 @@
 
     <section class="return-form-section">
       <h2>Lý do trả hàng</h2>
-      <div class="return-field"><label for="{{ form.ly_do_tra.id_for_label }}">Chọn lý do trả hàng</label>{{ form.ly_do_tra }}{{ form.ly_do_tra.errors }}</div>
+      <div class="return-field">{{ form.ly_do_tra }}{{ form.ly_do_tra.errors }}</div>
     </section>
 
     <section class="return-form-section">
       <h2>Mô tả vấn đề</h2>
       <div class="return-field">
-        <label for="{{ form.mo_ta_van_de.id_for_label }}">Mô tả chi tiết</label>
         {{ form.mo_ta_van_de }}{{ form.mo_ta_van_de.errors }}
       </div>
     </section>

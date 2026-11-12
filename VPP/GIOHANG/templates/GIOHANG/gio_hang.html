@@ -275,7 +275,7 @@
 
                        <button type="submit"
                                class="select-all-btn remove-selected-btn">
-                           Xóa đã chọn
+                           Xóa tất cả
                        </button>
                    </form>
 
@@ -634,6 +634,32 @@
 
 
            cu.innerHTML = moi.innerHTML;
+           // Cập nhật số lượng sản phẩm trên biểu tượng Giỏ hàng ở header
+var badgeMoi = doc.querySelector(".header-cart-count-badge");
+var badgeCu = document.querySelector(
+    ".cart-trigger .header-icon-wrap .header-cart-count-badge"
+);
+
+if (badgeMoi) {
+    // Nếu đã có badge thì cập nhật nội dung
+    if (badgeCu) {
+        badgeCu.outerHTML = badgeMoi.outerHTML;
+    } else {
+        // Nếu trước đó giỏ hàng trống thì tạo badge mới
+        var iconWrap = document.querySelector(
+            ".cart-trigger .header-icon-wrap"
+        );
+
+        if (iconWrap) {
+            iconWrap.appendChild(badgeMoi.cloneNode(true));
+        }
+    }
+} else {
+    // Nếu giỏ hàng không còn sản phẩm thì xóa badge
+    if (badgeCu) {
+        badgeCu.remove();
+    }
+}
 
 
            // Tự ẩn thông báo sau 3 giây

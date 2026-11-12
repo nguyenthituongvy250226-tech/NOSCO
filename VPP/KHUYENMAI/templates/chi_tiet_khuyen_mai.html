@@ -168,29 +168,111 @@
         </button>
     </form>
 </div>
-                        <div class="product-buy-actions">
 
-                            <button
-                                type="button"
-                                class="product-add-cart"
-                                disabled
-                                title="Chưa kết nối module giỏ hàng"
-                            >
-                                <i class="fa-solid fa-cart-shopping"></i>
-                                <span>Thêm vào giỏ</span>
-                            </button>
+<div class="product-buy-actions">
 
-                            <button
-                                type="button"
-                                class="product-buy-now"
-                                disabled
-                                title="Chưa kết nối module đặt hàng"
-                            >
-                                <span>Mua ngay</span>
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </button>
+    {% if item.co_the_mua_truc_tiep %}
 
-                        </div>
+        <!-- THÊM VÀO GIỎ -->
+        {% if request.session.ma_khach_hang %}
+
+            <form
+                method="POST"
+                action="{% url 'GIOHANG:them_vao_gio' %}"
+                class="flex-fill"
+            >
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="ma_bien_the"
+                    value="{{ item.bien_the_duy_nhat.ma_bien_the }}"
+                >
+
+                <input type="hidden" name="so_luong" value="1">
+
+                <button
+                    type="submit"
+                    class="btn btn-outline-primary product-add-cart w-100"
+                >
+                    <i class="fa-solid fa-cart-shopping me-1"></i>
+                    Thêm vào giỏ
+                </button>
+            </form>
+
+        {% else %}
+
+            <a
+                href="{% url 'KHACHHANG:dang_nhap' %}?next={{ request.get_full_path|urlencode }}"
+                class="btn btn-outline-primary product-add-cart flex-fill"
+            >
+                <i class="fa-solid fa-cart-shopping me-1"></i>
+                Thêm vào giỏ
+            </a>
+
+        {% endif %}
+
+        <!-- MUA NGAY -->
+        {% if request.session.ma_khach_hang %}
+
+            <form
+                method="POST"
+                action="{% url 'CHECKOUT:checkout' %}"
+                class="flex-fill"
+            >
+                {% csrf_token %}
+
+                <input
+                    type="hidden"
+                    name="ma_bien_the"
+                    value="{{ item.bien_the_duy_nhat.ma_bien_the }}"
+                >
+
+                <input type="hidden" name="so_luong" value="1">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary product-buy-now w-100"
+                >
+                    Mua ngay
+                    <i class="fa-solid fa-arrow-right ms-1"></i>
+                </button>
+            </form>
+
+        {% else %}
+
+            <a
+                href="{% url 'KHACHHANG:dang_nhap' %}?next={{ request.get_full_path|urlencode }}"
+                class="btn btn-primary product-buy-now flex-fill"
+            >
+                Mua ngay
+                <i class="fa-solid fa-arrow-right ms-1"></i>
+            </a>
+
+        {% endif %}
+
+    {% else %}
+
+        <!-- SẢN PHẨM CÓ NHIỀU BIẾN THỂ -->
+        <a
+            href="{% url 'sanpham:chi_tiet_san_pham' item.ma_san_pham %}"
+            class="btn btn-outline-primary product-add-cart flex-fill"
+        >
+            <i class="fa-solid fa-cart-shopping me-1"></i>
+            Thêm vào giỏ
+        </a>
+
+        <a
+            href="{% url 'sanpham:chi_tiet_san_pham' item.ma_san_pham %}"
+            class="btn btn-primary product-buy-now flex-fill"
+        >
+            Mua ngay
+            <i class="fa-solid fa-arrow-right ms-1"></i>
+        </a>
+
+    {% endif %}
+
+</div>
 
                     </div>
 
