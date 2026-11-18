@@ -29,7 +29,7 @@ from .forms import (
     YeuCauHoTroForm,
     PhanHoiHoTroForm,
 )
-
+from django.urls import reverse
 
 # =====================================================
 # 1. XÁC THỰC TÀI KHOẢN PA BẰNG SESSION RIÊNG
@@ -360,10 +360,6 @@ def ho_so_ca_nhan(request):
 # =====================================================
 from django.shortcuts import render, redirect, get_object_or_404
 @khach_hang_required
-
-
-
-
 def so_dia_chi(request):
     ho_so = lay_ho_so_khach_hang(request.nguoi_dung)
 
@@ -371,13 +367,22 @@ def so_dia_chi(request):
         MaKhachHang=ho_so,
     ).order_by("-MacDinh", "TenNguoiNhan")
 
+    # Ghi nhớ nếu khách đang chọn địa chỉ từ trang đặt hàng
+    if request.GET.get("tu_checkout") == "1":
+        request.session["dia_chi_tu_checkout"] = True
+
+    tu_checkout = request.session.get(
+        "dia_chi_tu_checkout", False
+    )
+
     # Xử lý khi khách nhấn Lưu lựa chọn
     if (
-        request.method == "POST"
-        and request.POST.get("hanh_dong") == "luu_dia_chi_checkout"
+            request.method == "POST"
+            and request.POST.get("hanh_dong") == "luu_dia_chi_checkout"
     ):
         ma_dia_chi = request.POST.get("ma_dia_chi")
         tu_checkout = request.POST.get("tu_checkout") == "1"
+        che_do = request.POST.get("mode", "")
 
         dia_chi_chon = danh_sach_dia_chi.filter(
             MaDiaChi=ma_dia_chi
@@ -390,11 +395,15 @@ def so_dia_chi(request):
             messages.success(request, "Đã cập nhật địa chỉ nhận hàng.")
 
             if tu_checkout:
+                if che_do == "mua_ngay":
+                    return redirect(
+                        f"{reverse('CHECKOUT:checkout')}?mode=mua_ngay"
+                    )
+
                 return redirect("CHECKOUT:checkout")
 
         else:
             messages.error(request, "Vui lòng chọn một địa chỉ hợp lệ.")
-
     return render(
         request,
         "KHACHHANG/so_dia_chi.html",
@@ -402,10 +411,11 @@ def so_dia_chi(request):
             "ho_so": ho_so,
             "danh_sach_dia_chi": danh_sach_dia_chi,
             "danh_sach": danh_sach_dia_chi,
-            "tu_checkout": request.GET.get("tu_checkout") == "1",
             "ma_dia_chi_dang_chon": request.session.get(
                 "checkout_ma_dia_chi"
             ),
+            "tu_checkout": request.GET.get("tu_checkout") == "1",
+            "che_do_thanh_toan": request.GET.get("mode", ""),
         },
     )
 

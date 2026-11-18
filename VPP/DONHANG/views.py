@@ -1120,9 +1120,7 @@ def yeu_cau_tra_hang(request, ma_don_hang):
    if not co_the_tra:
        messages.error(
            request,
-           "Đơn hàng chưa đủ điều kiện yêu cầu trả hàng. "
-           "Bạn chỉ có thể gửi yêu cầu khi đơn đã ở trạng thái "
-           "Đã giao và chưa xác nhận đã nhận hàng.",
+           "Đơn hàng chỉ có thể yêu cầu trả hàng 1 lần. ",
        )
        return redirect(
            "DONHANG:chi_tiet",

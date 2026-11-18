@@ -20,24 +20,23 @@
 
 
        <div class="address-header-actions">
-           {% if danh_sach_dia_chi %}
-           <button
-   type="submit"
-   form="form-chon-dia-chi"
-   class="customer-primary-button address-save-button"
->
-   <i class="fa-solid fa-check"></i>
-   Lưu lựa chọn
-</button>
-           {% endif %}
+    {% if tu_checkout and danh_sach_dia_chi %}
+        <button
+            type="submit"
+            form="form-chon-dia-chi"
+            class="customer-primary-button address-save-button"
+        >
+            <i class="fa-solid fa-check"></i>
+            Lưu lựa chọn
+        </button>
+    {% endif %}
 
-
-           <a href="{% url 'KHACHHANG:them_dia_chi' %}"
-              class="customer-primary-button">
-               <i class="fa-solid fa-plus"></i>
-               Thêm địa chỉ
-           </a>
-       </div>
+    <a href="{% url 'KHACHHANG:them_dia_chi' %}"
+       class="customer-primary-button">
+        <i class="fa-solid fa-plus"></i>
+        Thêm địa chỉ
+    </a>
+</div>
    </header>
 
 
@@ -46,16 +45,20 @@
 
    <!-- Form lưu địa chỉ được chọn -->
    <form method="POST" id="form-chon-dia-chi">
-       {% csrf_token %}
-       <input type="hidden"
-              name="hanh_dong"
-              value="luu_dia_chi_checkout">
+    {% csrf_token %}
 
+    <input type="hidden"
+           name="hanh_dong"
+           value="luu_dia_chi_checkout">
 
-       <input type="hidden"
-              name="tu_checkout"
-              value="{% if tu_checkout %}1{% else %}0{% endif %}">
-   </form>
+    <input type="hidden"
+           name="tu_checkout"
+           value="{% if tu_checkout %}1{% else %}0{% endif %}">
+
+    <input type="hidden"
+           name="mode"
+           value="{{ che_do_thanh_toan }}">
+</form>
 
 
    <!-- Danh sách địa chỉ -->

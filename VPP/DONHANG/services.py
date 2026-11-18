@@ -1056,21 +1056,58 @@ def tao_yeu_cau_tra_hang(
    return yeu_cau
 
 
-
-
 # =========================================================
-# KHÁCH HÀNG KHÔNG ĐƯỢC HỦY YÊU CẦU TRẢ HÀNG
+# KHÁCH HÀNG HỦY YÊU CẦU TRẢ HÀNG
 # =========================================================
 
-
+@transaction.atomic
 def huy_yeu_cau_tra_hang(don):
-   raise DuLieuDonHangKhongHopLe(
-       "Yêu cầu trả hàng đã gửi không thể tự hủy. "
-       "Vui lòng liên hệ NOSCO để được hỗ trợ."
-   )
+    don = DonHang.objects.select_for_update().get(pk=don.pk)
 
+    # Lấy yêu cầu trả hàng của đơn
+    yeu_cau = YeuCauTraHang.objects.select_for_update().filter(
+        ma_don_hang=don
+    ).first()
 
+    if not yeu_cau:
+        raise DuLieuDonHangKhongHopLe(
+            "Không tìm thấy yêu cầu trả hàng."
+        )
 
+    # Chỉ được hủy khi yêu cầu đang chờ xử lý
+    if yeu_cau.trang_thai_tra != "cho_xu_ly":
+        raise DuLieuDonHangKhongHopLe(
+            "Chỉ được hủy yêu cầu trả hàng đang chờ xử lý."
+        )
+
+    # Cho phép cả đơn đã giao và đơn trả hàng
+    if don.trang_thai_don not in ["da_giao", "tra_hang"]:
+        raise DuLieuDonHangKhongHopLe(
+            "Trạng thái đơn hàng không cho phép hủy yêu cầu trả hàng."
+        )
+
+    # Đánh dấu yêu cầu đã hủy, không xóa dữ liệu
+    yeu_cau.trang_thai_tra = "da_huy"
+    yeu_cau.ket_qua_xl = "Khách hàng đã hủy yêu cầu trả hàng."
+    yeu_cau.ngay_xu_ly = timezone.now()
+    yeu_cau.save(update_fields=[
+        "trang_thai_tra",
+        "ket_qua_xl",
+        "ngay_xu_ly",
+    ])
+
+    # Đưa đơn hàng về trạng thái Đã giao
+    trang_thai_cu = don.trang_thai_don
+    don.trang_thai_don = "da_giao"
+    don.save(update_fields=["trang_thai_don"])
+
+    _phat_tin_trang_thai(
+        don,
+        trang_thai_cu,
+        don.trang_thai_don,
+    )
+
+    return yeu_cau
 
 # =========================================================
 # SUPERUSER XỬ LÝ YÊU CẦU TRẢ HÀNG

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import GioHang, ChiTietGioHang
-
+from .models import GioHang, ChiTietGioHang, ChiaSeGioHang
 
 class ChiTietGioHangInline(admin.TabularInline):
     model = ChiTietGioHang
@@ -44,3 +44,10 @@ class ChiTietGioHangAdmin(admin.ModelAdmin):
     )
 
     list_filter = ("trang_thai_chon",)
+
+@admin.register(ChiaSeGioHang)
+class ChiaSeGioHangAdmin(admin.ModelAdmin):
+    list_display = ("ma_chia_se", "ma_khach_hang", "ngay_tao")
+    search_fields = ("ma_chia_se", "ma_khach_hang")
+    list_filter = ("ngay_tao",)
+    readonly_fields = ("ngay_tao",)

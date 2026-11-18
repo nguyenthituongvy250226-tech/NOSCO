@@ -23,7 +23,7 @@
             {{ form.as_p }}
             <div class="customer-form-actions">
                 <button type="submit" class="customer-primary-button">Lưu thông tin</button>
-                <a href="{% url 'KHACHHANG:so_dia_chi' %}" class="customer-secondary-button">Quay lại</a>
+                <a href="{{ next_url }}" class="customer-secondary-button">Quay lại</a>
             </div>
         </form>
     </div>

@@ -100,17 +100,6 @@
     <div class="alert-banner">
         <div>
             <h3 class="alert-title">Đơn hàng đã bị hủy</h3>
-
-            {% if don_hang.giao_hang.trang_thai == "giao_that_bai" %}
-                <p class="alert-desc">
-                    Lý do:
-                    {{ don_hang.giao_hang.ly_do_that_bai|default:"Giao hàng không thành công do không liên hệ được với người nhận." }}
-                </p>
-            {% else %}
-                <p class="alert-desc">
-                    Lý do: Đơn hàng đã được hủy trước khi xác nhận.
-                </p>
-            {% endif %}
         </div>
     </div>
 
