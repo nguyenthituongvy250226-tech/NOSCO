@@ -1028,3 +1028,55 @@ body.address-modal-open {
         width: 100%;
     }
 }
+
+/* Voucher input - khung nhập mã */
+.checkout-page .voucher-input {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Input mã voucher */
+.checkout-page .voucher-input input {
+    width: 100%;
+    height: 38px;
+    padding: 0 38px 0 30px;
+    box-sizing: border-box;
+}
+
+/* Nút xóa voucher */
+.checkout-page .voucher-input .voucher-clear-btn {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+
+    width: 24px;
+    height: 24px;
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+
+    color: #64748b;
+    font-size: 20px;
+    line-height: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: none;
+}
+
+.checkout-page .voucher-input .voucher-clear-btn:hover {
+    background: #e8eef5;
+    color: #1e293b;
+}
+
+.checkout-page .voucher-input .voucher-clear-btn[hidden] {
+    display: none !important;
+}

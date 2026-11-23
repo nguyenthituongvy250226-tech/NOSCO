@@ -112,15 +112,6 @@ class ThanhToanAdmin(admin.ModelAdmin):
        'MaGiaoDich',
    )
 
-
-   list_filter = (
-       'PhuongThucThanhToan',
-       'TrangThaiThanhToan',
-       'LoaiGiaoDich',
-       ThoiGianThanhToanFilter,
-   )
-
-
    search_fields = ('MaThanhToan', 'MaGiaoDich')
    ordering = ('-NgayThanhToan',)
    list_per_page = 20

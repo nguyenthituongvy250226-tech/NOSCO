@@ -1,0 +1,1431 @@
+/* NOSCO - FORCE LIGHT MODE */
+:root {
+    color-scheme: light;
+
+    --body-bg: #ffffff;
+    --body-fg: #263746;
+    --body-quiet-color: #647987;
+    --body-loud-color: #153b50;
+
+    --header-bg: #ffffff;
+    --header-color: #153b50;
+
+    --breadcrumbs-bg: #ffffff;
+    --breadcrumbs-fg: #647987;
+
+    --link-fg: #167d83;
+    --link-hover-color: #153b50;
+
+    --button-bg: #167d83;
+    --button-fg: #ffffff;
+}
+/* =================================
+   NOSCO ADMIN THEME
+================================= */
+
+:root {
+    --nosco-primary: #153b50;
+    --nosco-secondary: #167d83;
+    --nosco-accent: #e5a93d;
+    --nosco-background: #f4f7fa;
+    --nosco-text: #263746;
+}
+
+/* Background */
+body {
+    background: var(--nosco-background);
+    color: var(--nosco-text);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Header */
+#header {
+    background: var(--nosco-primary);
+    color: #ffffff;
+    min-height: 66px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+#header a,
+#header a:link,
+#header a:visited {
+    color: #ffffff;
+}
+
+#branding {
+    display: flex;
+    align-items: center;
+}
+
+#site-name {
+    margin: 0;
+}
+
+.nosco-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.nosco-logo {
+    width: 40px;
+    height: 40px;
+    background: var(--nosco-accent);
+    color: var(--nosco-primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.nosco-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.nosco-brand-text strong {
+    font-size: 21px;
+    letter-spacing: 1.5px;
+}
+
+.nosco-brand-text small {
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    color: #c6d8e0;
+}
+
+.nosco-header-caption {
+    color: #d5e4eb;
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    padding: 10px 20px;
+}
+
+/* User tools */
+#user-tools {
+    font-size: 13px;
+}
+
+#user-tools a:hover {
+    color: #f2c66d;
+}
+
+/* Main content */
+#content {
+    padding: 28px;
+}
+
+#content h1 {
+    color: var(--nosco-primary);
+    font-size: 25px;
+    font-weight: 700;
+    margin-bottom: 22px;
+}
+
+/* Breadcrumbs */
+div.breadcrumbs {
+    background: #ffffff;
+    color: #607585;
+    padding: 13px 28px;
+    border-bottom: 1px solid #e4eaf0;
+}
+
+div.breadcrumbs a {
+    color: var(--nosco-secondary);
+}
+
+/* Modules */
+.module,
+#changelist,
+.inline-group {
+    border: 1px solid #e5ebf0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(21, 59, 80, 0.04);
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: var(--nosco-primary);
+    color: #ffffff;
+    padding: 13px 16px;
+    font-size: 14px;
+}
+
+/* Tables */
+#result_list {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#result_list th {
+    background: #edf3f6;
+    color: var(--nosco-primary);
+    font-weight: 700;
+}
+
+#result_list td,
+#result_list th {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e9eef2;
+}
+
+#result_list tr:hover td {
+    background: #f2f8f8;
+}
+
+/* Buttons */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button {
+    background: var(--nosco-secondary);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+    background: var(--nosco-primary);
+}
+
+/* Links */
+a:link,
+a:visited {
+    color: var(--nosco-secondary);
+}
+
+a:hover {
+    color: var(--nosco-primary);
+}
+
+/* Form fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+textarea,
+select {
+    border: 1px solid #d8e1e8;
+    border-radius: 5px;
+    padding: 8px 10px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--nosco-secondary);
+    outline: 2px solid rgba(22, 125, 131, 0.12);
+}
+
+/* Messages */
+ul.messagelist li {
+    border-radius: 7px;
+    margin-bottom: 8px;
+}
+
+/* Footer spacing */
+#footer {
+    padding: 20px;
+}
+
+/* =================================
+   NOSCO DASHBOARD
+================================= */
+
+.nosco-dashboard {
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.dashboard-welcome {
+    background: linear-gradient(120deg, #153b50, #167d83);
+    color: #ffffff;
+    padding: 30px 34px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.dashboard-label {
+    color: #b8e1dc;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.dashboard-welcome h1 {
+    color: #ffffff !important;
+    font-size: 27px !important;
+    margin: 12px 0 8px !important;
+}
+
+.dashboard-welcome p {
+    color: #e0eeee;
+    margin: 0;
+}
+
+.dashboard-date {
+    border-left: 1px solid rgba(255,255,255,0.3);
+    padding-left: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #d8eeee;
+    font-size: 11px;
+}
+
+.dashboard-date strong {
+    color: #ffffff;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.dashboard-section-title {
+    margin-bottom: 20px;
+}
+
+.dashboard-section-title h2 {
+    color: #153b50;
+    font-size: 20px;
+    margin: 0 0 6px;
+}
+
+.dashboard-section-title p {
+    color: #718391;
+    margin: 0;
+}
+
+.dashboard-app-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.dashboard-app-card {
+    background: #ffffff;
+    border: 1px solid #e5ebf0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(21,59,80,0.04);
+}
+
+.dashboard-app-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 18px 20px;
+    background: #f7fafb;
+    border-bottom: 1px solid #e9eef2;
+}
+
+.dashboard-app-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: #e2f1ef;
+    color: #167d83;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.dashboard-app-heading h3 {
+    color: #153b50;
+    font-size: 16px;
+    margin: 0;
+}
+
+.dashboard-model-list {
+    padding: 8px 20px;
+}
+
+.dashboard-model-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #edf1f4;
+}
+
+.dashboard-model-item:last-child {
+    border-bottom: none;
+}
+
+.dashboard-model-item > a,
+.dashboard-model-item > span {
+    color: #344b5b;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dashboard-model-item > a:hover {
+    color: #167d83;
+}
+
+.dashboard-model-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.dashboard-model-actions a {
+    width: 27px;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: #edf5f5;
+    color: #167d83;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.dashboard-model-actions a:hover {
+    background: #167d83;
+    color: #ffffff;
+}
+
+@media (max-width: 900px) {
+    .dashboard-app-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-date {
+        display: none;
+    }
+}
+
+
+
+
+/* Mở rộng khu vực Dashboard */
+body.dashboard #content {
+    margin-left: 0 !important;
+    width: auto !important;
+}
+
+body.dashboard #content-main {
+    width: 100%;
+    float: none;
+}
+
+/* NOSCO SIDEBAR */
+#nav-sidebar {
+    background: #153b50;
+    width: 240px;
+    min-width: 240px;
+    padding: 20px 12px;
+    box-sizing: border-box;
+}
+
+.nosco-sidebar-title {
+    color: #b8d2dc;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.nosco-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff !important;
+    text-decoration: none;
+    padding: 13px 14px;
+    margin-bottom: 5px;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+.nosco-menu-item:hover {
+    background: #167d83;
+    color: #ffffff !important;
+}
+
+.nosco-menu-item span {
+    width: 20px;
+    text-align: center;
+}
+/* FIX APP LIST DISPLAY */
+#content-main {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#content-main .module {
+    display: block !important;
+    visibility: visible !important;
+}
+
+#content-main table {
+    display: table !important;
+    visibility: visible !important;
+}
+
+/* FIX APP LIST DISPLAY */
+#content-main {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#content-main .module {
+    display: block !important;
+    visibility: visible !important;
+}
+
+#content-main table {
+    display: table !important;
+    visibility: visible !important;
+}
+
+#content-main tr {
+    display: table-row !important;
+}
+
+#content-main th,
+#content-main td {
+    display: table-cell !important;
+}
+
+/* ===== NOSCO APP INDEX ===== */
+
+#content-main {
+    width: 100%;
+    margin-top: 10px;
+}
+
+#content-main .module {
+    background: #ffffff;
+    border: 1px solid #e2eaf0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.06);
+}
+
+#content-main .module table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#content-main .module caption {
+    background: #153b50;
+    color: #ffffff;
+    text-align: left;
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#content-main .module caption a {
+    color: #ffffff !important;
+}
+
+#content-main .module th,
+#content-main .module td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #edf1f4;
+    text-align: left;
+}
+
+#content-main .module tr:last-child th,
+#content-main .module tr:last-child td {
+    border-bottom: none;
+}
+
+#content-main .module th a {
+    color: #153b50;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+#content-main .module th a:hover {
+    color: #167d83;
+}
+
+#content-main .module td a {
+    display: inline-block;
+    padding: 7px 13px;
+    border-radius: 6px;
+    background: #e8f4f3;
+    color: #167d83;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+#content-main .module td a:hover {
+    background: #167d83;
+    color: #ffffff;
+}
+
+#content-main .module tr:hover {
+    background: #f6f9fb;
+}
+
+/* ===== NOSCO MODULE LAYOUT ===== */
+
+/* Nền tổng thể */
+#content {
+    background: #f4f7fa !important;
+}
+
+/* Mỗi module chiếm một hàng */
+#content-main {
+    display: block !important;
+    width: 100% !important;
+}
+
+#content-main > .module {
+    display: block;
+    width: 100%;
+    margin-bottom: 18px;
+    background: #ffffff !important;
+    border: 1px solid #e2eaf0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.06);
+}
+
+/* Bảng hiển thị theo chiều dọc */
+#content-main .module table {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#content-main .module tbody {
+    display: table-row-group;
+}
+
+#content-main .module tr {
+    display: table-row;
+}
+
+#content-main .module th,
+#content-main .module td {
+    display: table-cell;
+    padding: 15px 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #edf1f4;
+}
+
+/* Tiêu đề bảng */
+#content-main .module caption {
+    display: table-caption !important;
+    caption-side: top !important;
+    width: auto;
+    background: #153b50 !important;
+    color: #ffffff !important;
+    text-align: left;
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#content-main .module caption a {
+    display: inline !important;
+    color: #ffffff !important;
+    background: transparent !important;
+    text-decoration: none;
+}
+
+#content-main .module caption a {
+    color: #ffffff !important;
+}
+
+/* Khung nội dung sáng, không dùng nền đen */
+#content,
+#content-main,
+.main,
+#main {
+    background: #f4f7fa !important;
+}
+
+#content-main .module tr:hover th,
+#content-main .module tr:hover td {
+    background: #f2f8f8 !important;
+}
+
+/* =====================================
+   NOSCO DASHBOARD
+===================================== */
+
+.nosco-dashboard {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 10px 5px 30px;
+}
+
+/* Tiêu đề từng khu vực */
+.nosco-dashboard .dashboard-section-title {
+    margin: 28px 0 16px;
+}
+
+.nosco-dashboard .dashboard-section-title h2 {
+    color: #153b50;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 7px;
+}
+
+.nosco-dashboard .dashboard-section-title p {
+    color: #7b8b96;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Khu vực chào mừng */
+.nosco-dashboard .dashboard-welcome {
+    margin-bottom: 28px;
+}
+
+/* Các thẻ thống kê */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.dashboard-card {
+    background: #fff;
+    border: 1px solid #e5edf1;
+    border-radius: 12px;
+    padding: 22px;
+    min-height: 125px;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.05);
+}
+
+.dashboard-card span {
+    display: block;
+    color: #718391;
+    font-size: 13px;
+    margin-bottom: 13px;
+}
+
+.dashboard-card strong {
+    display: block;
+    color: #153b50;
+    font-size: 29px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.dashboard-card small {
+    display: block;
+    color: #91a0aa;
+    font-size: 12px;
+    margin-top: 9px;
+}
+
+/* Doanh thu */
+.dashboard-revenue {
+    background: #fff;
+    border: 1px solid #e5edf1;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 22px 0;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.05);
+}
+
+.dashboard-revenue span {
+    color: #718391;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.dashboard-revenue h2 {
+    color: #167d83;
+    font-size: 32px;
+    margin: 12px 0 8px;
+}
+
+.dashboard-revenue p {
+    color: #7b8b96;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* Trạng thái đơn hàng */
+.dashboard-order-status {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.status-card {
+    background: #fff;
+    border: 1px solid #e5edf1;
+    border-radius: 10px;
+    padding: 19px 21px;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.04);
+}
+
+.status-card span {
+    display: block;
+    color: #718391;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.status-card strong {
+    color: #153b50;
+    font-size: 25px;
+}
+
+/* Bảng đơn hàng gần đây */
+.dashboard-recent-orders {
+    background: #fff;
+    border: 1px solid #e5edf1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.05);
+}
+
+.dashboard-recent-orders table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff !important;
+    margin: 0;
+}
+
+.dashboard-recent-orders thead th {
+    background: #153b50 !important;
+    color: #fff !important;
+    padding: 15px 18px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+}
+
+.dashboard-recent-orders tbody tr {
+    background: #fff !important;
+}
+
+.dashboard-recent-orders tbody td {
+    background: #fff !important;
+    color: #435563 !important;
+    padding: 15px 18px;
+    font-size: 13px;
+    border-bottom: 1px solid #edf1f4;
+}
+
+.dashboard-recent-orders tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dashboard-recent-orders tbody tr:hover td {
+    background: #f2f8f8 !important;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .dashboard-stats,
+    .dashboard-order-status {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-stats,
+    .dashboard-order-status {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-recent-orders {
+        overflow-x: auto;
+    }
+
+    .dashboard-recent-orders table {
+        min-width: 600px;
+    }
+}
+
+/* ===== REVENUE CHART ===== */
+
+.dashboard-chart-section {
+    background: #ffffff;
+    border: 1px solid #e5edf1;
+    border-radius: 12px;
+    padding: 25px 28px;
+    margin: 24px 0 30px;
+    box-shadow: 0 3px 12px rgba(21, 59, 80, 0.05);
+}
+
+.dashboard-chart-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.dashboard-chart-heading h2 {
+    color: #153b50;
+    font-size: 19px;
+    margin: 0 0 7px;
+}
+
+.dashboard-chart-heading p {
+    color: #84939d;
+    font-size: 13px;
+    margin: 0;
+}
+
+.dashboard-chart-heading span {
+    color: #167d83;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.dashboard-chart {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 20px;
+    height: 245px;
+    padding-top: 10px;
+}
+
+.chart-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+}
+
+.chart-value {
+    color: #718391;
+    font-size: 11px;
+    margin-bottom: 8px;
+    text-align: center;
+    min-height: 16px;
+}
+
+.chart-bar-area {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: #f3f7f8;
+    border-radius: 7px 7px 0 0;
+    overflow: hidden;
+}
+
+.chart-bar {
+    width: 48%;
+    min-height: 0;
+    background: linear-gradient(180deg, #25a6a0, #167d83);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.4s ease;
+}
+
+.chart-label {
+    color: #647987;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+    .dashboard-chart-section {
+        overflow-x: auto;
+    }
+
+    .dashboard-chart {
+        min-width: 480px;
+    }
+}
+/* Nền và màu chữ khu vực quản trị */
+html,
+body,
+#container,
+#main,
+#content,
+#content-main {
+    background-color: #f4f7fa !important;
+    color: #263746 !important;
+}
+
+/* Nền bảng dữ liệu */
+#changelist,
+#changelist-form,
+#changelist .results,
+#changelist .paginator,
+#changelist-filter,
+#changelist-search,
+#result_list {
+    background-color: #ffffff !important;
+    color: #263746 !important;
+}
+
+/* Nội dung trong bảng */
+#result_list th,
+#result_list td {
+    background-color: #ffffff !important;
+    color: #263746 !important;
+}
+
+/* Tiêu đề bảng */
+#result_list thead th {
+    background-color: #edf3f6 !important;
+    color: #153b50 !important;
+}
+
+/* Dòng được chọn hoặc rê chuột */
+#result_list tbody tr:hover td {
+    background-color: #f0f6f8 !important;
+    color: #153b50 !important;
+}
+
+/* Liên kết trong bảng */
+#result_list a {
+    color: #167d83 !important;
+}
+
+
+/* Bảng dữ liệu sử dụng toàn bộ không gian */
+#changelist {
+    display: block !important;
+    width: 100% !important;
+}
+
+#changelist #changelist-form {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+}
+
+#changelist .results {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+#result_list {
+    width: 100% !important;
+}
+
+/* =========================================
+   NOSCO - FIX DJANGO ADMIN TABLE LAYOUT
+========================================= */
+
+/* Không để nội dung vượt khỏi khung trang */
+#container,
+#main,
+#content,
+#content-main {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+}
+
+#content {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Khu vực danh sách dữ liệu */
+#changelist {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 10px;
+}
+
+/* Form chứa bảng */
+#changelist-form {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    float: none !important;
+    box-sizing: border-box;
+}
+
+/* Cho phép cuộn ngang khi bảng có nhiều cột */
+#changelist .results {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Bảng dữ liệu */
+#result_list {
+    display: table !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    max-width: none !important;
+    border-collapse: collapse;
+    table-layout: auto;
+    margin: 0;
+}
+
+/* Không làm mất nội dung các cột */
+#result_list th,
+#result_list td {
+    display: table-cell !important;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Tiêu đề bảng */
+#result_list thead th {
+    background: #edf3f6 !important;
+    color: #153b50 !important;
+}
+
+/* Nội dung bảng */
+#result_list tbody td {
+    background: #ffffff !important;
+    color: #263746 !important;
+}
+
+#result_list tbody tr:hover td {
+    background: #f2f8f8 !important;
+}
+
+/* Thanh tìm kiếm */
+#changelist-search {
+    display: block !important;
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff !important;
+    color: #263746 !important;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e5ebf0;
+}
+
+#changelist-search input[type="text"] {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Thanh thao tác hàng loạt */
+#changelist .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 15px;
+    background: #f4f7fa !important;
+    color: #263746 !important;
+    border-bottom: 1px solid #e5ebf0;
+}
+
+#changelist .actions select {
+    max-width: 100%;
+    background: #ffffff;
+    color: #263746;
+    border: 1px solid #d8e1e8;
+}
+
+/* Phân trang */
+#changelist .paginator {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 14px;
+    background: #ffffff !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #content {
+        padding: 15px;
+    }
+
+    #changelist .results {
+        overflow-x: auto !important;
+    }
+}
+/* ===== FIX HEADER NOSCO ===== */
+
+#header {
+    background: #153b50 !important;
+    color: #ffffff !important;
+    min-height: 66px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    box-sizing: border-box;
+    gap: 20px;
+}
+
+/* Không để các thành phần con tự tạo nền đen */
+#header #branding,
+#header #user-tools,
+#header #user-tools *,
+#header .nosco-header-caption {
+    background: transparent !important;
+}
+
+/* Khu vực tài khoản */
+#header #user-tools {
+    color: #ffffff !important;
+    margin-left: auto;
+    font-size: 13px;
+}
+
+#header #user-tools a,
+#header #user-tools a:link,
+#header #user-tools a:visited {
+    color: #ffffff !important;
+}
+
+/* Tiêu đề bên phải */
+#header .nosco-header-caption {
+    color: #ffffff !important;
+    margin-left: auto;
+}
+
+/* Logo */
+#header .nosco-logo {
+    background: #e5a93d !important;
+    color: #153b50 !important;
+}
+
+/* ===== NOSCO HEADER FINAL FIX ===== */
+
+#header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    min-height: 66px !important;
+    height: auto !important;
+    padding: 0 20px !important;
+    background: #153b50 !important;
+    color: #ffffff !important;
+    gap: 20px;
+}
+
+#header #branding {
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0;
+    background: transparent !important;
+}
+
+#header #user-tools.nosco-user-tools {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 18px !important;
+    margin: 0 0 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+}
+
+#header .nosco-user-tools * {
+    background-color: transparent;
+    color: #ffffff !important;
+}
+
+#header .nosco-user-tools a {
+    text-decoration: none;
+}
+
+#header .nosco-user-tools a:hover {
+    color: #e5a93d !important;
+}
+
+#header .nosco-user-tools form {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+}
+
+#header .nosco-user-tools button {
+    background: #167d83 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+#header .nosco-header-caption {
+    flex-shrink: 0;
+    margin-left: 15px;
+    padding: 10px 0 10px 25px;
+    border-left: 1px solid rgba(255,255,255,.2);
+    background: transparent !important;
+    color: #ffffff !important;
+    font-size: 11px;
+    font-weight: 700;
+    max-width: 260px;
+}
+/* ===== FIX BUTTON CONTRAST ===== */
+
+#content .button,
+#content a.button,
+#content input[type="submit"],
+#content input[type="button"],
+#content button,
+#changelist-search input[type="submit"],
+#changelist .actions button,
+.submit-row input {
+    background: #167d83 !important;
+    color: #ffffff !important;
+    border: 1px solid #167d83 !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+
+#content .button:hover,
+#content a.button:hover,
+#content input[type="submit"]:hover,
+#content button:hover,
+#changelist-search input[type="submit"]:hover {
+    background: #153b50 !important;
+    color: #ffffff !important;
+}
+
+/* Nút bị vô hiệu hóa */
+#content button:disabled,
+#content input:disabled {
+    opacity: 0.55 !important;
+    color: #ffffff !important;
+}
+/* Tạo khoảng cách giữa header và sidebar */
+/* ===== FIX SIDEBAR HEIGHT ===== */
+
+#main {
+    display: flex !important;
+    align-items: stretch !important;
+}
+
+#nav-sidebar {
+    margin-top: 20px !important;
+    align-self: stretch !important;
+
+    height: auto !important;
+    min-height: calc(100vh - 100px) !important;
+
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+}
+
+/* Giữ nội dung bên phải ở vị trí cũ */
+#content {
+    margin-top: 0 !important;
+}
+/* ===== FIX BREADCRUMBS ===== */
+
+div.breadcrumbs {
+    background: #ffffff !important;
+    color: #526777 !important;
+}
+
+div.breadcrumbs a,
+div.breadcrumbs a:link,
+div.breadcrumbs a:visited {
+    color: #167d83 !important;
+    opacity: 1 !important;
+}
+
+div.breadcrumbs a:hover {
+    color: #153b50 !important;
+}
+/* ===== FIX BREADCRUMB LINK COLOR ===== */
+
+/* Màu chữ mặc định */
+body .breadcrumbs a,
+body .breadcrumbs a:link,
+body .breadcrumbs a:visited,
+body .breadcrumbs a:active {
+    color: #167d83 !important;
+    -webkit-text-fill-color: #167d83 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-decoration: none !important;
+}
+
+/* Khi rê chuột */
+body .breadcrumbs a:hover {
+    color: #153b50 !important;
+    -webkit-text-fill-color: #153b50 !important;
+    text-decoration: underline !important;
+}
+/* FIX SELECT TRẠNG THÁI TRONG BẢNG ĐƠN HÀNG */
+#result_list select {
+    min-height: 34px !important;
+    height: 34px !important;
+    line-height: 20px !important;
+    padding: 5px 10px !important;
+    box-sizing: border-box !important;
+    color: #263746 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d8e1e8 !important;
+    border-radius: 6px !important;
+}
+/* LOGO NOSCO HEADER */
+.nosco-brand {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 5px 10px !important;
+}
+
+.nosco-logo-image {
+    width: 125px !important;
+    height: 48px !important;
+    object-fit: contain !important;
+    display: block !important;
+    background: #ffffff;
+}

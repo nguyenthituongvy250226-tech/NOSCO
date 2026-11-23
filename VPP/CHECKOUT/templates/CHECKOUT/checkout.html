@@ -10,7 +10,7 @@
 
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CHECKOUT/checkout.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'CHECKOUT/checkout.css' %}?v=7">
 {% endblock %}
 
 
@@ -107,13 +107,13 @@
     Thay đổi địa chỉ
 </a>
                        {% else %}
-                           <a
-                               href="{% url 'KHACHHANG:so_dia_chi' %}"
-                               class="add-address"
-                           >
-                               + Thêm địa chỉ mới
-                           </a>
-                       {% endif %}
+                             <a
+                                    href="{% url 'KHACHHANG:so_dia_chi' %}?tu_checkout=1&mode={{ che_do_thanh_toan }}"
+                                    class="add-address"
+                             >
+                                   + Thêm địa chỉ mới
+                             </a>
+                      {% endif %}
                    </div>
                </div>
 
@@ -436,15 +436,24 @@
 
     <div class="voucher-row">
         <div class="voucher-input">
-            <i class="fa-solid fa-tag"></i>
+    <i class="fa-solid fa-tag"></i>
 
-            <input
-                type="text"
-                id="ma_giam_gia"
-                name="ma_giam_gia"
-                placeholder="Nhập mã giảm giá"
-            >
-        </div>
+    <input
+        type="text"
+        id="ma_giam_gia"
+        name="ma_giam_gia"
+        placeholder="Nhập mã giảm giá"
+    >
+
+    <button
+        type="button"
+        id="btn-xoa-voucher"
+        class="voucher-clear-btn"
+        aria-label="Xóa mã voucher"
+        title="Xóa mã voucher"
+        hidden
+    >&times;</button>
+</div>
 
         <button
             type="button"
@@ -530,6 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("voucher-container");
     const inputVoucher = document.getElementById("ma_giam_gia");
     const btnApDung = document.getElementById("btn-ap-dung-voucher");
+    const btnXoaVoucher = document.getElementById("btn-xoa-voucher");
     const message = document.getElementById("voucher-message");
     const hienThiGiamGia = document.getElementById("so-tien-giam");
     const hienThiTongTien = document.getElementById("tong-thanh-toan");
@@ -538,6 +548,7 @@ document.addEventListener("DOMContentLoaded", function () {
         !container ||
         !inputVoucher ||
         !btnApDung ||
+        !btnXoaVoucher ||
         !message ||
         !hienThiGiamGia ||
         !hienThiTongTien
@@ -562,7 +573,34 @@ document.addEventListener("DOMContentLoaded", function () {
             tamTinh - giamGia + phiVanChuyen
         );
     }
+function capNhatNutXoaVoucher() {
+    btnXoaVoucher.hidden = !inputVoucher.value.trim();
+}
 
+// Khi nhập hoặc sửa mã voucher
+inputVoucher.addEventListener("input", function () {
+    capNhatNutXoaVoucher();
+
+    // Mã thay đổi thì bỏ mức giảm cũ
+    hienThiLaiTongTien(0);
+    message.textContent = "";
+});
+
+// Khi bấm dấu X
+btnXoaVoucher.addEventListener("click", function () {
+    inputVoucher.value = "";
+
+    // Xóa thông báo voucher
+    message.textContent = "";
+    message.style.color = "";
+
+    // Reset giảm giá và tổng tiền
+    hienThiLaiTongTien(0);
+
+    // Ẩn dấu X và đưa con trỏ về ô nhập
+    capNhatNutXoaVoucher();
+    inputVoucher.focus();
+});
     btnApDung.addEventListener("click", async function () {
         const maVoucher = inputVoucher.value.trim().toUpperCase();
 
@@ -606,6 +644,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 hienThiLaiTongTien(soTienGiam);
 
                 inputVoucher.value = data.ma_voucher;
+                capNhatNutXoaVoucher();
 
                 message.textContent = data.thong_bao;
                 message.style.color = "green";

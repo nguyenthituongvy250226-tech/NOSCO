@@ -1,0 +1,50 @@
+
+{% load i18n %}
+
+<div id="nav-sidebar">
+    <nav class="nosco-sidebar">
+        <div class="nosco-sidebar-title">
+            DANH MỤC QUẢN LÝ
+        </div>
+
+        <a href="{% url 'admin:index' %}" class="nosco-menu-item">
+            <span>⌂</span>
+            Tổng quan
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='SANPHAM' %}" class="nosco-menu-item">
+            <span>▣</span>
+            Sản phẩm
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='DONHANG' %}" class="nosco-menu-item">
+            <span>▤</span>
+            Đơn hàng
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='GIOHANG' %}" class="nosco-menu-item">
+            <span>▱</span>
+            Giỏ hàng
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='KHACHHANG' %}" class="nosco-menu-item">
+            <span>♙</span>
+            Khách hàng
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='KHUYENMAI' %}" class="nosco-menu-item">
+            <span>％</span>
+            Khuyến mãi
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='THANHTOAN' %}" class="nosco-menu-item">
+            <span>＄</span>
+            Thanh toán
+        </a>
+
+        <a href="{% url 'admin:app_list' app_label='auth' %}" class="nosco-menu-item">
+            <span>⚙</span>
+            Người dùng & phân quyền
+        </a>
+    </nav>
+</div>

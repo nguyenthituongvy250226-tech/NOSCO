@@ -6,12 +6,10 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
-from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404, FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 
@@ -44,7 +42,6 @@ from .services import (
    DuLieuDonHangKhongHopLe,
    _ma,
    tinh_phi_van_chuyen,
-   tao_don_hang,
    tao_yeu_cau_tra_hang,
    khach_huy_don_hang,
    cap_nhat_thong_tin_nhan,
@@ -52,13 +49,6 @@ from .services import (
    khach_xac_nhan_da_nhan,
    huy_yeu_cau_tra_hang as huy_yeu_cau_tra_hang_service,
 )
-
-
-
-
-MA_GHI_CHU_DON_MAU = "[ĐƠN HÀNG MẪU KIỂM THỬ]"
-
-
 
 
 # =========================================================
@@ -436,13 +426,7 @@ def danh_sach_don_hang(request, trang_thai=None):
        "so_don_theo_trang_thai": cac_trang_thai,
        "tu_khoa": tu_khoa,
        "ngay_dat": ngay_dat,
-       "co_the_tao_don_mau": (
-           settings.DEBUG
-           and bool(customer_id)
-           and not don_hang_goc.filter(
-               ghi_chu__startswith=MA_GHI_CHU_DON_MAU,
-           ).exists()
-       ),
+
    }
 
 
@@ -452,186 +436,6 @@ def danh_sach_don_hang(request, trang_thai=None):
        context,
    )
 
-
-
-
-# =========================================================
-# TẠO ĐƠN HÀNG MẪU KIỂM THỬ
-# =========================================================
-
-
-@require_POST
-def tao_don_hang_mau(request):
-   if not settings.DEBUG:
-       raise Http404
-
-
-   ma_khach_hang = _ma_khach_hang(request)
-
-
-   if not ma_khach_hang:
-       return redirect("KHACHHANG:dang_nhap")
-
-
-   nguoi_dung_id = request.session.get(
-       "khachhang_ma_nguoi_dung",
-   )
-
-
-   if not nguoi_dung_id:
-       messages.error(
-           request,
-           "Không xác định được tài khoản khách hàng.",
-       )
-       return redirect("DONHANG:danh_sach")
-
-
-   ho_so = HoSoKhachHang.objects.filter(
-       MaHoSo=ma_khach_hang,
-       MaNguoiDung_id=nguoi_dung_id,
-   ).first()
-
-
-   if ho_so is None:
-       messages.error(
-           request,
-           "Không tìm thấy hồ sơ khách hàng của bạn.",
-       )
-       return redirect("KHACHHANG:ho_so_ca_nhan")
-
-
-   dia_chi = SoDiaChi.objects.filter(
-       MaKhachHang=ho_so,
-   ).order_by(
-       "-MacDinh",
-       "TenNguoiNhan",
-   ).first()
-
-
-   if dia_chi is None:
-       thong_tin_nhan_hang = {
-           "ma_dia_chi": "TESTADDR01",
-           "ten_nguoi_nhan": ho_so.HoVaTen or "Khách hàng kiểm thử",
-           "sdt_nguoi_nhan": ho_so.SoDienThoai or "0000000000",
-           "dia_chi_nhan_hang": (
-               "Đà Nẵng (địa chỉ giả lập, chỉ dùng kiểm thử)"
-           ),
-       }
-   else:
-       thong_tin_nhan_hang = {
-           "ma_dia_chi": dia_chi.MaDiaChi,
-           "ten_nguoi_nhan": dia_chi.TenNguoiNhan,
-           "sdt_nguoi_nhan": dia_chi.SoDienThoai,
-           "dia_chi_nhan_hang": dia_chi.DiaChi,
-       }
-
-
-   if DonHang.objects.filter(
-       ma_khach_hang=ho_so.MaHoSo,
-       ghi_chu__startswith=MA_GHI_CHU_DON_MAU,
-   ).exists():
-       messages.info(
-           request,
-           "Tài khoản đã có bộ đơn hàng mẫu để kiểm thử.",
-       )
-       return redirect("DONHANG:danh_sach")
-
-
-   cac_don_mau = [
-       ("cho_xac_nhan", "Đơn mẫu — chờ xác nhận"),
-       ("cho_lay_hang", "Đơn mẫu — chờ lấy hàng"),
-       ("cho_giao_hang", "Đơn mẫu — chờ giao hàng"),
-       ("da_giao", "Đơn mẫu — đã giao"),
-       ("tra_hang", "Đơn mẫu — trả hàng"),
-       ("da_huy", "Đơn mẫu — đã hủy"),
-   ]
-
-
-   try:
-       with transaction.atomic():
-           from THANHTOAN.services import tao_thanh_toan_cho_don
-
-
-           for trang_thai, mo_ta in cac_don_mau:
-               don = tao_don_hang({
-                   "ma_khach_hang": ho_so.MaHoSo,
-                   **thong_tin_nhan_hang,
-                   "ghi_chu": f"{MA_GHI_CHU_DON_MAU} {mo_ta}",
-                   "phi_van_chuyen": str(
-                       tinh_phi_van_chuyen(
-                           thong_tin_nhan_hang["dia_chi_nhan_hang"]
-                       )
-                   ),
-                   "items": [{
-                       "ma_bien_the": "BT001",
-                       "so_luong": 1,
-                       "don_gia": "5000",
-                   }],
-               })
-
-
-               tao_thanh_toan_cho_don(don, "COD")
-
-
-               chi_tiet = don.chi_tiet.get()
-
-
-               if trang_thai in {
-                   "cho_giao_hang",
-                   "da_giao",
-                   "tra_hang",
-               }:
-                   don.don_vi_van_chuyen = "NOSCO Express"
-                   don.ma_van_don = f"TEST{don.pk}"
-                   don.ngay_ban_giao = timezone.now()
-                   don.cap_nhat_van_chuyen_luc = timezone.now()
-
-
-               if trang_thai in {"da_giao", "tra_hang"}:
-                   don.ngay_giao_thanh_cong = timezone.now()
-
-
-               if trang_thai == "tra_hang":
-                   yeu_cau_tra = YeuCauTraHang.objects.create(
-                       ma_yeu_cau_tra=_ma("YT"),
-                       ma_don_hang=don,
-                       ly_do_tra="Sản phẩm mẫu cần kiểm tra",
-                       mo_ta_van_de=(
-                           "Yêu cầu trả hàng mẫu để kiểm thử giao diện."
-                       ),
-                   )
-
-
-                   ChiTietYeuCauTraHang.objects.create(
-                       yeu_cau=yeu_cau_tra,
-                       chi_tiet_don_hang=chi_tiet,
-                       so_luong=1,
-                   )
-
-
-               don.trang_thai_don = trang_thai
-               don.save()
-
-
-   except DuLieuDonHangKhongHopLe as exc:
-       messages.error(
-           request,
-           str(exc) or "Không thể tạo bộ đơn mẫu.",
-       )
-       return redirect("DONHANG:danh_sach")
-
-
-   messages.success(
-       request,
-       "Đã tạo 6 đơn hàng mẫu theo 6 trạng thái đơn hàng.",
-   )
-
-
-   return redirect("DONHANG:danh_sach")
-
-
-
-
 # =========================================================
 # THÔNG TIN TÀI KHOẢN
 # =========================================================
@@ -639,7 +443,6 @@ def tao_don_hang_mau(request):
 
 def thong_tin_tai_khoan(request):
    return redirect("KHACHHANG:ho_so_ca_nhan")
-
 
 
 
@@ -896,7 +699,6 @@ def sua_don_hang(request, ma_don_hang):
            "don_hang": don,
        },
    )
-
 
 
 
@@ -1277,12 +1079,10 @@ def xem_minh_chung_tra_hang(request, evidence_id):
        pk=evidence_id,
    )
 
-
    _don_cua_khach_hang(
        request,
        evidence.yeu_cau.ma_don_hang_id,
    )
-
 
    response = FileResponse(
        evidence.tep.open("rb"),
@@ -1297,13 +1097,8 @@ def xem_minh_chung_tra_hang(request, evidence_id):
 
    return response
 
-
-
-
 # =========================================================
 # CÁC VIEW QUẢN TRỊ CŨ
-# Website không cung cấp chức năng nhân viên xử lý đơn hàng.
-# Superuser thực hiện các nghiệp vụ này trong Django Admin.
 # =========================================================
 
 
@@ -1314,32 +1109,17 @@ def _khong_con_chuc_nang_quan_tri_tren_website(
 ):
    raise Http404
 
-
-
-
 def xu_ly_danh_sach_don_hang(request):
    return _khong_con_chuc_nang_quan_tri_tren_website(request)
-
-
-
 
 def nhan_vien_xu_ly_don_hang(request, ma_don_hang):
    return _khong_con_chuc_nang_quan_tri_tren_website(request)
 
-
-
-
 def nhan_vien_cap_nhat_giao_hang(request, ma_don_hang):
    return _khong_con_chuc_nang_quan_tri_tren_website(request)
 
-
-
-
 def danh_sach_yeu_cau_tra_hang(request):
    return _khong_con_chuc_nang_quan_tri_tren_website(request)
-
-
-
 
 def nhan_vien_xu_ly_tra_hang(request, ma_yeu_cau_tra):
    return _khong_con_chuc_nang_quan_tri_tren_website(request)

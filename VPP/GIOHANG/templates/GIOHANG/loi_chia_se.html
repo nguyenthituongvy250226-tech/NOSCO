@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %}Không tìm thấy giỏ hàng | NOSCO{% endblock %}
+
+
+{% block content %}
+<style>
+   .share-error {
+       min-height: 65vh;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       padding: 50px 20px;
+       text-align: center;
+       background: #f8fbff;
+   }
+
+
+   .share-error-content {
+       max-width: 520px;
+   }
+
+
+   .share-error-icon {
+       font-size: 75px;
+       color: #3986d7;
+       margin-bottom: 20px;
+   }
+
+
+   .share-error h2 {
+       color: #2878c8;
+       font-size: 28px;
+       font-weight: 700;
+       margin-bottom: 14px;
+   }
+
+
+   .share-error p {
+       color: #667085;
+       font-size: 16px;
+       line-height: 1.7;
+       margin-bottom: 28px;
+   }
+
+
+   .share-error a {
+       display: inline-block;
+       background: #2878c8;
+       color: white;
+       text-decoration: none;
+       padding: 12px 28px;
+       border-radius: 8px;
+       font-weight: 600;
+       transition: .2s;
+   }
+
+
+   .share-error a:hover {
+       background: #1764ad;
+       color: white;
+   }
+</style>
+
+
+<section class="share-error">
+   <div class="share-error-content">
+       <div class="share-error-icon">
+           <i class="fa-solid fa-cart-shopping"></i>
+       </div>
+
+
+       <h2>Không tìm thấy giỏ hàng!</h2>
+
+
+       <p>
+           Đường dẫn chia sẻ không hợp lệ hoặc giỏ hàng
+           không tồn tại. Vui lòng kiểm tra lại đường dẫn.
+       </p>
+
+
+       <a href="/">
+           Quay về trang chủ
+       </a>
+   </div>
+</section>
+{% endblock %}

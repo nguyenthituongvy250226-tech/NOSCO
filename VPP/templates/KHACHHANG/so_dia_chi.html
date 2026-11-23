@@ -19,8 +19,8 @@
        </div>
 
 
-       <div class="address-header-actions">
-    {% if tu_checkout and danh_sach_dia_chi %}
+      <div class="address-header-actions">
+    {% if danh_sach_dia_chi %}
         <button
             type="submit"
             form="form-chon-dia-chi"
@@ -31,11 +31,13 @@
         </button>
     {% endif %}
 
-    <a href="{% url 'KHACHHANG:them_dia_chi' %}"
-       class="customer-primary-button">
-        <i class="fa-solid fa-plus"></i>
-        Thêm địa chỉ
-    </a>
+   <a
+    href="{% url 'KHACHHANG:them_dia_chi' %}{% if tu_checkout %}?tu_checkout=1&mode={{ che_do_thanh_toan }}{% endif %}"
+    class="customer-primary-button"
+>
+    <i class="fa-solid fa-plus"></i>
+    Thêm địa chỉ
+</a>
 </div>
    </header>
 
@@ -80,10 +82,11 @@
 
                    <label class="address-radio">
                        <input type="radio"
-                              name="ma_dia_chi"
-                              form="form-chon-dia-chi"
-                              value="{{ dia_chi.MaDiaChi }}"
-                              {% if dia_chi.MaDiaChi == ma_dia_chi_dang_chon or not ma_dia_chi_dang_chon and dia_chi.MacDinh %}checked{% endif %}>
+       name="ma_dia_chi"
+       form="form-chon-dia-chi"
+       value="{{ dia_chi.MaDiaChi }}"
+       {% if dia_chi.MaDiaChi == ma_dia_chi_dang_chon or not ma_dia_chi_dang_chon and forloop.first %}checked{% endif %}
+       required>
                    </label>
 
 
@@ -171,9 +174,9 @@
        <p>Thêm địa chỉ để thuận tiện hơn khi đặt hàng tại NOSCO.</p>
 
 
-       <a href="{% url 'KHACHHANG:them_dia_chi' %}">
-           Thêm địa chỉ ngay
-       </a>
+       <a href="{% url 'KHACHHANG:them_dia_chi' %}?tu_checkout=1{% if che_do_thanh_toan == 'mua_ngay' %}&mode=mua_ngay{% endif %}">
+    Thêm địa chỉ ngay
+</a>
    </div>
 
 

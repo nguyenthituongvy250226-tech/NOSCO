@@ -185,11 +185,13 @@
            {{ form.tep_minh_chung.errors }}
 
 
-           <div
-               id="return-file-names"
-               class="return-file-names"
-               aria-live="polite"
-           ></div>
+            <div
+                id="return-file-names"
+                class="return-file-names"
+                aria-live="polite"
+            ></div>
+
+            <div id="return-file-preview" class="return-file-preview"></div>
        </section>
 
 
@@ -284,23 +286,139 @@
 
 
 <script>
-   const evidenceInput = document.getElementById("id_tep_minh_chung");
+document.addEventListener("DOMContentLoaded", function () {
+    const evidenceInput = document.getElementById("id_tep_minh_chung");
+    const fileNames = document.getElementById("return-file-names");
+    const filePreview = document.getElementById("return-file-preview");
 
+    if (!evidenceInput) return;
 
-   if (evidenceInput) {
-       evidenceInput.addEventListener("change", function () {
-           const fileNames = document.getElementById("return-file-names");
+    // Tạo khung xem ảnh/video
+    const overlay = document.createElement("div");
+    overlay.id = "khung-xem-tep";
+    overlay.style.cssText = `
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    `;
 
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.textContent = "×";
+    closeBtn.style.cssText = `
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        font-size: 38px;
+        color: white;
+        background: none;
+        border: none;
+        cursor: pointer;
+    `;
 
-           if (fileNames) {
-               fileNames.textContent = Array.from(this.files)
-                   .map(file => file.name)
-                   .join(" · ");
-           }
-       });
-   }
+    const content = document.createElement("div");
+    content.style.cssText = "max-width:90vw; max-height:90vh;";
+
+    overlay.append(closeBtn, content);
+    document.body.appendChild(overlay);
+
+    function closePreview() {
+        const video = content.querySelector("video");
+        if (video) video.pause();
+
+        content.innerHTML = "";
+        overlay.style.display = "none";
+    }
+
+    closeBtn.addEventListener("click", closePreview);
+
+    overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) closePreview();
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closePreview();
+    });
+
+    function openPreview(file) {
+        content.innerHTML = "";
+
+        const url = URL.createObjectURL(file);
+        let element;
+
+        if (file.type.startsWith("image/")) {
+            element = document.createElement("img");
+            element.src = url;
+            element.style.cssText =
+                "max-width:90vw; max-height:85vh; object-fit:contain;";
+        } else if (file.type.startsWith("video/")) {
+            element = document.createElement("video");
+            element.src = url;
+            element.controls = true;
+            element.autoplay = true;
+            element.style.cssText =
+                "max-width:90vw; max-height:85vh;";
+        }
+
+        if (!element) return;
+
+        content.appendChild(element);
+        overlay.style.display = "flex";
+    }
+
+    evidenceInput.addEventListener("change", function () {
+        fileNames.innerHTML = "";
+        filePreview.innerHTML = "";
+
+        Array.from(this.files).forEach(file => {
+            const item = document.createElement("div");
+            item.className = "return-preview-item";
+
+            if (file.type.startsWith("image/")) {
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.alt = file.name;
+                img.style.cssText = `
+                    width:80px;
+                    height:80px;
+                    object-fit:cover;
+                    border-radius:6px;
+                    cursor:pointer;
+                `;
+
+                img.addEventListener("click", () => openPreview(file));
+                item.appendChild(img);
+
+            } else if (file.type.startsWith("video/")) {
+                const video = document.createElement("video");
+                video.src = URL.createObjectURL(file);
+                video.style.cssText = `
+                    width:80px;
+                    height:80px;
+                    cursor:pointer;
+                `;
+
+                video.addEventListener("click", () => openPreview(file));
+                item.appendChild(video);
+            }
+
+            filePreview.appendChild(item);
+        });
+    });
+});
+// Nhấn ESC để đóng khung phóng to ảnh/video
+document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+
+    document.querySelectorAll("#return-file-preview video").forEach(function (video) {
+        video.pause();
+    });
+});
 </script>
-
-
 {% endblock %}
 

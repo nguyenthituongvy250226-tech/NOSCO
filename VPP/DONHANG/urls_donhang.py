@@ -13,13 +13,6 @@ urlpatterns = [
         name="trang_thai",
     ),
 
-    # Chức năng kiểm thử
-    path(
-        "tao-don-mau/",
-        views.tao_don_hang_mau,
-        name="tao_don_hang_mau",
-    ),
-
     # Hướng dẫn và minh chứng trả hàng
     path(
         "tra-hang/huong-dan/",

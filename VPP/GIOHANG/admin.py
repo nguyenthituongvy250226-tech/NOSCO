@@ -22,7 +22,7 @@ class GioHangAdmin(admin.ModelAdmin):
         "ma_khach_hang",
     )
 
-    list_filter = ("loai_gio_hang",)
+
 
     inlines = [ChiTietGioHangInline]
 
@@ -43,11 +43,47 @@ class ChiTietGioHangAdmin(admin.ModelAdmin):
         "ma_bien_the_sp",
     )
 
-    list_filter = ("trang_thai_chon",)
 
 @admin.register(ChiaSeGioHang)
 class ChiaSeGioHangAdmin(admin.ModelAdmin):
-    list_display = ("ma_chia_se", "ma_khach_hang", "ngay_tao")
-    search_fields = ("ma_chia_se", "ma_khach_hang")
+    list_display = (
+        "ma_chia_se",
+        "ma_khach_hang",
+        "ngay_tao",
+    )
+
+    search_fields = (
+        "ma_chia_se",
+        "ma_khach_hang",
+    )
+
     list_filter = ("ngay_tao",)
-    readonly_fields = ("ngay_tao",)
+
+    readonly_fields = (
+        "ngay_tao",
+        "hien_thi_noi_dung",
+    )
+
+    fields = (
+        "ma_chia_se",
+        "ma_khach_hang",
+        "ngay_tao",
+        "hien_thi_noi_dung",
+    )
+
+    def hien_thi_noi_dung(self, obj):
+        ket_qua = []
+
+        for stt, item in enumerate(obj.noi_dung, start=1):
+            ket_qua.append(
+                f"SẢN PHẨM {stt}\n"
+                f"Mã biến thể: {item.get('ma_bien_the', '')}\n"
+                f"Số lượng: {item.get('so_luong', 0)}"
+
+            )
+
+        return "\n\n".join(ket_qua)
+
+    hien_thi_noi_dung.short_description = "CHI TIẾT SẢN PHẨM ĐƯỢC CHIA SẺ"
+
+

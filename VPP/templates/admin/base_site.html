@@ -1,0 +1,49 @@
+
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block dark-mode-vars %}
+{% endblock %}
+
+{% block title %}NOSCO | Quản trị hệ thống{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/nosco-admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a href="{% url 'admin:index' %}" class="nosco-brand">
+        <img
+            src="{% static 'images/logo.jpg' %}"
+            alt="NOSCO Logo"
+            class="nosco-logo-image"
+        >
+    </a>
+</div>
+{% endblock %}
+
+{% block usertools %}
+<div id="user-tools" class="nosco-user-tools">
+    <span class="nosco-welcome">
+        Xin chào,
+        <strong>{% firstof user.get_short_name user.get_username %}</strong>
+    </span>
+
+    <a href="{% url 'admin:password_change' %}">
+        Đổi mật khẩu
+    </a>
+
+    <form method="post" action="{% url 'admin:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Đăng xuất</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block nav-global %}
+<div class="nosco-header-caption">
+    HỆ THỐNG QUẢN TRỊ CỬA HÀNG VĂN PHÒNG PHẨM
+</div>
+{% endblock %}

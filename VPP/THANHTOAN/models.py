@@ -78,41 +78,6 @@ class ThanhToan(models.Model):
        blank=True,
        verbose_name="Thời gian tạo giao dịch VNPay"
    )
-   MaYeuCauHoanTienVNPay = models.CharField(
-       max_length=32,
-       null=True,
-       blank=True,
-       verbose_name="Mã yêu cầu hoàn tiền VNPay"
-   )
-
-
-   MaGiaoDichHoanTienVNPay = models.CharField(
-       max_length=15,
-       null=True,
-       blank=True,
-       verbose_name="Mã giao dịch hoàn tiền VNPay"
-   )
-
-
-   MaPhanHoiHoanTienVNPay = models.CharField(
-       max_length=2,
-       null=True,
-       blank=True,
-       verbose_name="Mã phản hồi API hoàn tiền VNPay"
-   )
-
-
-   TrangThaiHoanTienVNPay = models.CharField(
-       max_length=2,
-       null=True,
-       blank=True,
-       verbose_name="Trạng thái giao dịch hoàn tiền VNPay"
-   )
-   PhanHoiHoanTienVNPay = models.TextField(
-       null=True,
-       blank=True,
-       verbose_name="Dữ liệu phản hồi hoàn tiền VNPay"
-   )
    NgayThanhToan = models.DateTimeField(
        null=True,
        blank=True,

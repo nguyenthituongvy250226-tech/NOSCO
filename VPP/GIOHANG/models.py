@@ -67,16 +67,7 @@ class ChiTietGioHang(models.Model):
         default=False,
         db_column="TrangThaiChon",
     )
-    constraints = [
-        models.CheckConstraint(
-            condition=Q(so_luong__gt=0),
-            name="check_so_luong_gio_hang_lon_hon_0",
-        ),
-        models.UniqueConstraint(
-            fields=["gio_hang", "ma_bien_the_sp"],
-            name="uq_giohang_bienthe",
-        ),
-    ]
+
     class Meta:
         db_table = "ChiTietGioHang"
         verbose_name = "Chi tiết giỏ hàng"
@@ -87,17 +78,16 @@ class ChiTietGioHang(models.Model):
                 condition=Q(so_luong__gt=0),
                 name="check_so_luong_gio_hang_lon_hon_0",
             ),
-        ]
-
-        indexes = [
-            models.Index(
-                fields=["gio_hang"],
-                name="idx_chitiet_giohang",
+            models.UniqueConstraint(
+                fields=["gio_hang", "ma_bien_the_sp"],
+                name="uq_giohang_bienthe",
             ),
         ]
 
     def __str__(self):
         return self.ma_chi_tiet_gio_hang
+
+
 class ChiaSeGioHang(models.Model):
     ma_chia_se = models.CharField(
         max_length=12,

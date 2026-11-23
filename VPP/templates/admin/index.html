@@ -1,0 +1,159 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block nav-breadcrumbs %}
+{% endblock %}
+
+{% block content %}
+
+<div class="nosco-dashboard">
+
+    <div class="dashboard-welcome">
+        <div>
+            <span class="dashboard-label">NOSCO MANAGEMENT</span>
+            <h1>Xin chào, {{ user.get_short_name|default:user.username }}!</h1>
+            <p>Chào mừng bạn đến với hệ thống quản trị cửa hàng NOSCO.</p>
+        </div>
+        <div class="dashboard-date">
+            <span>HỆ THỐNG QUẢN TRỊ</span>
+            <strong>ADMIN DASHBOARD</strong>
+        </div>
+    </div>
+
+    <div class="dashboard-section-title">
+        <h2>Tổng quan hoạt động</h2>
+        <p>Số liệu được cập nhật trực tiếp từ cơ sở dữ liệu.</p>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="dashboard-card">
+            <span>Tổng sản phẩm</span>
+            <strong>{{ tong_san_pham }}</strong>
+            <small>{{ tong_bien_the }} biến thể sản phẩm</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Tổng đơn hàng</span>
+            <strong>{{ tong_don_hang }}</strong>
+            <small>Đơn hàng trên hệ thống</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Khách hàng</span>
+            <strong>{{ tong_khach_hang }}</strong>
+            <small>Hồ sơ khách hàng</small>
+        </div>
+
+        <div class="dashboard-card">
+            <span>Tổng tồn kho</span>
+            <strong>{{ tong_ton_kho }}</strong>
+            <small>Sản phẩm hiện có trong kho</small>
+        </div>
+    </div>
+
+    <div class="dashboard-revenue">
+        <div>
+            <span>DOANH THU THỰC TẾ</span>
+            <h2>{{ doanh_thu|floatformat:0 }} đ</h2>
+            <p>Tính từ {{ so_don_tinh_doanh_thu }} đơn đã giao, thanh toán và chưa hoàn tiền.</p>
+        </div>
+    </div>
+
+<div class="dashboard-chart-section">
+
+    <div class="dashboard-chart-heading">
+        <div>
+            <h2>Biểu đồ doanh thu</h2>
+            <p>Doanh thu theo tháng trong 6 tháng gần nhất</p>
+        </div>
+        <span>DOANH THU (VNĐ)</span>
+    </div>
+
+    <div class="dashboard-chart">
+        {% for item in cac_thang %}
+        <div class="chart-column">
+
+            <div class="chart-value">
+                {% if item.amount %}
+                    {{ item.amount|floatformat:0 }}
+                {% else %}
+                    0
+                {% endif %}
+            </div>
+
+            <div class="chart-bar-area">
+                <div class="chart-bar"
+                     style="height: {{ item.height }}%;">
+                </div>
+            </div>
+
+            <div class="chart-label">
+                {{ item.label }}
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+    <div class="dashboard-section-title">
+        <h2>Tình trạng đơn hàng</h2>
+        <p>Phân loại theo trạng thái hiện tại.</p>
+    </div>
+
+    <div class="dashboard-order-status">
+        <div class="status-card">
+            <span>Chờ xác nhận</span>
+            <strong>{{ thong_ke_don.cho_xac_nhan }}</strong>
+        </div>
+        <div class="status-card">
+            <span>Đã giao</span>
+            <strong>{{ thong_ke_don.da_giao }}</strong>
+        </div>
+        <div class="status-card">
+            <span>Trả hàng</span>
+            <strong>{{ thong_ke_don.tra_hang }}</strong>
+        </div>
+        <div class="status-card">
+            <span>Đã hủy</span>
+            <strong>{{ thong_ke_don.da_huy }}</strong>
+        </div>
+    </div>
+
+    <div class="dashboard-section-title">
+        <h2>Đơn hàng gần đây</h2>
+        <p>5 đơn hàng được tạo gần nhất.</p>
+    </div>
+
+    <div class="dashboard-recent-orders">
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã đơn hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
+                    <th>Tổng tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for don in don_hang_moi %}
+                <tr>
+                    <td>{{ don.ma_don_hang }}</td>
+                    <td>{{ don.ngay_dat|date:"d/m/Y H:i" }}</td>
+                    <td>{{ don.get_trang_thai_don_display|default:don.trang_thai_don }}</td>
+                    <td>{{ don.tong_tien|floatformat:0 }} đ</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Chưa có đơn hàng.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

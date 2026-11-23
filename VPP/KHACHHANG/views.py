@@ -359,6 +359,9 @@ def ho_so_ca_nhan(request):
 # 7. SỔ ĐỊA CHỈ
 # =====================================================
 from django.shortcuts import render, redirect, get_object_or_404
+
+
+
 @khach_hang_required
 def so_dia_chi(request):
     ho_so = lay_ho_so_khach_hang(request.nguoi_dung)
@@ -366,23 +369,52 @@ def so_dia_chi(request):
     danh_sach_dia_chi = SoDiaChi.objects.filter(
         MaKhachHang=ho_so,
     ).order_by("-MacDinh", "TenNguoiNhan")
+    ma_dia_chi_dang_chon = request.session.get(
+        "checkout_ma_dia_chi"
+    )
 
-    # Ghi nhớ nếu khách đang chọn địa chỉ từ trang đặt hàng
-    if request.GET.get("tu_checkout") == "1":
+    # Nếu chưa có địa chỉ được chọn hợp lệ thì chọn địa chỉ đầu tiên.
+    if not danh_sach_dia_chi.filter(
+        MaDiaChi=ma_dia_chi_dang_chon
+    ).exists():
+        ma_dia_chi_dang_chon = (
+            danh_sach_dia_chi.values_list(
+                "MaDiaChi", flat=True
+            ).first()
+        )
+
+    # Xác định khách có đi từ Checkout sang hay không.
+    if request.method == "GET" and request.GET.get("tu_checkout") == "1":
         request.session["dia_chi_tu_checkout"] = True
+        request.session["che_do_thanh_toan_dia_chi"] = (
+            request.GET.get("mode", "")
+        )
 
     tu_checkout = request.session.get(
         "dia_chi_tu_checkout", False
     )
 
-    # Xử lý khi khách nhấn Lưu lựa chọn
+    che_do = request.session.get(
+        "che_do_thanh_toan_dia_chi", ""
+    )
+
+    # Xử lý nút Lưu lựa chọn.
     if (
-            request.method == "POST"
-            and request.POST.get("hanh_dong") == "luu_dia_chi_checkout"
+        request.method == "POST"
+        and request.POST.get("hanh_dong") == "luu_dia_chi_checkout"
     ):
+        # Lấy trạng thái từ form hoặc session.
+        tu_checkout = (
+            request.POST.get("tu_checkout") == "1"
+            or request.session.get("dia_chi_tu_checkout", False)
+        )
+
+        che_do = (
+            request.POST.get("mode")
+            or request.session.get("che_do_thanh_toan_dia_chi", "")
+        )
+
         ma_dia_chi = request.POST.get("ma_dia_chi")
-        tu_checkout = request.POST.get("tu_checkout") == "1"
-        che_do = request.POST.get("mode", "")
 
         dia_chi_chon = danh_sach_dia_chi.filter(
             MaDiaChi=ma_dia_chi
@@ -392,9 +424,18 @@ def so_dia_chi(request):
             request.session["checkout_ma_dia_chi"] = (
                 dia_chi_chon.MaDiaChi
             )
-            messages.success(request, "Đã cập nhật địa chỉ nhận hàng.")
+
+            messages.success(
+                request,
+                "Đã cập nhật địa chỉ nhận hàng."
+            )
 
             if tu_checkout:
+                request.session.pop("dia_chi_tu_checkout", None)
+                request.session.pop(
+                    "che_do_thanh_toan_dia_chi", None
+                )
+
                 if che_do == "mua_ngay":
                     return redirect(
                         f"{reverse('CHECKOUT:checkout')}?mode=mua_ngay"
@@ -402,8 +443,13 @@ def so_dia_chi(request):
 
                 return redirect("CHECKOUT:checkout")
 
-        else:
-            messages.error(request, "Vui lòng chọn một địa chỉ hợp lệ.")
+            return redirect("KHACHHANG:so_dia_chi")
+
+        messages.error(
+            request,
+            "Vui lòng chọn một địa chỉ hợp lệ."
+        )
+
     return render(
         request,
         "KHACHHANG/so_dia_chi.html",
@@ -411,31 +457,46 @@ def so_dia_chi(request):
             "ho_so": ho_so,
             "danh_sach_dia_chi": danh_sach_dia_chi,
             "danh_sach": danh_sach_dia_chi,
-            "ma_dia_chi_dang_chon": request.session.get(
-                "checkout_ma_dia_chi"
-            ),
-            "tu_checkout": request.GET.get("tu_checkout") == "1",
-            "che_do_thanh_toan": request.GET.get("mode", ""),
+            "ma_dia_chi_dang_chon": ma_dia_chi_dang_chon,
+            "tu_checkout": tu_checkout,
+            "che_do_thanh_toan": che_do,
         },
     )
-
-
 
 # =====================================================
 # 8. THÊM ĐỊA CHỈ
 # =====================================================
 
+
 @khach_hang_required
 def them_dia_chi(request):
     ho_so = lay_ho_so_khach_hang(request.nguoi_dung)
 
-    # Lấy đường dẫn quay lại nếu thêm địa chỉ từ đơn hàng
+    # Nếu mở trang thêm địa chỉ từ Checkout,
+    # lưu trạng thái ngay vào session để không bị mất khi POST.
+    if request.method == "GET" and request.GET.get("tu_checkout") == "1":
+        request.session["dia_chi_tu_checkout"] = True
+        request.session["che_do_thanh_toan_dia_chi"] = (
+            request.GET.get("mode", "")
+        )
+
     next_url = (
         request.POST.get("next")
         or request.GET.get("next", "")
     )
 
-    # Chỉ chấp nhận đường dẫn an toàn trong cùng website
+    tu_checkout = (
+        request.POST.get("tu_checkout") == "1"
+        or request.GET.get("tu_checkout") == "1"
+        or request.session.get("dia_chi_tu_checkout", False)
+    )
+
+    che_do = (
+        request.POST.get("mode")
+        or request.GET.get("mode")
+        or request.session.get("che_do_thanh_toan_dia_chi", "")
+    )
+
     if next_url and not url_has_allowed_host_and_scheme(
         next_url,
         allowed_hosts={request.get_host()},
@@ -451,8 +512,6 @@ def them_dia_chi(request):
             dia_chi.MaKhachHang = ho_so
 
             with transaction.atomic():
-
-                # Nếu chọn làm mặc định thì bỏ mặc định của địa chỉ cũ
                 if dia_chi.MacDinh:
                     SoDiaChi.objects.filter(
                         MaKhachHang=ho_so,
@@ -465,12 +524,26 @@ def them_dia_chi(request):
                 "Thêm địa chỉ thành công."
             )
 
-            # Nếu thêm từ trang chọn địa chỉ đơn hàng
-            # thì quay lại đúng trang đó
+            if tu_checkout:
+                # Lưu địa chỉ vừa thêm làm địa chỉ đang chọn.
+                request.session["checkout_ma_dia_chi"] = (
+                    dia_chi.MaDiaChi
+                )
+                request.session["dia_chi_tu_checkout"] = True
+                request.session["che_do_thanh_toan_dia_chi"] = che_do
+
+                if che_do == "mua_ngay":
+                    return redirect(
+                        f"{reverse('KHACHHANG:so_dia_chi')}?tu_checkout=1&mode=mua_ngay"
+                    )
+
+                return redirect(
+                    f"{reverse('KHACHHANG:so_dia_chi')}?tu_checkout=1"
+                )
+
             if next_url:
                 return redirect(next_url)
 
-            # Nếu thêm từ Sổ địa chỉ thì vẫn quay về Sổ địa chỉ
             return redirect("KHACHHANG:so_dia_chi")
 
     else:
@@ -485,6 +558,7 @@ def them_dia_chi(request):
             "next_url": next_url,
         },
     )
+
 # =====================================================
 # 9. SỬA ĐỊA CHỈ
 # =====================================================

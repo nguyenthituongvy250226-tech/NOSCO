@@ -29,13 +29,7 @@ class VoucherAdmin(admin.ModelAdmin):
         'hien_thi_trang_thai',
     )
 
-    list_filter = (
-        'LoaiGiamGia',
-        'DoiTuongApDung',
-        'TrangThai',
-        'NgayBatDau',
-        'NgayKetThuc',
-    )
+
 
     search_fields = (
         'MaVoucher',
@@ -109,10 +103,7 @@ class VoucherKhachHangAdmin(admin.ModelAdmin):
         'TrangThai',
     )
 
-    list_filter = (
-        'TrangThai',
-        'NgayLay',
-    )
+
 
     search_fields = (
         'MaVoucherKhachHang',
@@ -160,11 +151,7 @@ class KhuyenMaiAdmin(admin.ModelAdmin):
         'so_san_pham',
     )
 
-    list_filter = (
-        'LoaiKhuyenMai',
-        'NgayBatDau',
-        'NgayKetThuc',
-    )
+
 
     search_fields = (
         'MaKhuyenMai',
@@ -233,10 +220,7 @@ class ChiTietKhuyenMaiAdmin(admin.ModelAdmin):
         'TrangThai',
     )
 
-    list_filter = (
-        'TrangThai',
-        'MaKhuyenMai',
-    )
+
 
     search_fields = (
         'MaChiTietKM',

@@ -85,21 +85,98 @@
  </div>
 
 
- <div class="card-box">
-   <h2 class="card-title">Ảnh / Video minh chứng</h2>
-   {% with files=yeu_cau_tra.minh_chung.all %}
-     {% if files %}
-       <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
-         {% for evidence in files %}
-           <a href="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}" target="_blank" rel="noopener" style="font-size: 12px; color: #2563eb; text-decoration: underline;">📎 {{ evidence.ten_tep }}</a>
-         {% endfor %}
-       </div>
-     {% else %}
-       <p style="font-size: 12px; color: #64748b; margin: 0;">Không có tệp minh chứng nào.</p>
-     {% endif %}
-   {% endwith %}
- </div>
+    <!-- ẢNH / VIDEO MINH CHỨNG -->
+    <div class="card-box">
+        <h2 class="card-title">Ảnh / Video minh chứng</h2>
 
+        {% with files=yeu_cau_tra.minh_chung.all %}
+            {% if files %}
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+
+                    {% for evidence in files %}
+
+                        {% if evidence.ten_tep|lower|slice:"-4:" == ".jpg" or evidence.ten_tep|lower|slice:"-5:" == ".jpeg" or evidence.ten_tep|lower|slice:"-4:" == ".png" or evidence.ten_tep|lower|slice:"-5:" == ".webp" or evidence.ten_tep|lower|slice:"-4:" == ".gif" %}
+
+                            <!-- ẢNH THU NHỎ -->
+                            <img
+                                src="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}"
+                                alt="Ảnh minh chứng"
+                                onclick="moAnhMinhChung(this.src)"
+                                style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: zoom-in;"
+                            >
+
+                        {% elif evidence.ten_tep|lower|slice:"-4:" == ".mp4" or evidence.ten_tep|lower|slice:"-4:" == ".mov" or evidence.ten_tep|lower|slice:"-4:" == ".avi" %}
+
+                            <!-- VIDEO THU NHỎ -->
+                            <div
+                                onclick="moVideoMinhChung(this.dataset.src)"
+                                data-src="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}"
+                                style="position: relative; width: 100px; height: 80px; border-radius: 8px; overflow: hidden; background: #111; cursor: pointer;">
+
+                                <video
+                                    src="{% url 'DONHANG:minh_chung_tra_hang' evidence.pk %}"
+                                    muted
+                                    preload="metadata"
+                                    playsinline
+                                    style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;">
+                                </video>
+
+                                <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; background: rgba(0,0,0,0.25); pointer-events: none;">
+                                    ▶
+                                </span>
+                            </div>
+
+                        {% endif %}
+
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="font-size: 12px; color: #64748b;">
+                    Không có tệp minh chứng nào.
+                </p>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- KHUNG XEM ẢNH LỚN -->
+    <div id="khung-xem-anh"
+         onclick="dongAnhMinhChung()"
+         style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 99999; align-items: center; justify-content: center; padding: 20px;">
+
+        <button type="button"
+                onclick="dongAnhMinhChung()"
+                aria-label="Đóng ảnh"
+                style="position: absolute; top: 20px; right: 30px; width: 42px; height: 42px; border: none; border-radius: 50%; background: white; color: #333; font-size: 30px; line-height: 1; cursor: pointer; z-index: 2;">
+            &times;
+        </button>
+
+        <img id="anh-minh-chung-lon"
+             src=""
+             alt="Ảnh minh chứng"
+             onclick="event.stopPropagation()"
+             style="max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px;">
+    </div>
+
+    <!-- KHUNG XEM VIDEO LỚN -->
+    <div id="khung-xem-video"
+         onclick="dongVideoMinhChung()"
+         style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+
+        <button type="button"
+                onclick="dongVideoMinhChung()"
+                aria-label="Đóng video"
+                style="position: absolute; top: 20px; right: 30px; width: 42px; height: 42px; border: none; border-radius: 50%; background: white; color: #333; font-size: 30px; line-height: 1; cursor: pointer; z-index: 2;">
+            &times;
+        </button>
+
+        <video id="video-minh-chung-lon"
+               controls
+               autoplay
+               playsinline
+               onclick="event.stopPropagation()"
+               style="max-width: 90vw; max-height: 85vh; width: 900px; border-radius: 10px;">
+        </video>
+    </div>
 
  <div class="card-box">
    <h2 class="card-title">Thông tin gửi hàng trả về</h2>
@@ -137,10 +214,62 @@
 
 
 <script>
- function toggleModal(show) {
-   const modal = document.getElementById('cancelModal');
-   if (modal) modal.style.display = show ? 'flex' : 'none';
- }
+        // MỞ ẢNH LỚN
+    function moAnhMinhChung(src) {
+        const khung = document.getElementById("khung-xem-anh");
+        const anh = document.getElementById("anh-minh-chung-lon");
+
+        anh.src = src;
+        khung.style.display = "flex";
+    }
+
+    // ĐÓNG ẢNH
+    function dongAnhMinhChung() {
+        const khung = document.getElementById("khung-xem-anh");
+        const anh = document.getElementById("anh-minh-chung-lon");
+
+        khung.style.display = "none";
+        anh.src = "";
+    }
+
+    // MỞ VIDEO LỚN
+    function moVideoMinhChung(src) {
+        const khung = document.getElementById("khung-xem-video");
+        const video = document.getElementById("video-minh-chung-lon");
+
+        video.src = src;
+        khung.style.display = "flex";
+
+        video.play().catch(function(error) {
+            console.log("Không thể tự động phát video:", error);
+        });
+    }
+
+    // ĐÓNG VIDEO
+    function dongVideoMinhChung() {
+        const khung = document.getElementById("khung-xem-video");
+        const video = document.getElementById("video-minh-chung-lon");
+
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+
+        khung.style.display = "none";
+    }
+
+    // ĐÓNG ẢNH / VIDEO BẰNG PHÍM ESC
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            dongAnhMinhChung();
+            dongVideoMinhChung();
+        }
+    });
+
+    // MODAL HỦY YÊU CẦU
+     function toggleModal(show) {
+       const modal = document.getElementById('cancelModal');
+       if (modal) modal.style.display = show ? 'flex' : 'none';
+     }
 </script>
 {% endblock %}
 

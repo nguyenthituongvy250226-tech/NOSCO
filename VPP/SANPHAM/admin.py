@@ -39,9 +39,7 @@ class SanPhamAdmin(admin.ModelAdmin):
         "trang_thai_ban",
         "ngay_tao",
     )
-    list_filter = ("trang_thai_ban", "danh_muc", "thuong_hieu")
-    search_fields = ("ma_san_pham", "ten_san_pham")
-    inlines = [BienTheSanPhamInline]
+
 
 
 class HinhAnhSanPhamInline(admin.TabularInline):
@@ -71,7 +69,7 @@ class HinhAnhSanPhamAdmin(admin.ModelAdmin):
         "thu_tu_hien_thi",
         "anh_dai_dien",
     )
-    list_filter = ("anh_dai_dien",)
+
 
 
 # QUẢN LÝ BÀI VIẾT
@@ -83,9 +81,7 @@ class BaiVietAdmin(admin.ModelAdmin):
         "ngay_dang",
         "trang_thai",
     )
-    list_filter = ("trang_thai", "ngay_dang")
-    search_fields = ("ma_bai_viet", "tieu_de")
-    ordering = ("-ngay_dang",)
+
 
 @admin.register(SanPhamQuaTang)
 class SanPhamQuaTangAdmin(admin.ModelAdmin):
@@ -103,5 +99,3 @@ class DanhGiaSanPhamAdmin(admin.ModelAdmin):
         "so_sao",
         "ngay_danh_gia",
     )
-    list_filter = ("so_sao", "ngay_danh_gia")
-    search_fields = ("noi_dung",)
